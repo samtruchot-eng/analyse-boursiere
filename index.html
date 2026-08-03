@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analyse boursière</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    margin: 0; background: #f5f6f8; color: #1a1a1a; }
+  header { background: #14213d; color: #fff; padding: 20px 18px; }
+  header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  header .sub { opacity: .75; font-size: 12.5px; margin-top: 4px; }
+  main { max-width: 1180px; margin: 0 auto; padding: 18px 14px 60px; }
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .controls input { flex: 1; min-width: 180px; padding: 12px 14px; font-size: 15px;
+    border: 1px solid #ccd2da; border-radius: 10px; background: #fff; color: #111; }
+  .controls button { padding: 12px 20px; font-size: 15px; font-weight: 600; border: none;
+    border-radius: 10px; background: #14213d; color: #fff; cursor: pointer; }
+  .controls button:disabled { opacity: .5; }
+  .hint { font-size: 12px; color: #888; margin-bottom: 18px; }
+  .banner { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin: 12px 0; }
+  .banner.err { background: #fdecea; color: #a5261b; border: 1px solid #f5c6c0; }
+  .banner.info { background: #e7f3ff; color: #0b4a8f; border: 1px solid #b6d4ff; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .card-head { display: flex; justify-content: space-between; align-items: flex-start; }
+  .ticker { font-size: 20px; font-weight: 700; }
+  .price { font-size: 15px; color: #333; margin-top: 2px; }
+  .asof { font-size: 11px; color: #999; }
+  .gauge { text-align: center; min-width: 82px; }
+  .score { font-size: 32px; font-weight: 800; line-height: 1; }
+  .label { font-size: 11px; font-weight: 700; letter-spacing: .04em; margin-top: 2px; }
+  .spark { width: 100%; height: 50px; margin: 12px 0 8px; }
+  .headline { font-size: 13.5px; font-weight: 600; color: #222; margin: 4px 0 12px; }
+  ul.points { list-style: none; margin: 0 0 12px; padding: 0; }
+  ul.points li { display: flex; gap: 8px; font-size: 12.8px; line-height: 1.45; margin-bottom: 8px; color: #333; }
+  ul.points .dot { flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; }
+  .bull .dot { background: #0f9d58; } .bear .dot { background: #d32f2f; }
+  .warn .dot { background: #ef8f00; } .neutral .dot { background: #9aa0a6; }
+  .risk-summary { font-size: 12.5px; color: #555; background: #f7f8fa; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+  .vigilance { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12.5px; color: #7a5c00; }
+  .vigilance ul { margin: 6px 0 0; padding-left: 18px; }
+  details summary { cursor: pointer; font-size: 12.5px; color: #666; }
+  table.metrics { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+  table.metrics td { padding: 3px 0; border-bottom: 1px solid #f0f0f0; }
+  table.metrics td:last-child { text-align: right; font-weight: 600; }
+  .card.err { border: 1px solid #f5c6c0; }
+  h2 { margin: 32px 0 10px; font-size: 17px; }
+  .glossary dl { background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .glossary dt { font-weight: 700; margin-top: 12px; font-size: 13.5px; }
+  .glossary dt:first-child { margin-top: 0; }
+  .glossary dd { margin: 3px 0 0; font-size: 12.8px; color: #555; }
+  footer { color: #888; font-size: 12px; margin-top: 30px; }
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #ccd; border-top-color: #14213d;
+    border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-color-scheme: dark) {
+    body { background: #0f1115; color: #e6e6e6; }
+    .controls input { background: #1a1d23; color: #eee; border-color: #33383f; }
+    .card, .glossary dl { background: #1a1d23; box-shadow: none; border: 1px solid #262a31; }
+    .price, .headline { color: #dcdcdc; } ul.points li { color: #c9c9c9; }
+    .risk-summary { background: #22262e; color: #b8b8b8; }
+    .vigilance { background: #2a2510; border-color: #4d4213; color: #d9c37a; }
+    table.metrics td { border-color: #262a31; } .glossary dd { color: #a9a9a9; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Analyse boursière</h1>
+  <div class="sub">Cours réels · analyse technique expliquée</div>
+</header>
+<main>
+  <div class="controls">
+    <input id="tickers" type="text" placeholder="Ex. AAPL, MSFT, NVDA" autocomplete="off"
+      autocapitalize="characters" spellcheck="false">
+    <button id="go">Analyser</button>
+  </div>
+  <div class="hint">Séparez les symboles par des virgules. Ex. AAPL (Apple), MSFT (Microsoft),
+    NVDA (Nvidia), SPY (indice S&amp;P 500), air.fr (Airbus Paris).</div>
+
+  <div id="status"></div>
+  <div id="results" class="grid"></div>
+
+  <h2>Comment lire le score</h2>
+  <div class="glossary"><dl id="glossary"></dl></div>
+
+  <footer>
+    ⚠ Analyse technique automatisée à but informatif et pédagogique. Ne constitue pas un conseil
+    en investissement ni une recommandation personnalisée. Les performances passées ne préjugent
+    pas des performances futures. Investir comporte un risque de perte en capital.
+  </footer>
+</main>
+
+<script>
+const LABEL_COLOR = { STRONG_BUY:'#0f9d58', BUY:'#4caf50', HOLD:'#b0a000', SELL:'#ef6c00', STRONG_SELL:'#d32f2f' };
+const SIGNAL_LABEL = { trend_lt:'Tendance long terme', trend_mt:'Tendance moyen terme',
+  ma_cross:'Croisement MM 50/200', rsi:'RSI', macd:'MACD', bollinger:'Bollinger', momentum:'Momentum' };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = (v, n=2) => (v==null ? '—' : Number(v).toFixed(n));
+
+function spark(vals) {
+  if (!vals || vals.length < 2) return '';
+  const lo = Math.min(...vals), hi = Math.max(...vals), rng = (hi-lo)||1, w=260, h=50;
+  const pts = vals.map((c,i)=>`${(i/(vals.length-1)*w).toFixed(1)},${(h-(c-lo)/rng*h).toFixed(1)}`).join(' ');
+  const col = vals[vals.length-1] >= vals[0] ? '#0f9d58' : '#d32f2f';
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><polyline fill="none" stroke="${col}" stroke-width="1.6" points="${pts}"/></svg>`;
+}
+
+function card(r) {
+  if (r.error) return `<div class="card err"><div class="ticker">${esc(r.ticker)}</div>
+    <div class="risk-summary">Impossible de récupérer ce titre : ${esc(r.error)}.<br>Vérifiez le symbole (ex. air.fr pour une valeur de Paris).</div></div>`;
+  const color = LABEL_COLOR[r.label] || '#666';
+  const points = (r.points||[]).map(p => `<li class="${p.s}"><span class="dot"></span><span><strong>${esc(p.topic)}.</strong> ${esc(p.text)}</span></li>`).join('');
+  const contribs = Object.entries(r.contributions||{}).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]))
+    .map(([k,v])=>`<tr><td>${esc(SIGNAL_LABEL[k]||k)}</td><td style="color:${v>=0?'#0f9d58':'#d32f2f'}">${v>=0?'+':''}${(v/ (Object.values(r.contributions).reduce((a,x)=>a+Math.abs(x),0)||1) *50).toFixed(1)}</td></tr>`).join('');
+  const metricsRows = [
+    ['RSI (14)', fmt(r.metrics.rsi14,1)], ['SMA 50', fmt(r.metrics.sma50)], ['SMA 200', fmt(r.metrics.sma200)],
+    ['Momentum 60 j', fmt(r.metrics.momentum_60,1)+'%'], ['Volatilité', fmt(r.risk.annual_vol_pct,1)+'%'],
+    ['Ratio de Sharpe', fmt(r.risk.sharpe,2)], ['Max drawdown', fmt(r.risk.max_drawdown_pct,1)+'%'],
+    ['Perf. 1 an', fmt(r.risk.ret_1y_pct,1)+'%'],
+  ].map(([l,v])=>`<tr><td>${l}</td><td>${v}</td></tr>`).join('');
+  const vigilance = (r.vigilance&&r.vigilance.length) ? `<div class="vigilance"><strong>⚠ Points de vigilance</strong><ul>${r.vigilance.map(v=>`<li>${esc(v)}</li>`).join('')}</ul></div>` : '';
+  return `<div class="card">
+    <div class="card-head">
+      <div><div class="ticker">${esc(r.ticker)}</div><div class="price">${fmt(r.price)} <span class="asof">au ${esc(r.day)}</span></div></div>
+      <div class="gauge"><div class="score" style="color:${color}">${Math.round(r.score)}</div><div class="label" style="color:${color}">${esc(r.label.replace('_',' '))}</div></div>
+    </div>
+    ${spark(r.spark)}
+    <div class="headline">${esc(r.headline)}</div>
+    <ul class="points">${points}</ul>
+    <div class="risk-summary">${esc(r.risk_summary||'')}</div>
+    ${vigilance}
+    <details><summary>Détails chiffrés</summary><table class="metrics">${metricsRows}<tr><td colspan="2" style="padding-top:8px;color:#888;font-size:11px;text-transform:uppercase">Contributions au score</td></tr>${contribs}</table></details>
+  </div>`;
+}
+
+async function run() {
+  const input = document.getElementById('tickers');
+  const btn = document.getElementById('go');
+  const status = document.getElementById('status');
+  const out = document.getElementById('results');
+  const tickers = input.value.trim();
+  if (!tickers) return;
+  localStorage.setItem('tickers', tickers);
+  btn.disabled = true;
+  status.innerHTML = `<div class="banner info"><span class="spinner"></span> Récupération des cours réels et analyse…</div>`;
+  out.innerHTML = '';
+  try {
+    const res = await fetch('/api/analyze?tickers=' + encodeURIComponent(tickers));
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const rows = (data.results||[]).slice().sort((a,b)=>(b.score??-1)-(a.score??-1));
+    out.innerHTML = rows.map(card).join('');
+    const okCount = rows.filter(r=>!r.error).length;
+    status.innerHTML = okCount ? '' : `<div class="banner err">Aucun titre n'a pu être récupéré. Vérifiez les symboles ou réessayez dans un instant.</div>`;
+  } catch (e) {
+    status.innerHTML = `<div class="banner err">Erreur : ${esc(e.message||e)}. Réessayez dans un instant.</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+const GLOSSARY = {
+  'Score (0–100)': '72+ achat marqué · 58–71 achat · 42–57 neutre · 28–41 vente · <28 vente marquée. C\'est un résumé de la configuration technique, pas une prédiction.',
+  'RSI': 'Force relative (0–100). >70 = suracheté (risque de correction), <30 = survendu (rebond possible).',
+  'MACD': 'Écart entre deux moyennes mobiles ; histogramme positif = momentum haussier.',
+  'Golden / death cross': 'Croisement de la moyenne 50 j au-dessus (haussier) ou au-dessous (baissier) de la 200 j.',
+  'Volatilité': 'Amplitude des variations en % par an. Plus elle est élevée, plus le titre bouge fort.',
+  'Ratio de Sharpe': 'Rendement par unité de risque. >1 = bon, <0 = le risque n\'a pas payé.',
+  'Max drawdown': 'Pire perte subie depuis un sommet jusqu\'au creux suivant.',
+};
+
+document.getElementById('glossary').innerHTML =
+  Object.entries(GLOSSARY).map(([t,d])=>`<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join('');
+
+document.getElementById('go').addEventListener('click', run);
+document.getElementById('tickers').addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
+
+// Titres mémorisés ou valeurs par défaut, puis analyse au chargement.
+document.getElementById('tickers').value = localStorage.getItem('tickers') || 'AAPL, MSFT, NVDA, GOOGL, SPY';
+run();
+</script>
+</body>
+</html>
