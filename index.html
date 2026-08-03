@@ -351,8 +351,12 @@ document.getElementById('glossary').innerHTML =
 document.getElementById('go').addEventListener('click', run);
 document.getElementById('tickers').addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
 
-// Titres mémorisés ou valeurs par défaut, puis analyse au chargement.
-document.getElementById('tickers').value = localStorage.getItem('tickers') || 'AAPL, MSFT, NVDA, GOOGL, SPY';
+// Symboles reçus dans l'adresse (ex. depuis le guide : /?tickers=XOM,CVX),
+// sinon titres mémorisés, sinon valeurs par défaut. Puis analyse au chargement.
+const fromUrl = new URLSearchParams(location.search).get('tickers');
+document.getElementById('tickers').value = fromUrl || localStorage.getItem('tickers') || 'AAPL, MSFT, NVDA, GOOGL, SPY';
+// Nettoie l'adresse pour qu'un rafraîchissement reparte des titres mémorisés.
+if (fromUrl && window.history.replaceState) window.history.replaceState(null, '', location.pathname);
 run();
 </script>
 </body>
