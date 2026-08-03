@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Guide géopolitique — Analyse boursière</title>
+<title>Guide de l'investisseur — Analyse boursière</title>
 <style>
   :root {
     color-scheme: light dark;
@@ -51,7 +51,8 @@
   }
 
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   body {
     margin: 0; background: var(--paper); color: var(--ink);
     font-family: var(--font-body); font-size: 17px; line-height: 1.62;
@@ -71,9 +72,10 @@
     font-family: var(--font-mono); font-size: .86em; background: var(--surface-2);
     border: 1px solid var(--line); border-radius: 6px; padding: .08em .4em; color: var(--ink); white-space: nowrap;
   }
+  section[id], #sommaire { scroll-margin-top: 62px; }
 
   /* ── Barre de navigation ──────────────────────── */
-  nav.topbar { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  nav.topbar { position: sticky; top: 0; z-index: 30; background: color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
   nav.topbar .wrap { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; padding-bottom: 12px; }
   nav.topbar a.back { font-size: .9rem; font-weight: 600; color: var(--ink); border: none; display: inline-flex; align-items: center; gap: 7px; }
   nav.topbar a.back:hover { color: var(--indigo); }
@@ -82,51 +84,67 @@
   /* ── Masthead ─────────────────────────────────── */
   header.mast {
     background: linear-gradient(150deg, #14213d 0%, #1d3563 55%, #294a8c 100%);
-    color: #fff; padding: 52px 0 44px; border-bottom: 3px solid var(--gold);
+    color: #fff; padding: 46px 0 40px; border-bottom: 3px solid var(--gold);
   }
   header.mast .eyebrow { color: #e9c877; }
   header.mast h1 {
     font-family: var(--font-display); font-weight: 700; letter-spacing: -.015em;
-    font-size: clamp(2.1rem, 1.4rem + 3.2vw, 3.4rem); line-height: 1.05; margin: 0; color: #fff; text-wrap: balance;
+    font-size: clamp(2.1rem, 1.4rem + 3.2vw, 3.2rem); line-height: 1.06; margin: 0; color: #fff; text-wrap: balance;
   }
-  header.mast .lede { color: rgba(255,255,255,.82); font-size: 1.08rem; margin: 14px 0 0; max-width: 40rem; }
-  .mast-meta { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 24px; font-size: .82rem; color: rgba(255,255,255,.7); font-family: var(--font-mono); letter-spacing: .04em; }
-  .mast-meta b { color: #fff; font-weight: 600; }
+  header.mast .lede { color: rgba(255,255,255,.82); font-size: 1.06rem; margin: 14px 0 0; max-width: 40rem; }
 
-  section { padding: 44px 0; border-bottom: 1px solid var(--line); }
+  section { padding: 40px 0; border-bottom: 1px solid var(--line); }
   section:last-of-type { border-bottom: none; }
+
+  /* ── Sommaire ─────────────────────────────────── */
+  .toc { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; box-shadow: var(--shadow); }
+  .toc h2 { font-size: 1.05rem; margin: 0 0 12px; font-family: var(--font-body); font-weight: 700; }
+  .toc ol { margin: 0; padding: 0; list-style: none; counter-reset: toc; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0 20px; }
+  .toc li { counter-increment: toc; }
+  .toc a { display: block; padding: 8px 0; border: none; border-bottom: 1px solid var(--line); color: var(--ink-soft); font-size: .94rem; }
+  .toc a::before { content: counter(toc, decimal-leading-zero) "  "; font-family: var(--font-mono); font-size: .78rem; color: var(--gold); }
+  .toc a:hover { color: var(--indigo); }
+  .to-toc { display: inline-block; margin-top: 18px; font-size: .82rem; color: var(--muted); border: none; }
+  .to-toc:hover { color: var(--indigo); }
 
   /* ── Avertissement ────────────────────────────── */
   .disclaimer {
     background: var(--gold-soft); border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
-    border-radius: 12px; padding: 16px 18px; font-size: .92rem; color: var(--ink-soft); margin: 26px 0 0;
+    border-radius: 12px; padding: 16px 18px; font-size: .92rem; color: var(--ink-soft); margin: 22px 0 0;
   }
   .disclaimer strong { color: var(--gold); }
 
   /* ── Tuiles de chiffres ───────────────────────── */
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 26px 0 6px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 24px 0 6px; }
   .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow); }
   .stat .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-family: var(--font-mono); }
-  .stat .v { font-size: 1.5rem; font-weight: 750; font-variant-numeric: tabular-nums; margin-top: 3px; letter-spacing: -.01em; }
-  .stat .n { font-size: .78rem; color: var(--muted); margin-top: 2px; }
-  .stat .v.up { color: var(--pos); } .stat .v.down { color: var(--neg); } .stat .v.gold { color: var(--gold); }
+  .stat .v { font-size: 1.4rem; font-weight: 750; font-variant-numeric: tabular-nums; margin-top: 3px; letter-spacing: -.01em; }
+  .stat .n { font-size: .76rem; color: var(--muted); margin-top: 2px; }
+  .stat .v.gold { color: var(--gold); }
+
+  /* ── Cartes génériques ────────────────────────── */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 18px; }
+  .cardlet { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
+  .cardlet h4 { margin: 0 0 5px; font-size: 1rem; display: flex; align-items: baseline; gap: 8px; }
+  .cardlet h4 .lab { font-family: var(--font-mono); font-size: .72rem; color: var(--gold); }
+  .cardlet p { font-size: .9rem; margin: 0; }
+  .cardlet p + p { margin-top: .5em; }
 
   /* ── Cartes de thèmes ─────────────────────────── */
-  .theme { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px 22px 20px; box-shadow: var(--shadow); margin-top: 18px; }
+  .theme { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; box-shadow: var(--shadow); margin-top: 16px; }
   .theme-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   .theme-head .num { font-family: var(--font-mono); font-size: .78rem; color: var(--gold); letter-spacing: .1em; }
-  .theme p { margin: .5em 0; font-size: .96rem; }
-  .channel { font-size: .82rem; color: var(--muted); }
+  .theme p { margin: .5em 0; font-size: .94rem; }
   .verdict { display: inline-flex; align-items: center; gap: 7px; font-size: .8rem; font-weight: 650; font-family: var(--font-mono); padding: 3px 10px; border-radius: 999px; }
   .verdict.bull { color: var(--pos); background: color-mix(in srgb, var(--pos) 12%, transparent); }
   .verdict.bear { color: var(--neg); background: color-mix(in srgb, var(--neg) 12%, transparent); }
   .verdict.warn { color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); }
   .ticks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-  .sector-line { font-size: .84rem; color: var(--muted); margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .sector-line { font-size: .84rem; color: var(--muted); margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
   .sector-line b { color: var(--ink); }
 
   /* ── Tableaux ─────────────────────────────────── */
-  .table-scroll { overflow-x: auto; margin: 20px 0 0; border: 1px solid var(--line); border-radius: 12px; }
+  .table-scroll { overflow-x: auto; margin: 18px 0 0; border: 1px solid var(--line); border-radius: 12px; }
   table { width: 100%; border-collapse: collapse; font-size: .9rem; min-width: 520px; }
   thead th { background: var(--surface-2); text-align: left; font-family: var(--font-mono); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 11px 14px; border-bottom: 1px solid var(--line); }
   tbody td { padding: 12px 14px; border-bottom: 1px solid var(--line); color: var(--ink-soft); vertical-align: top; }
@@ -150,14 +168,14 @@
   .watch .wl-go:active { transform: translateY(1px); }
   .watch .wl-go:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
 
-  /* ── Méthode / profils ────────────────────────── */
-  .principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-top: 20px; }
+  /* ── Principes / profils ──────────────────────── */
+  .principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-top: 18px; }
   .principle { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; box-shadow: var(--shadow); }
   .principle .pn { font-family: var(--font-mono); font-size: .74rem; color: var(--gold); letter-spacing: .1em; }
   .principle h4 { margin: 6px 0 4px; font-size: 1rem; }
-  .principle p { font-size: .88rem; margin: 0; color: var(--ink-soft); }
+  .principle p { font-size: .88rem; margin: 0; }
 
-  .profile { margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); }
+  .profile { margin-top: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); }
   .profile-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
   .profile-head .who { font-size: .82rem; color: var(--muted); }
   .alloc { display: flex; height: 18px; border-radius: 6px; overflow: hidden; margin: 14px 0 10px; border: 1px solid var(--line); }
@@ -170,7 +188,7 @@
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: baseline; }
 
   /* ── Routine ──────────────────────────────────── */
-  ol.routine { counter-reset: r; list-style: none; padding: 0; margin: 20px 0 0; }
+  ol.routine { counter-reset: r; list-style: none; padding: 0; margin: 18px 0 0; }
   ol.routine li { position: relative; padding: 0 0 0 44px; margin-bottom: 16px; color: var(--ink-soft); font-size: .96rem; }
   ol.routine li::before {
     counter-increment: r; content: counter(r); position: absolute; left: 0; top: -2px;
@@ -179,16 +197,32 @@
   }
   @media (prefers-color-scheme: dark) { ol.routine li::before { background: var(--indigo); color: #0c0f16; } }
 
-  .callout { border-left: 3px solid var(--gold); background: var(--surface-2); padding: 14px 16px; border-radius: 0 10px 10px 0; margin: 20px 0; font-size: .94rem; color: var(--ink-soft); }
+  /* ── Glossaire ────────────────────────────────── */
+  dl.gloss { margin: 18px 0 0; }
+  dl.gloss dt { font-weight: 700; margin-top: 14px; font-size: .98rem; color: var(--ink); }
+  dl.gloss dt:first-child { margin-top: 0; }
+  dl.gloss dd { margin: 3px 0 0; font-size: .9rem; color: var(--ink-soft); }
+
+  .callout { border-left: 3px solid var(--gold); background: var(--surface-2); padding: 14px 16px; border-radius: 0 10px 10px 0; margin: 18px 0; font-size: .94rem; color: var(--ink-soft); }
+
+  /* ── Bouton « Haut » flottant ─────────────────── */
+  .toplink {
+    position: fixed; right: 16px; bottom: 16px; z-index: 40; display: inline-flex; align-items: center; gap: 6px;
+    background: var(--navy); color: #fff; border: 1px solid rgba(255,255,255,.14); border-radius: 999px;
+    padding: 10px 15px; font-size: .82rem; font-weight: 650; box-shadow: 0 6px 20px rgba(20,33,61,.32);
+    cursor: pointer; text-decoration: none; opacity: 0; transform: translateY(10px); pointer-events: none;
+    transition: opacity .2s, transform .2s;
+  }
+  .toplink.show { opacity: 1; transform: none; pointer-events: auto; }
 
   footer { background: var(--navy); color: rgba(255,255,255,.72); padding: 40px 0; font-size: .85rem; }
   footer .wrap { max-width: 780px; }
-  footer h3 { color: #fff; font-size: 1rem; }
+  footer h3 { color: #fff; font-size: 1rem; font-family: var(--font-body); }
   footer a { color: #cdd8f0; border-bottom-color: rgba(205,216,240,.3); }
   .src { font-size: .8rem; line-height: 1.7; }
 
   @media (prefers-reduced-motion: no-preference) {
-    section, .theme, .stat { animation: fade .5s ease both; }
+    section, .theme, .stat, .cardlet { animation: fade .5s ease both; }
     @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   }
 </style>
@@ -204,186 +238,196 @@
 
 <header class="mast">
   <div class="wrap">
-    <p class="eyebrow">Briefing stratégique · Guide compagnon</p>
-    <h1>Géopolitique &amp; marchés</h1>
-    <p class="lede">Comment relier l'actualité géopolitique de l'été 2026 aux secteurs, aux symboles à
-      suivre dans votre application d'analyse — et à une méthode de plan d'investissement disciplinée.</p>
-    <div class="mast-meta">
-      <span>Daté du <b>3 août 2026</b></span>
-      <span>Horizon <b>court &amp; long terme</b></span>
-      <span>Nature <b>pédagogique</b></span>
-    </div>
+    <p class="eyebrow">Guide de l'investisseur</p>
+    <h1>Comprendre, analyser, investir</h1>
+    <p class="lede">Un guide clair et complet pour bien utiliser votre application, comprendre ce que
+      racontent les indicateurs, lire les marchés dans leur contexte, et bâtir un plan d'investissement
+      posé. Écrit pour être lu sans être expert.</p>
   </div>
 </header>
 
 <div class="wrap">
 
 <section>
+  <div class="toc" id="sommaire">
+    <h2>Sommaire</h2>
+    <ol>
+      <li><a href="#avertissement">À lire avant tout</a></li>
+      <li><a href="#demarrer">Bien démarrer avec l'appli</a></li>
+      <li><a href="#bases">Les bases de l'investissement</a></li>
+      <li><a href="#technique">Comprendre l'analyse technique</a></li>
+      <li><a href="#risque">Comprendre le risque</a></li>
+      <li><a href="#contexte">Le contexte de marché (2026)</a></li>
+      <li><a href="#lecture">Lire vos scores selon le contexte</a></li>
+      <li><a href="#watchlists">Watchlists thématiques</a></li>
+      <li><a href="#plan">Bâtir un plan d'investissement</a></li>
+      <li><a href="#routine">Votre routine mensuelle</a></li>
+      <li><a href="#glossaire">Glossaire express</a></li>
+    </ol>
+  </div>
+</section>
+
+<section id="avertissement">
   <p class="eyebrow">Avertissement</p>
   <h2>À lire avant tout</h2>
   <div class="prose">
     <p>Ce guide est <strong>pédagogique et informatif</strong>. Il n'est <strong>pas un conseil en
-      investissement</strong> ni une recommandation personnalisée. Il ne tient pas compte de votre
-      situation, de vos objectifs ni de votre tolérance au risque réels.</p>
-    <p>L'analyse technique de votre application décrit une <strong>configuration de cours</strong> à
-      court/moyen terme — elle ne prédit pas l'avenir. Les événements géopolitiques sont, par nature,
-      <strong>imprévisibles</strong> : ce document explique des <em>mécanismes</em> et des <em>tendances
-      observées</em>, pas des certitudes.</p>
+      investissement</strong> ni une recommandation personnalisée : il ne connaît ni votre situation, ni
+      vos objectifs, ni votre tolérance au risque réels.</p>
+    <p>L'analyse de votre application est <strong>technique</strong> : elle décrit la configuration des
+      <em>cours</em> à court/moyen terme, elle ne prédit pas l'avenir. Servez-vous-en comme d'une boussole,
+      pas d'une boule de cristal.</p>
     <div class="disclaimer">
       <strong>⚠ Rappel.</strong> Les performances passées ne préjugent pas des performances futures.
       Investir comporte un risque de perte en capital. Pour toute décision engageante, rapprochez-vous
       d'un professionnel agréé.
     </div>
+    <a class="to-toc" href="#sommaire">↑ Retour au sommaire</a>
   </div>
 </section>
 
-<section>
-  <p class="eyebrow">Le décor · août 2026</p>
-  <h2>Où en sont les marchés</h2>
+<section id="demarrer">
+  <p class="eyebrow">Prise en main</p>
+  <h2>Bien démarrer avec l'appli</h2>
   <div class="prose">
-    <p>Le contexte de l'été 2026 mêle des <strong>actions au plus haut</strong> et des <strong>tensions
-      géopolitiques persistantes</strong>. Les conflits du Moyen-Orient et d'Ukraine ne se sont pas
-      éteints ; le pétrole a connu une flambée avant de refluer ; l'or bat des records ; et la banque
-      centrale américaine (la Fed) reste prudente face à une inflation nourrie par l'énergie.</p>
+    <p>L'application est simple : vous tapez un ou plusieurs symboles (séparés par des virgules), vous
+      cliquez <strong>Analyser</strong>, et chaque titre s'affiche sous forme de carte. Voici comment
+      lire une carte.</p>
+  </div>
+  <div class="cards">
+    <div class="cardlet"><h4>La jauge de score <span class="lab">0–100</span></h4><p>Un résumé chiffré de la configuration technique. Plus l'anneau est rempli et vert, plus les signaux sont favorables ; rouge = dégradé. C'est une synthèse, pas une prédiction.</p></div>
+    <div class="cardlet"><h4>La pastille de reco</h4><p>Traduit le score en mot simple : <strong>ACHAT MARQUÉ, ACHAT, NEUTRE, VENTE, VENTE MARQUÉE</strong>. La couleur reprend celle de la jauge.</p></div>
+    <div class="cardlet"><h4>Le mini-graphe</h4><p>L'évolution récente du cours (≈ 90 séances). Vert si le titre finit plus haut qu'au début de la période, rouge sinon.</p></div>
+    <div class="cardlet"><h4>Les chips de risque</h4><p>Quatre repères d'un coup d'œil : performance sur 1 an, volatilité, pire baisse (drawdown), ratio de Sharpe — colorés vert/orange/rouge.</p></div>
+    <div class="cardlet"><h4>Les points d'analyse</h4><p>Des phrases en français, avec une barre colorée : vert = haussier, rouge = baissier, orange = vigilance, gris = neutre.</p></div>
+    <div class="cardlet"><h4>L'étoile ⭐ &amp; les favoris</h4><p>Cliquez l'étoile d'une carte pour la mémoriser. Vos favoris apparaissent en haut, avec un bouton « Analyser mes favoris » pour tout relancer en un clic.</p></div>
+  </div>
+  <div class="prose"><a class="to-toc" href="#sommaire">↑ Retour au sommaire</a></div>
+</section>
+
+<section id="bases">
+  <p class="eyebrow">Les fondations</p>
+  <h2>Les bases de l'investissement</h2>
+  <div class="prose"><p>Avant les indicateurs, quelques idées simples qui comptent bien plus que le
+    « bon coup » du moment.</p></div>
+  <div class="cards">
+    <div class="cardlet"><h4>Action</h4><p>Une part d'entreprise. Potentiel de gain élevé, mais plus risqué : le cours peut fortement varier.</p></div>
+    <div class="cardlet"><h4>Obligation</h4><p>Un prêt à un État ou une entreprise, qui verse des intérêts. Plus stable, rendement plus modeste.</p></div>
+    <div class="cardlet"><h4>ETF (fonds indiciel)</h4><p>Un panier qui réplique un indice (ex. le monde entier). En un seul achat, vous êtes diversifié — la brique de base d'un portefeuille.</p></div>
+    <div class="cardlet"><h4>Or &amp; liquidités</h4><p>L'or, valeur refuge en cas de stress ; les liquidités, votre coussin de sécurité et vos munitions pour investir.</p></div>
+  </div>
+  <div class="prose">
+    <div class="callout"><strong>La règle d'or : la diversification.</strong> Ne mettez pas tous vos œufs
+      dans le même panier. Répartir entre plusieurs titres, secteurs, zones et classes d'actifs réduit le
+      risque sans, en général, sacrifier le rendement de long terme. Le couple <strong>risque / rendement</strong>
+      va de pair : viser plus de rendement, c'est accepter plus de secousses.</div>
+    <a class="to-toc" href="#sommaire">↑ Retour au sommaire</a>
+  </div>
+</section>
+
+<section id="technique">
+  <p class="eyebrow">Les indicateurs</p>
+  <h2>Comprendre l'analyse technique</h2>
+  <div class="prose"><p>Votre appli calcule plusieurs indicateurs à partir des cours. Voici ce qu'ils
+    disent, en langage simple.</p></div>
+  <div class="cards">
+    <div class="cardlet"><h4>Moyennes mobiles <span class="lab">SMA / EMA</span></h4><p>La moyenne du cours sur 50 ou 200 jours, qui lisse le bruit. Cours <strong>au-dessus</strong> de ses moyennes = tendance haussière ; en dessous = baissière.</p></div>
+    <div class="cardlet"><h4>Golden / death cross</h4><p>Quand la moyenne 50 j passe <strong>au-dessus</strong> de la 200 j (« golden cross »), c'est un signal de fond favorable ; en dessous (« death cross »), défavorable.</p></div>
+    <div class="cardlet"><h4>RSI <span class="lab">0–100</span></h4><p>La « force » du mouvement. <strong>&gt; 70</strong> = suracheté (le titre a beaucoup monté, une pause est possible) ; <strong>&lt; 30</strong> = survendu (rebond possible).</p></div>
+    <div class="cardlet"><h4>MACD</h4><p>Compare deux moyennes pour capter l'élan. Histogramme <strong>positif</strong> = momentum de court terme haussier ; négatif = baissier.</p></div>
+    <div class="cardlet"><h4>Bandes de Bollinger</h4><p>Un « couloir » autour du cours. Proche du haut = tendu/cher à court terme ; proche du bas = déprimé, rebond possible.</p></div>
+    <div class="cardlet"><h4>Momentum</h4><p>La vitesse de variation sur ~60 séances. Positif et fort = dynamique porteuse ; négatif = essoufflement.</p></div>
+  </div>
+  <div class="prose">
+    <div class="callout">Aucun indicateur n'a raison tout seul. Votre <strong>score</strong> les combine et
+      les pondère justement pour éviter de sur-réagir à un seul signal.</div>
+    <a class="to-toc" href="#sommaire">↑ Retour au sommaire</a>
+  </div>
+</section>
+
+<section id="risque">
+  <p class="eyebrow">Mesurer le risque</p>
+  <h2>Comprendre le risque</h2>
+  <div class="prose"><p>Le rendement attire l'œil, mais c'est le <strong>risque</strong> qui décide si vous
+    tiendrez la position. Les quatre repères de vos cartes :</p></div>
+  <div class="cards">
+    <div class="cardlet"><h4>Volatilité</h4><p>L'amplitude des variations, en % par an. Faible (&lt; 15 %) = tranquille ; élevée (&gt; 30 %) = ça secoue. Elle aide à <strong>dimensionner</strong> une position.</p></div>
+    <div class="cardlet"><h4>Ratio de Sharpe</h4><p>Le rendement rapporté au risque pris. <strong>&gt; 1</strong> = bon ; autour de 0 = médiocre ; négatif = le risque n'a pas payé.</p></div>
+    <div class="cardlet"><h4>Max drawdown</h4><p>La pire baisse subie, d'un sommet jusqu'au creux suivant. Un chiffre pour se demander : « aurais-je tenu ? »</p></div>
+    <div class="cardlet"><h4>Performances</h4><p>Les variations sur 1 mois, 6 mois, 1 an. Utile pour situer un titre, sans oublier que le passé ne garantit rien.</p></div>
+  </div>
+  <div class="prose"><a class="to-toc" href="#sommaire">↑ Retour au sommaire</a></div>
+</section>
+
+<section id="contexte">
+  <p class="eyebrow">Le décor · 2026</p>
+  <h2>Le contexte de marché (2026)</h2>
+  <div class="prose">
+    <p>Les cours ne bougent pas dans le vide. En 2026, le décor mêle des <strong>actions au plus haut</strong>
+      et des <strong>tensions géopolitiques persistantes</strong> : conflits au Moyen-Orient et en Ukraine,
+      pétrole nerveux, or record, et une banque centrale américaine (la Fed) prudente face à l'inflation.</p>
   </div>
   <div class="stats">
     <div class="stat"><div class="k">S&amp;P 500</div><div class="v">≈ 7 420</div><div class="n">proche de son record (juin)</div></div>
     <div class="stat"><div class="k">Pétrole WTI</div><div class="v gold">≈ 84 $</div><div class="n">pic à 113 $ en avril</div></div>
     <div class="stat"><div class="k">Or</div><div class="v gold">&gt; 5 100 $</div><div class="n">record historique</div></div>
     <div class="stat"><div class="k">Taux Fed</div><div class="v">3,50–3,75 %</div><div class="n">statu quo, hausse possible</div></div>
-    <div class="stat"><div class="k">Inflation cœur</div><div class="v">2,9 %</div><div class="n">hors énergie/alimentation</div></div>
   </div>
   <div class="prose">
-    <div class="callout">Un choc géopolitique se transmet aux marchés par <strong>quatre canaux</strong> :
-      la <strong>prime de risque</strong> (les investisseurs exigent plus de rendement), la
-      <strong>fuite vers les valeurs refuges</strong> (or, dollar, obligations d'État), le
-      <strong>prix des matières premières</strong> (pétrole, gaz) et les <strong>devises</strong>.
-      En août 2026, les quatre sont actifs en même temps — d'où une volatilité élevée.</div>
+    <p>Un choc géopolitique atteint les marchés par quatre canaux : la <strong>prime de risque</strong>, la
+      <strong>fuite vers les valeurs refuges</strong> (or, obligations d'État), le <strong>prix des matières
+      premières</strong> et les <strong>devises</strong>. Voici les grands thèmes du moment et les secteurs
+      qu'ils portent — avec des symboles à observer dans l'appli.</p>
   </div>
+
+  <div class="theme">
+    <div class="theme-head"><h3><span class="num">01 ·</span> Moyen-Orient &amp; pétrole</h3><span class="verdict warn">Volatil</span></div>
+    <p>Cessez-le-feu fragile après la guerre américano-iranienne ; le pétrole a bondi à 113 $ en avril avant de refluer. Un baril cher soutient l'énergie… mais nourrit l'inflation.</p>
+    <div class="sector-line"><b>Secteur porté :</b> Énergie.<div class="ticks"><span class="tick">XOM</span><span class="tick">CVX</span><span class="tick">TTE.PA</span><span class="tick">SHEL</span></div></div>
+  </div>
+  <div class="theme">
+    <div class="theme-head"><h3><span class="num">02 ·</span> Réarmement européen</h3><span class="verdict warn">Consolidation</span></div>
+    <p>Budgets de défense record (&gt; 360 Md€ en 2025 ; France 57 Md€ en 2026). Après la flambée de 2025, le secteur consolide : des titres déjà très montés.</p>
+    <div class="sector-line"><b>Secteur porté :</b> Défense &amp; aéro.<div class="ticks"><span class="tick">RHM.DE</span><span class="tick">AIR.PA</span><span class="tick">SAF.PA</span><span class="tick">HO.PA</span><span class="tick">LMT</span></div></div>
+  </div>
+  <div class="theme">
+    <div class="theme-head"><h3><span class="num">03 ·</span> Or &amp; valeurs refuges</h3><span class="verdict bull">Tendance porteuse</span></div>
+    <p>L'or a dépassé 5 100 $ l'once (+60 % en 2025). Les allocations conseillées glissent de 2 % vers 5–10 % des portefeuilles.</p>
+    <div class="sector-line"><b>À observer :</b> or &amp; mines d'or.<div class="ticks"><span class="tick">NEM</span><span class="tick">GOLD</span><span class="tick">GDX</span><span class="tick">AEM</span></div></div>
+  </div>
+  <div class="theme">
+    <div class="theme-head"><h3><span class="num">04 ·</span> Droits de douane &amp; taux</h3><span class="verdict bear">Sous pression</span></div>
+    <p>Droits de douane de 10 % à &gt; 100 % (dont 25 % sur des semi-conducteurs) : les puces asiatiques tanguent. Taux « plus hauts plus longtemps » → rotation vers les défensives.</p>
+    <div class="sector-line"><b>Volatils :</b> semi <span class="tick">NVDA</span><span class="tick">TSM</span> &nbsp;·&nbsp; <b>Défensives :</b> <span class="tick">PG</span><span class="tick">KO</span><span class="tick">COST</span></div>
+  </div>
+  <div class="prose"><a class="to-toc" href="#sommaire">↑ Retour au sommaire</a></div>
 </section>
 
-<section>
-  <p class="eyebrow">Cartographie</p>
-  <h2>Cinq thèmes géopolitiques → secteurs → symboles</h2>
-  <div class="prose"><p>Pour chaque thème : ce qui se passe, par quel canal ça touche les marchés, le
-    secteur concerné, et des symboles à taper dans votre appli pour l'observer vous-même.</p></div>
-
-  <div class="theme">
-    <div class="theme-head">
-      <h3><span class="num">01 ·</span> Moyen-Orient &amp; pétrole</h3>
-      <span class="verdict warn">Volatil</span>
-    </div>
-    <p>La guerre américano-iranienne s'est muée en <strong>cessez-le-feu fragile</strong> ; le détroit
-      d'Ormuz (par où transite une grande part du pétrole mondial) a rouvert. Résultat : un pétrole
-      passé de 57 $ en début d'année à 113 $ en avril, puis retombé vers 84 $.</p>
-    <p class="channel"><strong>Canal :</strong> prix des matières premières + prime de risque. Un pétrole
-      cher soutient l'énergie… mais nourrit l'inflation et peut freiner les actions.</p>
-    <div class="sector-line"><b>Secteur porté :</b> Énergie (pétrole &amp; gaz) — dynamique réelle mais
-      très sensible aux nouvelles, donc volatile.
-      <div class="ticks"><span class="tick">XOM</span><span class="tick">CVX</span><span class="tick">TTE.PA</span><span class="tick">SHEL</span></div>
-    </div>
-  </div>
-
-  <div class="theme">
-    <div class="theme-head">
-      <h3><span class="num">02 ·</span> Réarmement européen</h3>
-      <span class="verdict warn">Consolidation</span>
-    </div>
-    <p>Depuis 2022, l'Europe augmente ses budgets militaires à un rythme inédit depuis la Guerre froide :
-      &gt; 360 Md€ en 2025. La France vise 57 Md€ en 2026 puis 64 Md€ en 2027. Mais après la flambée de
-      2025 (Rheinmetall +150 %), <strong>2026 est une année de consolidation</strong> : le secteur souffle.</p>
-    <p class="channel"><strong>Canal :</strong> commandes publiques pluriannuelles → visibilité sur les
-      bénéfices. Thème structurel, mais des titres déjà très montés.</p>
-    <div class="sector-line"><b>Secteur porté :</b> Défense &amp; aéronautique.
-      <div class="ticks"><span class="tick">RHM.DE</span><span class="tick">AIR.PA</span><span class="tick">SAF.PA</span><span class="tick">HO.PA</span><span class="tick">LMT</span><span class="tick">RTX</span></div>
-    </div>
-  </div>
-
-  <div class="theme">
-    <div class="theme-head">
-      <h3><span class="num">03 ·</span> Guerre commerciale &amp; droits de douane</h3>
-      <span class="verdict bear">Sous pression</span>
-    </div>
-    <p>L'administration américaine a imposé des droits de douane de <strong>10 % à plus de 100 %</strong>,
-      dont <strong>25 % sur certains semi-conducteurs</strong>. Les fabricants de puces dépendants de
-      l'Asie (Nvidia, TSMC, AMD) tanguent au gré des annonces, tandis que l'acier et l'aluminium
-      américains profitent d'une concurrence renchérie.</p>
-    <p class="channel"><strong>Canal :</strong> chaînes d'approvisionnement, marges des entreprises et
-      inflation importée.</p>
-    <div class="sector-line"><b>Gagnants relatifs :</b> acier/alu US <span class="tick">NUE</span><span class="tick">STLD</span>
-      &nbsp;·&nbsp; <b>Sous tension / volatils :</b> semi-conducteurs
-      <div class="ticks"><span class="tick">NVDA</span><span class="tick">TSM</span><span class="tick">AMD</span><span class="tick">AVGO</span></div>
-    </div>
-  </div>
-
-  <div class="theme">
-    <div class="theme-head">
-      <h3><span class="num">04 ·</span> Or &amp; valeurs refuges</h3>
-      <span class="verdict bull">Tendance porteuse</span>
-    </div>
-    <p>L'or a dépassé <strong>5 100 $ l'once</strong>, après +60 % en 2025. Sa hausse ne tient pas à un
-      seul événement mais à l'<strong>alignement de plusieurs forces</strong> (tensions, incertitude
-      politique, flux). Les allocations conseillées glissent de 2 % vers 5–10 % des portefeuilles.</p>
-    <p class="channel"><strong>Canal :</strong> rotation vers les actifs tangibles quand le risque monte.</p>
-    <div class="sector-line"><b>À observer :</b> or et mines d'or (via des sociétés minières ou des ETF).
-      <div class="ticks"><span class="tick">NEM</span><span class="tick">GOLD</span><span class="tick">GDX</span><span class="tick">AEM</span></div>
-    </div>
-  </div>
-
-  <div class="theme">
-    <div class="theme-head">
-      <h3><span class="num">05 ·</span> Taux &amp; inflation (la Fed)</h3>
-      <span class="verdict warn">Rotation défensive</span>
-    </div>
-    <p>Le pétrole cher alimente l'inflation : la Fed maintient ses taux à <strong>3,50–3,75 %</strong>,
-      et le marché envisage même une hausse — l'inverse des baisses espérées en début d'année. Des taux
-      « plus hauts plus longtemps » pénalisent la tech et le discrétionnaire, et favorisent les
-      <strong>secteurs défensifs</strong> (consommation de base, services aux collectivités).</p>
-    <p class="channel"><strong>Canal :</strong> le niveau des taux fixe la valeur « théorique » des
-      actions ; il redistribue les cartes entre secteurs.</p>
-    <div class="sector-line"><b>Secteurs porteurs :</b> consommation de base &amp; défensives.
-      <div class="ticks"><span class="tick">PG</span><span class="tick">KO</span><span class="tick">COST</span><span class="tick">WMT</span></div>
-    </div>
-  </div>
-
-  <div class="prose">
-    <div class="callout"><strong>Autres foyers à surveiller :</strong> la guerre en Ukraine (4ᵉ année),
-      et les tensions autour de Taïwan et de la mer de Chine — la trêve du sommet Trump–Xi de Busan
-      reste fragile. Un dérapage sur Taïwan frapperait d'abord les semi-conducteurs et la tech.</div>
-  </div>
-</section>
-
-<section>
-  <p class="eyebrow">Le pont avec votre appli</p>
-  <h2>Comment lire tout ça dans vos scores</h2>
-  <div class="prose"><p>Votre application ne « connaît » pas la géopolitique : elle lit les
-    <strong>cours</strong>. L'intérêt, c'est de <strong>croiser les deux</strong> — le thème vous dit
-    <em>où regarder</em>, l'appli vous dit si la dynamique technique <em>confirme ou non</em>.</p></div>
+<section id="lecture">
+  <p class="eyebrow">Le pont</p>
+  <h2>Lire vos scores selon le contexte</h2>
+  <div class="prose"><p>L'appli lit les cours, pas l'actualité. Tout l'intérêt est de <strong>croiser les
+    deux</strong> : le contexte dit <em>où regarder</em>, l'appli dit si la technique <em>confirme</em>.</p></div>
   <div class="table-scroll">
     <table>
       <thead><tr><th>Situation</th><th>À regarder dans l'appli</th><th>Comment le lire</th></tr></thead>
       <tbody>
-        <tr><td>Secteur porté par un thème (ex. énergie)</td><td>Score + Tendance (cours &gt; SMA 50 &amp; 200)</td><td>La dynamique technique <strong>confirme</strong> le thème si le cours est au-dessus de ses moyennes.</td></tr>
-        <tr><td>Valeur déjà très montée (défense, or)</td><td>RSI &gt; 70 + « Points de vigilance »</td><td>Surachat = risque de <strong>correction</strong> à court terme ; souvent mieux vaut attendre un repli.</td></tr>
-        <tr><td>Actif nerveux (semi, pétrole)</td><td>Chip <strong>Volatilité</strong> + Max drawdown</td><td>Mesure l'ampleur des secousses ; on en tient compte pour <strong>dimensionner</strong> une position.</td></tr>
-        <tr><td>Rotation vers les défensives</td><td>Ratio de <strong>Sharpe</strong> + volatilité faible</td><td>Rendement plus régulier pour le risque pris — profil « tranquille ».</td></tr>
-        <tr><td>Possible retournement</td><td>MACD + Croisement MM 50/200</td><td><em>Death cross</em> = prudence ; <em>golden cross</em> = amélioration de fond.</td></tr>
+        <tr><td>Secteur porté par un thème</td><td>Score + Tendance (cours &gt; SMA 50 &amp; 200)</td><td>La technique <strong>confirme</strong> le thème si le cours est au-dessus de ses moyennes.</td></tr>
+        <tr><td>Valeur déjà très montée</td><td>RSI &gt; 70 + « Points de vigilance »</td><td>Surachat = risque de <strong>correction</strong> ; souvent mieux vaut attendre un repli.</td></tr>
+        <tr><td>Actif nerveux (semi, pétrole)</td><td>Volatilité + Max drawdown</td><td>Mesure les secousses ; on <strong>dimensionne</strong> la position en conséquence.</td></tr>
+        <tr><td>Rotation défensive</td><td>Sharpe + volatilité faible</td><td>Rendement plus régulier pour le risque pris.</td></tr>
+        <tr><td>Possible retournement</td><td>MACD + Croisement MM 50/200</td><td><em>Death cross</em> = prudence ; <em>golden cross</em> = amélioration.</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="prose">
-    <div class="callout"><strong>Le piège classique :</strong> un thème « chaud » (défense, or) a souvent
-      <em>déjà</em> beaucoup monté. Un bon score <strong>et</strong> un RSI en surachat, c'est le signal
-      d'<strong>attendre un point d'entrée</strong> plutôt que de courir après le cours.</div>
-  </div>
+  <div class="prose"><a class="to-toc" href="#sommaire">↑ Retour au sommaire</a></div>
 </section>
 
-<section>
-  <p class="eyebrow">Prêt à coller</p>
-  <h2>Vos watchlists thématiques</h2>
-  <div class="prose"><p>Cliquez <strong>« Analyser&nbsp;→ »</strong> : la watchlist s'ouvre directement
-    dans l'appli, déjà remplie et analysée. (Vous pouvez aussi copier la ligne à la main.) Chaque liste
-    tient dans la limite de 12 symboles.</p></div>
+<section id="watchlists">
+  <p class="eyebrow">Prêt à analyser</p>
+  <h2>Watchlists thématiques</h2>
+  <div class="prose"><p>Cliquez <strong>« Analyser&nbsp;→ »</strong> : la liste s'ouvre directement dans
+    l'appli, déjà remplie et analysée. Chaque liste tient dans la limite de 12 symboles.</p></div>
 
   <div class="watch"><div class="wl-head"><span class="wl-title">Énergie</span><span class="wl-tag">pétrole &amp; gaz</span></div><div class="wl-body"><div class="wl-syms">XOM, CVX, TTE.PA, SHEL</div><a class="wl-go" href="/">Analyser →</a></div></div>
   <div class="watch"><div class="wl-head"><span class="wl-title">Défense &amp; aéro</span><span class="wl-tag">réarmement</span></div><div class="wl-body"><div class="wl-syms">RHM.DE, AIR.PA, SAF.PA, HO.PA, LMT, RTX</div><a class="wl-go" href="/">Analyser →</a></div></div>
@@ -393,108 +437,136 @@
   <div class="watch"><div class="wl-head"><span class="wl-title">Repères de marché</span><span class="wl-tag">indices</span></div><div class="wl-body"><div class="wl-syms">SPY, ^GSPC</div><a class="wl-go" href="/">Analyser →</a></div></div>
 
   <div class="prose">
-    <div class="disclaimer" style="margin-top:22px"><strong>Astuce symboles.</strong> Les valeurs
-      américaines s'écrivent sans suffixe (<span class="tick">NVDA</span>). Pour l'Europe, votre appli
-      passe par Yahoo : utilisez le suffixe de la place — Paris <span class="tick">.PA</span> (ex.
-      <span class="tick">AIR.PA</span>), Francfort <span class="tick">.DE</span> (ex.
-      <span class="tick">RHM.DE</span>), Zurich <span class="tick">.SW</span>. Si une croix rouge
-      apparaît, essayez l'autre variante — ça n'affecte rien d'autre.</div>
+    <div class="disclaimer" style="margin-top:22px"><strong>Astuce symboles.</strong> Valeurs américaines
+      sans suffixe (<span class="tick">NVDA</span>). Pour l'Europe, votre appli passe par Yahoo : suffixe de
+      la place — Paris <span class="tick">.PA</span>, Francfort <span class="tick">.DE</span>, Zurich
+      <span class="tick">.SW</span>. Si une croix rouge apparaît, essayez l'autre variante.</div>
+    <a class="to-toc" href="#sommaire">↑ Retour au sommaire</a>
   </div>
 </section>
 
-<section>
+<section id="plan">
   <p class="eyebrow">La méthode</p>
   <h2>Bâtir un plan d'investissement</h2>
-  <div class="prose"><p>Un plan, ce n'est pas « acheter la bonne action au bon moment ». C'est un
-    <strong>cadre</strong> qui vous protège de vos émotions et de l'imprévu géopolitique. Voici les
-    principes, puis trois profils illustratifs.</p></div>
+  <div class="prose"><p>Un plan n'est pas « acheter la bonne action au bon moment ». C'est un
+    <strong>cadre</strong> qui vous protège de vos émotions et de l'imprévu. Les principes, puis trois
+    profils illustratifs.</p></div>
 
   <div class="principles">
     <div class="principle"><div class="pn">A</div><h4>Horizon &amp; objectif</h4><p>Argent dont vous n'avez pas besoin avant 5–8 ans minimum. Un plan long survit aux crises court terme.</p></div>
-    <div class="principle"><div class="pn">B</div><h4>Tolérance au risque</h4><p>Jusqu'où pouvez-vous voir votre portefeuille baisser sans paniquer ? C'est ça qui fixe la part d'actions.</p></div>
-    <div class="principle"><div class="pn">C</div><h4>Diversification</h4><p>Plusieurs classes d'actifs, zones et secteurs. Le contraire de « tout sur un thème à la mode ».</p></div>
+    <div class="principle"><div class="pn">B</div><h4>Tolérance au risque</h4><p>Jusqu'où pouvez-vous voir baisser votre portefeuille sans paniquer ? Cela fixe la part d'actions.</p></div>
+    <div class="principle"><div class="pn">C</div><h4>Diversification</h4><p>Plusieurs classes d'actifs, zones, secteurs. Le contraire de « tout sur un thème à la mode ».</p></div>
     <div class="principle"><div class="pn">D</div><h4>Régularité (DCA)</h4><p>Investir un montant fixe chaque mois lisse le prix d'achat et évite de « timer » le marché.</p></div>
-    <div class="principle"><div class="pn">E</div><h4>Coussin de sécurité</h4><p>3 à 6 mois de dépenses en liquidités <em>avant</em> d'investir. On n'investit jamais l'argent du quotidien.</p></div>
-    <div class="principle"><div class="pn">F</div><h4>Rééquilibrage</h4><p>1 à 2 fois par an, on remet les curseurs à leur cible. Cela force à vendre haut et acheter bas.</p></div>
+    <div class="principle"><div class="pn">E</div><h4>Coussin de sécurité</h4><p>3 à 6 mois de dépenses en liquidités <em>avant</em> d'investir. Jamais l'argent du quotidien.</p></div>
+    <div class="principle"><div class="pn">F</div><h4>Rééquilibrage</h4><p>1 à 2 fois par an, on remet les curseurs à leur cible. Cela force à vendre haut, acheter bas.</p></div>
   </div>
 
-  <h3 style="margin-top:34px">Trois profils illustratifs</h3>
-  <div class="prose"><p>Répartitions <strong>d'exemple</strong>, à adapter à votre situation. « Actions »
-    peut se construire simplement : un <strong>cœur</strong> d'ETF diversifié monde (70–80 % de la poche
-    actions) + quelques <strong>satellites</strong> thématiques (défense, énergie, or…) plafonnés à
-    20–30 %, là où votre appli vous aide à choisir les points d'entrée.</p></div>
+  <h3 style="margin-top:32px">Trois profils illustratifs</h3>
+  <div class="prose"><p>Répartitions <strong>d'exemple</strong>, à adapter. La poche « actions » se construit
+    simplement : un <strong>cœur</strong> d'ETF monde (70–80 %) + des <strong>satellites</strong> thématiques
+    (défense, énergie, or…) plafonnés à 20–30 %, là où l'appli aide à choisir les points d'entrée.</p></div>
 
   <div class="profile">
-    <div class="profile-head"><h3 style="margin:0">Prudent</h3><span class="who">priorité à la stabilité · horizon plus court ou faible tolérance</span></div>
+    <div class="profile-head"><h3 style="margin:0">Prudent</h3><span class="who">priorité à la stabilité</span></div>
     <div class="alloc"><span class="a-act" style="width:30%"></span><span class="a-obl" style="width:45%"></span><span class="a-or" style="width:10%"></span><span class="a-cash" style="width:15%"></span></div>
     <div class="legend"><span><i style="background:var(--indigo)"></i>Actions 30 %</span><span><i style="background:var(--oblig)"></i>Obligations 45 %</span><span><i style="background:var(--gold)"></i>Or 10 %</span><span><i style="background:var(--cash)"></i>Liquidités 15 %</span></div>
   </div>
   <div class="profile">
-    <div class="profile-head"><h3 style="margin:0">Équilibré</h3><span class="who">croissance &amp; sérénité · horizon moyen-long</span></div>
+    <div class="profile-head"><h3 style="margin:0">Équilibré</h3><span class="who">croissance &amp; sérénité</span></div>
     <div class="alloc"><span class="a-act" style="width:55%"></span><span class="a-obl" style="width:25%"></span><span class="a-or" style="width:10%"></span><span class="a-cash" style="width:10%"></span></div>
     <div class="legend"><span><i style="background:var(--indigo)"></i>Actions 55 %</span><span><i style="background:var(--oblig)"></i>Obligations 25 %</span><span><i style="background:var(--gold)"></i>Or 10 %</span><span><i style="background:var(--cash)"></i>Liquidités 10 %</span></div>
   </div>
   <div class="profile">
-    <div class="profile-head"><h3 style="margin:0">Dynamique</h3><span class="who">horizon long · forte tolérance aux baisses</span></div>
+    <div class="profile-head"><h3 style="margin:0">Dynamique</h3><span class="who">horizon long, forte tolérance</span></div>
     <div class="alloc"><span class="a-act" style="width:75%"></span><span class="a-obl" style="width:10%"></span><span class="a-or" style="width:10%"></span><span class="a-cash" style="width:5%"></span></div>
     <div class="legend"><span><i style="background:var(--indigo)"></i>Actions 75 %</span><span><i style="background:var(--oblig)"></i>Obligations 10 %</span><span><i style="background:var(--gold)"></i>Or 10 %</span><span><i style="background:var(--cash)"></i>Liquidités 5 %</span></div>
   </div>
 
   <div class="prose">
-    <div class="disclaimer" style="margin-top:22px"><strong>Garde-fous.</strong> Pas d'effet de levier ni
-      de crédit pour investir. Méfiez-vous de la <strong>concentration</strong> (un thème = 5–10 % max,
-      pas la moitié du portefeuille). Les satellites thématiques amplifient les hausses… <em>et</em> les
-      baisses. Ces chiffres sont des repères, pas une prescription.</div>
+    <div class="disclaimer" style="margin-top:22px"><strong>Garde-fous.</strong> Pas d'effet de levier ni de
+      crédit pour investir. Méfiez-vous de la <strong>concentration</strong> (un thème = 5–10 % max). Ces
+      chiffres sont des repères, pas une prescription.</div>
+    <a class="to-toc" href="#sommaire">↑ Retour au sommaire</a>
   </div>
 </section>
 
-<section>
+<section id="routine">
   <p class="eyebrow">En pratique</p>
   <h2>Votre routine mensuelle</h2>
   <ol class="routine">
-    <li>Ouvrez l'appli, collez une <strong>watchlist thématique</strong>, cliquez Analyser.</li>
-    <li>Triez mentalement par <strong>score</strong> ; repérez les titres en tendance haussière (cours au-dessus des moyennes).</li>
-    <li>Écartez pour l'instant les <strong>surachetés</strong> (RSI &gt; 70, points de vigilance) : notez-les pour un repli.</li>
-    <li>Regardez <strong>volatilité</strong> et <strong>max drawdown</strong> : plus c'est nerveux, plus la position doit être petite.</li>
-    <li>Investissez votre <strong>montant programmé</strong> du mois : d'abord le cœur (ETF monde), puis un satellite à la marge.</li>
+    <li>Ouvrez l'appli, collez une <strong>watchlist</strong> (ou vos favoris), cliquez Analyser.</li>
+    <li>Repérez les titres en <strong>tendance haussière</strong> (cours au-dessus des moyennes, bon score).</li>
+    <li>Écartez pour l'instant les <strong>surachetés</strong> (RSI &gt; 70) : notez-les pour un repli.</li>
+    <li>Regardez <strong>volatilité</strong> et <strong>drawdown</strong> : plus c'est nerveux, plus la position est petite.</li>
+    <li>Investissez votre <strong>montant programmé</strong> : d'abord le cœur (ETF monde), puis un satellite à la marge.</li>
     <li>Une à deux fois par an, <strong>rééquilibrez</strong> vers vos cibles.</li>
-    <li>Rappelez-vous : les signaux techniques éclairent le <strong>court/moyen terme</strong> ; votre plan, lui, se juge sur des <strong>années</strong>.</li>
+    <li>Gardez en tête : la technique éclaire le <strong>court/moyen terme</strong> ; votre plan se juge sur des <strong>années</strong>.</li>
   </ol>
+  <div class="prose"><a class="to-toc" href="#sommaire">↑ Retour au sommaire</a></div>
+</section>
+
+<section id="glossaire">
+  <p class="eyebrow">Pour mémoire</p>
+  <h2>Glossaire express</h2>
+  <dl class="gloss">
+    <dt>Score (0–100)</dt><dd>72+ achat marqué · 58–71 achat · 42–57 neutre · 28–41 vente · &lt; 28 vente marquée.</dd>
+    <dt>RSI</dt><dd>Force relative. &gt; 70 = suracheté, &lt; 30 = survendu.</dd>
+    <dt>MACD</dt><dd>Écart entre deux moyennes mobiles ; histogramme positif = momentum haussier.</dd>
+    <dt>Golden / death cross</dt><dd>Croisement de la moyenne 50 j au-dessus (haussier) ou au-dessous (baissier) de la 200 j.</dd>
+    <dt>Volatilité</dt><dd>Amplitude des variations en % par an. Plus elle est élevée, plus le titre bouge fort.</dd>
+    <dt>Ratio de Sharpe</dt><dd>Rendement par unité de risque. &gt; 1 = bon, &lt; 0 = le risque n'a pas payé.</dd>
+    <dt>Max drawdown</dt><dd>Pire perte subie depuis un sommet jusqu'au creux suivant.</dd>
+    <dt>DCA</dt><dd>« Dollar Cost Averaging » : investir un montant fixe à intervalle régulier.</dd>
+    <dt>ETF</dt><dd>Fonds coté qui réplique un indice ; diversification immédiate en un seul achat.</dd>
+  </dl>
+  <div class="prose"><a class="to-toc" href="#sommaire">↑ Retour au sommaire</a></div>
 </section>
 
 </div>
 
 <footer>
   <div class="wrap">
-    <h3>Sources</h3>
+    <h3>Sources (contexte 2026)</h3>
     <p class="src">
       Wellington Management — <a href="https://www.wellington.com/en/insights/geopolitics-in-2026-risks-and-opportunities-were-watching">Geopolitics in 2026</a> ·
       Bank of America Private Bank — <a href="https://www.privatebank.bankofamerica.com/articles/midyear-outlook-us-china-race-for-dominance.html">2026 Midyear Outlook</a> ·
-      ucapital — <a href="https://ucapital.com/article/economy/6a6a1f80a1b6de25180f3937/geopolitics-markets-august-2026-outlook">Geopolitics &amp; Markets: August 2026</a> ·
       Kitces — <a href="https://www.kitces.com/blog/charts-data-markets-q2-2026-inflation-oil-prices-federal-reserve-interest-rates-clearnomics/">2026 Mid-Year Market Outlook</a> ·
       CNBC — <a href="https://www.cnbc.com/2026/07/23/fed-interest-rate-odds-oil-jobless-claims.html">Fed rate odds &amp; oil</a> ·
-      Tax Foundation — <a href="https://taxfoundation.org/research/all/federal/trump-tariffs-trade-war/">Trump Tariffs Tracker 2026</a> ·
-      ITIF — <a href="https://itif.org/publications/2026/06/24/economic-consequences-of-section-232-tariffs-on-semiconductor-imports/">Section 232 semiconductor tariffs</a> ·
       World Gold Council — <a href="https://www.gold.org/goldhub/research/why-gold-2026-cross-asset-perspective">Why gold in 2026</a> ·
-      CEOWORLD — <a href="https://ceoworld.biz/2026/06/03/gold-inflation-and-geopolitics-the-new-safe-haven-equation-for-global-portfolios-in-2026/">Gold, inflation &amp; geopolitics</a> ·
-      CNBC — <a href="https://www.cnbc.com/2026/05/30/defense-stocks-consolidation-rheinmetall-saab-renk.html">European defense stocks consolidation</a> ·
-      Bloomberg — <a href="https://www.bloomberg.com/news/articles/2026-07-07/europe-s-defense-stocks-rally-has-much-riding-on-nato-summit">Europe's defense rally &amp; NATO</a>.
+      CNBC — <a href="https://www.cnbc.com/2026/05/30/defense-stocks-consolidation-rheinmetall-saab-renk.html">European defense stocks consolidation</a>.
     </p>
-    <p class="src" style="margin-top:20px; color:rgba(255,255,255,.55)">⚠ Document pédagogique et informatif.
+    <p class="src" style="margin-top:20px; color:rgba(255,255,255,.55)">⚠ Guide pédagogique et informatif.
       Ne constitue pas un conseil en investissement ni une recommandation personnalisée. Les performances
       passées ne préjugent pas des performances futures. Investir comporte un risque de perte en capital.
-      Faits datés d'août 2026, susceptibles d'avoir évolué depuis.</p>
+      Chiffres de contexte datés de 2026, susceptibles d'avoir évolué.</p>
   </div>
 </footer>
 
+<a class="toplink" id="toplink" href="#sommaire">↑ Haut</a>
+
 <script>
-  // Construit le lien de chaque bouton « Analyser » à partir des symboles affichés,
-  // pour ouvrir l'appli avec la watchlist déjà remplie : /?tickers=...
+  // Boutons « Analyser » : ouvre l'appli avec la watchlist pré-remplie (+ retour au guide).
   document.querySelectorAll('.watch').forEach(function (w) {
-    var syms = w.querySelector('.wl-syms');
-    var go = w.querySelector('.wl-go');
-    if (syms && go) go.href = '/?tickers=' + encodeURIComponent(syms.textContent.trim());
+    var syms = w.querySelector('.wl-syms'), go = w.querySelector('.wl-go');
+    if (syms && go) go.href = '/?tickers=' + encodeURIComponent(syms.textContent.trim()) + '&from=guide';
   });
+
+  // Reprise de la position de lecture (revenir où on était), sauf si on cible une ancre.
+  (function () {
+    var y = sessionStorage.getItem('guideScroll');
+    if (!location.hash && y) window.scrollTo(0, parseInt(y, 10) || 0);
+    var t;
+    window.addEventListener('scroll', function () {
+      clearTimeout(t);
+      t = setTimeout(function () { sessionStorage.setItem('guideScroll', String(Math.round(window.scrollY))); }, 150);
+    }, { passive: true });
+  })();
+
+  // Bouton « Haut » : apparaît après un défilement.
+  var topBtn = document.getElementById('toplink');
+  function toggleTop() { topBtn.classList.toggle('show', window.scrollY > 350); }
+  window.addEventListener('scroll', toggleTop, { passive: true });
+  toggleTop();
 </script>
 </body>
 </html>

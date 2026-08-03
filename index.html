@@ -75,6 +75,13 @@
 
   main { max-width: 1180px; margin: 0 auto; padding: 20px 14px 64px; }
 
+  /* ── Retour au guide (depuis le guide) ──────────────── */
+  #backbar:not(:empty) { margin: 0 0 14px; }
+  .backlink { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600;
+    color: var(--accent); text-decoration: none; background: var(--chip-bg); border: 1px solid var(--card-border);
+    border-radius: 999px; padding: 8px 14px; transition: border-color .15s; }
+  .backlink:hover { border-color: var(--accent); }
+
   /* ── Barre de recherche ─────────────────────────────── */
   .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
   .controls input {
@@ -210,10 +217,11 @@
       <h1><span class="spark-ico">📈</span> Analyse boursière</h1>
       <div class="sub">Cours réels · analyse technique expliquée en français</div>
     </div>
-    <a class="guide-link" href="/guide">📘 Guide géopolitique →</a>
+    <a class="guide-link" href="/guide">📘 Guide →</a>
   </div>
 </header>
 <main>
+  <div id="backbar"></div>
   <div class="controls">
     <input id="tickers" type="text" placeholder="Ex. AAPL, MSFT, NVDA" autocomplete="off"
       autocapitalize="characters" spellcheck="false">
@@ -407,12 +415,16 @@ document.getElementById('favbar').addEventListener('click', e => {
 document.getElementById('go').addEventListener('click', run);
 document.getElementById('tickers').addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
 
-// Symboles reçus dans l'adresse (ex. depuis le guide : /?tickers=XOM,CVX),
+// Symboles reçus dans l'adresse (ex. depuis le guide : /?tickers=XOM,CVX&from=guide),
 // sinon titres mémorisés, sinon valeurs par défaut. Puis analyse au chargement.
-const fromUrl = new URLSearchParams(location.search).get('tickers');
+const _params = new URLSearchParams(location.search);
+const fromUrl = _params.get('tickers');
+const cameFromGuide = _params.get('from') === 'guide';
 document.getElementById('tickers').value = fromUrl || localStorage.getItem('tickers') || 'AAPL, MSFT, NVDA, GOOGL, SPY';
+// Affiche un retour vers le guide si on en vient (utile sur mobile, sans bouton retour).
+if (cameFromGuide) document.getElementById('backbar').innerHTML = '<a class="backlink" href="/guide">← Retour au guide</a>';
 // Nettoie l'adresse pour qu'un rafraîchissement reparte des titres mémorisés.
-if (fromUrl && window.history.replaceState) window.history.replaceState(null, '', location.pathname);
+if ((fromUrl || cameFromGuide) && window.history.replaceState) window.history.replaceState(null, '', location.pathname);
 renderFavs();
 run();
 </script>
