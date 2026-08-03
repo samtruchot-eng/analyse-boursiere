@@ -119,6 +119,27 @@
   .star:hover { color: #eab308; } .star.on { color: #eab308; } .star:active { transform: scale(1.25); }
   .star:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 
+  /* ── Alertes ────────────────────────────────────────── */
+  .bell { border: none; background: none; cursor: pointer; font-size: 15px; line-height: 1; padding: 0; margin-left: 6px;
+    vertical-align: baseline; filter: grayscale(1) opacity(.45); transition: filter .12s, transform .08s; }
+  .bell:hover { filter: none; } .bell.on { filter: none; } .bell:active { transform: scale(1.2); }
+  .bell.hit { filter: none; animation: bellpulse 1s ease infinite; }
+  @keyframes bellpulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.22); } }
+  @media (prefers-reduced-motion: reduce) { .bell.hit { animation: none; } }
+  #alerts:not(:empty) { margin: 4px 0 18px; }
+  .alerts-box { background: var(--card); border: 1px solid var(--card-border); border-left: 3px solid #eab308;
+    border-radius: 12px; padding: 12px 16px; box-shadow: var(--shadow); }
+  .alerts-title { font-weight: 700; font-size: 13.5px; margin-bottom: 6px; }
+  .alerts-box ul { list-style: none; margin: 0; padding: 0; }
+  .alerts-box li { font-size: 12.8px; padding: 6px 0; border-top: 1px solid var(--border); color: var(--text);
+    display: flex; gap: 8px; align-items: baseline; line-height: 1.4; }
+  .alerts-box li:first-child { border-top: none; }
+  .al-t { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 700; font-size: 11.5px;
+    padding: 1px 6px; border-radius: 5px; background: var(--chip-bg); flex: 0 0 auto; }
+  li.al-warn { color: var(--warn); } li.al-neg { color: var(--neg); } li.al-pos { color: var(--pos); }
+  li.al-info { color: var(--muted); }
+  li.al-alert { color: var(--neg); font-weight: 600; } li.al-alert .al-t { color: #fff; background: var(--neg); }
+
   .banner { padding: 11px 15px; border-radius: 10px; font-size: 13px; margin: 12px 0; }
   .banner.err { background: rgba(220,38,38,.1); color: #b3261b; border: 1px solid rgba(220,38,38,.28); }
   .banner.info { background: rgba(44,74,140,.1); color: var(--accent); border: 1px solid rgba(44,74,140,.24); }
@@ -233,6 +254,7 @@
   <div id="favbar" class="favbar"></div>
 
   <div id="status"></div>
+  <div id="alerts"></div>
   <div id="results" class="grid"></div>
 
   <h2>Comment lire le score</h2>
@@ -321,7 +343,7 @@ function card(r) {
   return `<div class="card">
     <div class="card-head">
       <div>
-        <div class="ticker">${esc(r.ticker)} <button class="star${isFav(r.ticker) ? ' on' : ''}" data-t="${esc(r.ticker)}" title="Ajouter/retirer des favoris" aria-label="Favori">${isFav(r.ticker) ? '★' : '☆'}</button></div>
+        <div class="ticker">${esc(r.ticker)} <button class="star${isFav(r.ticker) ? ' on' : ''}" data-t="${esc(r.ticker)}" title="Ajouter/retirer des favoris" aria-label="Favori">${isFav(r.ticker) ? '★' : '☆'}</button><button class="bell${getAlerts()[String(r.ticker).toUpperCase()] ? ' on' : ''}${customAlert(r) ? ' hit' : ''}" data-t="${esc(r.ticker)}" title="Alerte de prix" aria-label="Alerte de prix">🔔</button></div>
         <div class="price"><strong>${fmt(r.price)}</strong> <span class="asof">au ${esc(r.day)}</span></div>
         <span class="reco-pill" style="color:${color};background:${color}1f">${recoText}</span>
       </div>
@@ -335,6 +357,70 @@ function card(r) {
     ${vigilance}
     <details><summary>Détails chiffrés</summary><table class="metrics">${metricsRows}<tr><td colspan="2" style="padding-top:10px;color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:.03em">Contributions au score</td></tr>${contribs}</table></details>
   </div>`;
+}
+
+let lastRows = [];
+
+// ── Alertes (mémorisées dans le navigateur) ──────────────────────────────────
+function getAlerts() { try { return JSON.parse(localStorage.getItem('alerts') || '{}'); } catch (e) { return {}; } }
+
+// Alerte de prix personnalisée : déclenchée si le cours franchit le seuil.
+function customAlert(r) {
+  if (!r || r.error || r.price == null) return null;
+  const al = getAlerts()[String(r.ticker).toUpperCase()];
+  if (!al) return null;
+  const hit = al.dir === 'above' ? r.price >= al.price : r.price <= al.price;
+  return hit ? { sev: 'alert', t: r.ticker, msg: `seuil ${al.dir === 'above' ? '≥' : '≤'} ${al.price} atteint (cours ${fmt(r.price)})` } : null;
+}
+
+// Alertes automatiques déduites de l'analyse (aucun réglage nécessaire).
+function autoAlerts(r) {
+  const out = [];
+  if (!r || r.error) return out;
+  const rsi = r.metrics && r.metrics.rsi14;
+  if (rsi != null && rsi >= 70) out.push({ sev: 'warn', t: r.ticker, msg: `RSI ${rsi.toFixed(0)} — surachat (risque de correction)` });
+  if (rsi != null && rsi <= 30) out.push({ sev: 'info', t: r.ticker, msg: `RSI ${rsi.toFixed(0)} — survendu (rebond possible)` });
+  if (r.label === 'STRONG_BUY') out.push({ sev: 'pos', t: r.ticker, msg: `signal fort : achat marqué (score ${Math.round(r.score)})` });
+  if (r.label === 'STRONG_SELL') out.push({ sev: 'neg', t: r.ticker, msg: `signal fort : vente marquée (score ${Math.round(r.score)})` });
+  const fh = r.risk && r.risk.from_high_pct;
+  if (fh != null && fh >= -3) out.push({ sev: 'warn', t: r.ticker, msg: `proche de son plus-haut 52 sem. (${fh.toFixed(1)} %)` });
+  if (r.risk && r.risk.low_52w && r.price != null && r.price <= r.risk.low_52w * 1.03)
+    out.push({ sev: 'info', t: r.ticker, msg: `proche de son plus-bas 52 sem.` });
+  return out;
+}
+
+function renderAlerts(rows) {
+  const el = document.getElementById('alerts'); const list = [];
+  rows.forEach(r => { const c = customAlert(r); if (c) list.push(c); autoAlerts(r).forEach(a => list.push(a)); });
+  if (!list.length) { el.innerHTML = ''; return; }
+  const order = { alert: 0, neg: 1, warn: 2, pos: 3, info: 4 };
+  list.sort((a, b) => (order[a.sev] - order[b.sev]));
+  el.innerHTML = `<div class="alerts-box"><div class="alerts-title">🔔 Alertes (${list.length})</div><ul>` +
+    list.map(a => `<li class="al-${a.sev}"><span class="al-t">${esc(a.t)}</span><span>${esc(a.msg)}</span></li>`).join('') + `</ul></div>`;
+}
+
+// Ré-affiche les cartes + alertes à partir des derniers résultats (après un changement).
+function rerender() {
+  document.getElementById('results').innerHTML = lastRows.map(card).join('');
+  renderAlerts(lastRows);
+}
+
+// Créer / modifier / supprimer une alerte de prix pour un titre.
+function editAlert(t) {
+  t = String(t).toUpperCase();
+  const all = getAlerts(), cur = all[t];
+  const r = lastRows.find(x => String(x.ticker).toUpperCase() === t);
+  const price = r && r.price != null ? r.price : null;
+  const help = cur
+    ? `Alerte prix pour ${t} — actuelle : ${cur.dir === 'above' ? '≥' : '≤'} ${cur.price}.\nNouveau prix seuil (laissez vide pour supprimer l'alerte) :`
+    : `Alerte prix pour ${t}${price != null ? ' (cours actuel : ' + price + ')' : ''}.\nJe vous préviendrai quand le cours franchit ce seuil.\nPrix seuil :`;
+  const input = window.prompt(help, cur ? String(cur.price) : '');
+  if (input === null) return;
+  const v = parseFloat(String(input).replace(',', '.'));
+  if (!String(input).trim() || !isFinite(v)) { delete all[t]; }
+  else { all[t] = { price: v, dir: (price != null && v >= price) ? 'above' : 'below' }; }
+  localStorage.setItem('alerts', JSON.stringify(all));
+  rerender();
 }
 
 async function run() {
@@ -352,9 +438,10 @@ async function run() {
     const res = await fetch('/api/analyze?tickers=' + encodeURIComponent(tickers));
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    const rows = (data.results||[]).slice().sort((a,b)=>(b.score??-1)-(a.score??-1));
-    out.innerHTML = rows.map(card).join('');
-    const okCount = rows.filter(r=>!r.error).length;
+    lastRows = (data.results||[]).slice().sort((a,b)=>(b.score??-1)-(a.score??-1));
+    out.innerHTML = lastRows.map(card).join('');
+    renderAlerts(lastRows);
+    const okCount = lastRows.filter(r=>!r.error).length;
     status.innerHTML = okCount ? '' : `<div class="banner err">Aucun titre n'a pu être récupéré. Vérifiez les symboles ou réessayez dans un instant.</div>`;
   } catch (e) {
     status.innerHTML = `<div class="banner err">Erreur : ${esc(e.message||e)}. Réessayez dans un instant.</div>`;
@@ -403,7 +490,8 @@ function renderFavs() {
     `<button class="fav-analyze">Analyser mes favoris</button>`;
 }
 document.getElementById('results').addEventListener('click', e => {
-  const s = e.target.closest('.star'); if (s) toggleFav(s.dataset.t);
+  const s = e.target.closest('.star'); if (s) { toggleFav(s.dataset.t); return; }
+  const bl = e.target.closest('.bell'); if (bl) editAlert(bl.dataset.t);
 });
 document.getElementById('favbar').addEventListener('click', e => {
   const del = e.target.closest('.fav-del'), load = e.target.closest('.fav-load'), all = e.target.closest('.fav-analyze');
