@@ -64,10 +64,14 @@
     color: #fff; padding: 26px 18px 24px;
     box-shadow: 0 4px 24px rgba(20,33,61,.28);
   }
-  .header-inner { max-width: 1180px; margin: 0 auto; }
+  .header-inner { max-width: 1180px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -.01em; display: flex; align-items: center; gap: 9px; }
   header h1 .spark-ico { font-size: 20px; }
   header .sub { opacity: .8; font-size: 13px; margin-top: 5px; }
+  .guide-link { color: #fff; text-decoration: none; font-size: 13.5px; font-weight: 600;
+    border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: 8px 15px;
+    white-space: nowrap; transition: background .15s, border-color .15s; }
+  .guide-link:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.55); }
 
   main { max-width: 1180px; margin: 0 auto; padding: 20px 14px 64px; }
 
@@ -184,8 +188,11 @@
 <body>
 <header>
   <div class="header-inner">
-    <h1><span class="spark-ico">📈</span> Analyse boursière</h1>
-    <div class="sub">Cours réels · analyse technique expliquée en français</div>
+    <div>
+      <h1><span class="spark-ico">📈</span> Analyse boursière</h1>
+      <div class="sub">Cours réels · analyse technique expliquée en français</div>
+    </div>
+    <a class="guide-link" href="/guide">📘 Guide géopolitique →</a>
   </div>
 </header>
 <main>
