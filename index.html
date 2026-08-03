@@ -92,7 +92,25 @@
   .controls button:hover { opacity: .93; }
   .controls button:active { transform: translateY(1px); }
   .controls button:disabled { opacity: .5; cursor: default; }
-  .hint { font-size: 12.5px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+  .hint { font-size: 12.5px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+
+  /* ── Favoris ────────────────────────────────────────── */
+  .favbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 2px 0 20px; }
+  .fav-title { font-size: 12.5px; font-weight: 650; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; }
+  .fav-empty { font-size: 12.5px; color: var(--faint); line-height: 1.5; }
+  .fav-chip { display: inline-flex; align-items: center; background: var(--card); border: 1px solid var(--card-border); border-radius: 999px; overflow: hidden; }
+  .fav-chip .fav-load { border: none; background: none; cursor: pointer; font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 12.5px; font-weight: 600; color: var(--text); padding: 5px 4px 5px 11px; }
+  .fav-chip .fav-load:hover { color: var(--accent); }
+  .fav-chip .fav-del { border: none; background: none; cursor: pointer; color: var(--faint); font-size: 12px; padding: 5px 9px 5px 5px; line-height: 1; }
+  .fav-chip .fav-del:hover { color: var(--neg); }
+  .fav-analyze { border: none; cursor: pointer; font-size: 12.5px; font-weight: 700; border-radius: 999px;
+    padding: 7px 15px; color: #3a2c05; background: linear-gradient(135deg, #d9af3a, #e7c256); }
+  .fav-analyze:hover { filter: brightness(1.05); }
+  .star { border: none; background: none; cursor: pointer; font-size: 19px; line-height: 1; color: var(--faint);
+    padding: 0; margin-left: 3px; vertical-align: baseline; transition: color .12s, transform .08s; }
+  .star:hover { color: #eab308; } .star.on { color: #eab308; } .star:active { transform: scale(1.25); }
+  .star:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 
   .banner { padding: 11px 15px; border-radius: 10px; font-size: 13px; margin: 12px 0; }
   .banner.err { background: rgba(220,38,38,.1); color: #b3261b; border: 1px solid rgba(220,38,38,.28); }
@@ -204,6 +222,8 @@
   <div class="hint">Séparez les symboles par des virgules. Ex. AAPL (Apple), MSFT (Microsoft),
     NVDA (Nvidia), SPY (indice S&amp;P 500), air.fr (Airbus Paris).</div>
 
+  <div id="favbar" class="favbar"></div>
+
   <div id="status"></div>
   <div id="results" class="grid"></div>
 
@@ -293,7 +313,7 @@ function card(r) {
   return `<div class="card">
     <div class="card-head">
       <div>
-        <div class="ticker">${esc(r.ticker)}</div>
+        <div class="ticker">${esc(r.ticker)} <button class="star${isFav(r.ticker) ? ' on' : ''}" data-t="${esc(r.ticker)}" title="Ajouter/retirer des favoris" aria-label="Favori">${isFav(r.ticker) ? '★' : '☆'}</button></div>
         <div class="price"><strong>${fmt(r.price)}</strong> <span class="asof">au ${esc(r.day)}</span></div>
         <span class="reco-pill" style="color:${color};background:${color}1f">${recoText}</span>
       </div>
@@ -348,6 +368,42 @@ const GLOSSARY = {
 document.getElementById('glossary').innerHTML =
   Object.entries(GLOSSARY).map(([t,d])=>`<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join('');
 
+// ── Favoris (mémorisés dans le navigateur, aucune donnée envoyée) ─────────────
+function getFavs() { try { return JSON.parse(localStorage.getItem('favorites') || '[]'); } catch (e) { return []; } }
+function isFav(t) { return getFavs().includes(String(t).toUpperCase()); }
+function toggleFav(t) {
+  t = String(t).toUpperCase();
+  const f = getFavs(), i = f.indexOf(t);
+  if (i >= 0) f.splice(i, 1); else f.push(t);
+  localStorage.setItem('favorites', JSON.stringify(f));
+  renderFavs(); syncStars();
+}
+function syncStars() {
+  document.querySelectorAll('.star').forEach(s => {
+    const on = isFav(s.dataset.t);
+    s.classList.toggle('on', on); s.textContent = on ? '★' : '☆';
+  });
+}
+function renderFavs() {
+  const f = getFavs(), bar = document.getElementById('favbar');
+  if (!f.length) {
+    bar.innerHTML = `<span class="fav-empty">⭐ Astuce : cliquez l'étoile ☆ en haut d'une carte pour l'ajouter à vos favoris.</span>`;
+    return;
+  }
+  bar.innerHTML = `<span class="fav-title">⭐ Mes favoris</span>` +
+    f.map(t => `<span class="fav-chip"><button class="fav-load" data-t="${esc(t)}" title="Analyser ${esc(t)}">${esc(t)}</button><button class="fav-del" data-t="${esc(t)}" title="Retirer" aria-label="Retirer ${esc(t)}">✕</button></span>`).join('') +
+    `<button class="fav-analyze">Analyser mes favoris</button>`;
+}
+document.getElementById('results').addEventListener('click', e => {
+  const s = e.target.closest('.star'); if (s) toggleFav(s.dataset.t);
+});
+document.getElementById('favbar').addEventListener('click', e => {
+  const del = e.target.closest('.fav-del'), load = e.target.closest('.fav-load'), all = e.target.closest('.fav-analyze');
+  if (del) { toggleFav(del.dataset.t); return; }
+  if (load) { document.getElementById('tickers').value = load.dataset.t; run(); return; }
+  if (all) { const f = getFavs(); if (f.length) { document.getElementById('tickers').value = f.join(', '); run(); } }
+});
+
 document.getElementById('go').addEventListener('click', run);
 document.getElementById('tickers').addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
 
@@ -357,6 +413,7 @@ const fromUrl = new URLSearchParams(location.search).get('tickers');
 document.getElementById('tickers').value = fromUrl || localStorage.getItem('tickers') || 'AAPL, MSFT, NVDA, GOOGL, SPY';
 // Nettoie l'adresse pour qu'un rafraîchissement reparte des titres mémorisés.
 if (fromUrl && window.history.replaceState) window.history.replaceState(null, '', location.pathname);
+renderFavs();
 run();
 </script>
 </body>
