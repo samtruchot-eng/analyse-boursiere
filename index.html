@@ -111,7 +111,18 @@
   .controls button:hover { opacity: .93; }
   .controls button:active { transform: translateY(1px); }
   .controls button:disabled { opacity: .5; cursor: default; }
-  .hint { font-size: 12.5px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+  .hint { font-size: 12.5px; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
+
+  /* ── Catégories ─────────────────────────────────────── */
+  .cats-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 650; margin: 2px 0 8px; }
+  .cats { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; }
+  .cat { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; border: 1px solid var(--card-border);
+    background: var(--card); color: var(--text); border-radius: 999px; padding: 8px 14px; font-size: 13.5px; font-weight: 600;
+    transition: border-color .15s, transform .08s, background .15s; }
+  .cat:hover { border-color: var(--accent); background: var(--chip-bg); }
+  .cat:active { transform: translateY(1px); }
+  .cat .ico { font-size: 15px; line-height: 1; }
+  .cat:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   /* ── Favoris ────────────────────────────────────────── */
   .favbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 2px 0 20px; }
@@ -262,6 +273,9 @@
   </div>
   <div class="hint">Séparez les symboles par des virgules. Ex. AAPL (Apple), MSFT (Microsoft),
     NVDA (Nvidia), SPY (indice S&amp;P 500), air.fr (Airbus Paris).</div>
+
+  <div class="cats-label">Explorer par catégorie</div>
+  <div id="categories" class="cats"></div>
 
   <div id="favbar" class="favbar"></div>
 
@@ -475,6 +489,29 @@ const GLOSSARY = {
 document.getElementById('glossary').innerHTML =
   Object.entries(GLOSSARY).map(([t,d])=>`<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join('');
 
+// ── Catégories (raccourcis thématiques prêts à analyser) ─────────────────────
+const CATEGORIES = [
+  { ico: '🌍', label: 'Grands indices', syms: 'SPY, QQQ, DIA, ^GSPC, ^FCHI, ^GDAXI' },
+  { ico: '💻', label: 'Tech US', syms: 'AAPL, MSFT, GOOGL, AMZN, META, NVDA' },
+  { ico: '🇫🇷', label: 'Actions françaises', syms: 'MC.PA, OR.PA, TTE.PA, AIR.PA, SAN.PA, BNP.PA' },
+  { ico: '⚡', label: 'Énergie', syms: 'XOM, CVX, TTE.PA, SHEL' },
+  { ico: '🛡️', label: 'Défense', syms: 'RHM.DE, AIR.PA, SAF.PA, HO.PA, LMT, RTX' },
+  { ico: '🥇', label: 'Or & mines', syms: 'NEM, GOLD, GDX, AEM' },
+  { ico: '🔌', label: 'Semi-conducteurs', syms: 'NVDA, TSM, AMD, AVGO' },
+  { ico: '🛒', label: 'Défensives', syms: 'PG, KO, COST, WMT' },
+  { ico: '🪙', label: 'Cryptos', syms: 'BTC-USD, ETH-USD, SOL-USD' },
+];
+function renderCategories() {
+  document.getElementById('categories').innerHTML = CATEGORIES.map((c, i) =>
+    `<button class="cat" data-i="${i}" title="Analyser : ${esc(c.syms)}"><span class="ico">${c.ico}</span>${esc(c.label)}</button>`).join('');
+}
+document.getElementById('categories').addEventListener('click', e => {
+  const b = e.target.closest('.cat'); if (!b) return;
+  const c = CATEGORIES[+b.dataset.i]; if (!c) return;
+  document.getElementById('tickers').value = c.syms;
+  run();
+});
+
 // ── Favoris (mémorisés dans le navigateur, aucune donnée envoyée) ─────────────
 function getFavs() { try { return JSON.parse(localStorage.getItem('favorites') || '[]'); } catch (e) { return []; } }
 function isFav(t) { return getFavs().includes(String(t).toUpperCase()); }
@@ -525,6 +562,7 @@ document.getElementById('tickers').value = fromUrl || localStorage.getItem('tick
 if (cameFromGuide) document.getElementById('backbar').innerHTML = '<a class="backlink" href="/guide">← Retour au guide</a>';
 // Nettoie l'adresse pour qu'un rafraîchissement reparte des titres mémorisés.
 if ((fromUrl || cameFromGuide) && window.history.replaceState) window.history.replaceState(null, '', location.pathname);
+renderCategories();
 renderFavs();
 run();
 </script>
