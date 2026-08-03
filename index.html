@@ -124,6 +124,36 @@
   .cat .ico { font-size: 15px; line-height: 1; }
   .cat:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+  /* ── Assistant intégré ──────────────────────────────── */
+  .ask-launch { position: fixed; right: 16px; bottom: 16px; z-index: 60; border: none; cursor: pointer;
+    background: linear-gradient(135deg, #223a63, #2c4a8c); color: #fff; border-radius: 999px; padding: 12px 18px;
+    font-size: 14px; font-weight: 650; box-shadow: 0 6px 22px rgba(20,33,61,.35); display: inline-flex; align-items: center; gap: 8px; }
+  .ask-launch:hover { filter: brightness(1.07); }
+  .ask-panel { position: fixed; right: 16px; bottom: 74px; z-index: 60; width: min(360px, calc(100vw - 32px));
+    max-height: min(72vh, 560px); background: var(--card); border: 1px solid var(--card-border); border-radius: 16px;
+    box-shadow: 0 14px 44px rgba(20,33,61,.3); display: flex; flex-direction: column; overflow: hidden; }
+  .ask-panel[hidden] { display: none; }
+  .ask-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px;
+    background: linear-gradient(135deg, #14213d, #2c4a8c); color: #fff; font-weight: 650; font-size: 14px; }
+  .ask-head button { background: none; border: none; color: #fff; cursor: pointer; font-size: 15px; opacity: .85; }
+  .ask-head button:hover { opacity: 1; }
+  .ask-msgs { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .ask-msg { font-size: 13px; line-height: 1.5; padding: 9px 12px; border-radius: 12px; max-width: 88%; }
+  .ask-msg.bot { background: var(--chip-bg); color: var(--text); align-self: flex-start; border-bottom-left-radius: 4px; }
+  .ask-msg.me { background: var(--accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+  .ask-msg.bot a { color: var(--accent); font-weight: 600; }
+  .ask-msg.bot code { background: var(--card); border: 1px solid var(--card-border); border-radius: 5px; padding: 0 4px; font-size: .92em; }
+  .ask-sugg { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 10px; }
+  .ask-chip { border: 1px solid var(--card-border); background: var(--card); color: var(--text); border-radius: 999px;
+    padding: 5px 10px; font-size: 11.5px; cursor: pointer; }
+  .ask-chip:hover { border-color: var(--accent); }
+  .ask-form { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); }
+  .ask-form input { flex: 1; border: 1px solid var(--card-border); background: var(--input-bg); color: var(--text);
+    border-radius: 10px; padding: 9px 12px; font-size: 13.5px; outline: none; }
+  .ask-form input:focus { border-color: var(--accent); }
+  .ask-form button { border: none; background: var(--accent); color: #fff; border-radius: 10px; padding: 0 15px;
+    font-size: 20px; font-weight: 700; cursor: pointer; line-height: 1; }
+
   /* ── Favoris ────────────────────────────────────────── */
   .favbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 2px 0 20px; }
   .fav-title { font-size: 12.5px; font-weight: 650; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; }
@@ -292,6 +322,18 @@
     pas des performances futures. Investir comporte un risque de perte en capital.
   </footer>
 </main>
+
+<!-- Assistant intégré (aide locale, sans IA) -->
+<button id="ask-launch" class="ask-launch" aria-label="Ouvrir l'assistant" aria-expanded="false">💬 Aide</button>
+<div id="ask-panel" class="ask-panel" hidden>
+  <div class="ask-head"><span>🤖 Assistant</span><button id="ask-close" aria-label="Fermer l'assistant">✕</button></div>
+  <div id="ask-msgs" class="ask-msgs"></div>
+  <div id="ask-sugg" class="ask-sugg"></div>
+  <form id="ask-form" class="ask-form" autocomplete="off">
+    <input id="ask-input" type="text" placeholder="Posez votre question…" aria-label="Votre question">
+    <button type="submit" aria-label="Envoyer">›</button>
+  </form>
+</div>
 
 <script>
 const LABEL_COLOR = { STRONG_BUY:'#16a34a', BUY:'#3fae52', HOLD:'#c79a00', SELL:'#ef6c00', STRONG_SELL:'#dc2626' };
@@ -553,6 +595,90 @@ document.getElementById('favbar').addEventListener('click', e => {
 document.getElementById('go').addEventListener('click', run);
 document.getElementById('tickers').addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
 
+// ── Assistant intégré : base de connaissances + moteur de réponse ────────────
+const _norm = (s) => ' ' + String(s).toLowerCase().normalize('NFD')
+  .replace(/[^a-z0-9]+/g, ' ').trim() + ' ';
+
+const ASSIST_ADVICE = [' dois je ', ' faut il ', ' je dois ', 'acheter', 'vendre', ' conseil', 'recommand',
+  'va monter', 'vas monter', 'va baisser', 'prevision', 'predi', 'bon moment', 'vaut il', 'faut il investir'];
+const ASSIST_ADVICE_ANSWER = "Je ne donne pas de <b>conseil personnalisé</b> : l'appli fait de l'analyse <i>technique</i>, pas une recommandation d'achat ou de vente. Pour vous faire votre idée sur un titre, regardez son <b>score</b>, sa <b>tendance</b> (cours au-dessus/sous ses moyennes), le <b>RSI</b> (&gt;70 = prudence) et son <b>risque</b> (volatilité, drawdown). La méthode complète est dans le <a href='/guide#plan' target='_blank'>guide</a>.";
+const ASSIST_FALLBACK = "Je ne suis pas sûr d'avoir la réponse exacte. 😅 Je peux expliquer : le <b>score</b>, le <b>RSI</b>, le <b>MACD</b>, les <b>moyennes</b>, la <b>volatilité</b>, le <b>Sharpe</b>, le <b>drawdown</b>, les <b>favoris</b>, les <b>alertes</b>, les <b>catégories</b>, les <b>symboles</b>, ou comment lire un titre. Le <a href='/guide' target='_blank'>guide complet</a> couvre tout en détail.";
+
+const ASSIST_KB = [
+  { k: [' score ', 'note sur 100', ' sur 100', ' jauge ', 'anneau'], a: "Le <b>score (0–100)</b> résume la configuration technique : 72+ = achat marqué, 58–71 achat, 42–57 neutre, 28–41 vente, &lt;28 vente marquée. C'est une synthèse, pas une prédiction. <a href='/guide#technique' target='_blank'>En savoir plus</a>." },
+  { k: [' rsi ', 'surachat', 'survendu', 'survente'], a: "Le <b>RSI</b> (0–100) mesure la force du mouvement. <b>&gt;70</b> = suracheté (une pause/correction est possible) ; <b>&lt;30</b> = survendu (rebond possible). <a href='/guide#technique' target='_blank'>Détails</a>." },
+  { k: [' macd ', 'histogramme'], a: "Le <b>MACD</b> compare deux moyennes mobiles pour capter l'élan. Histogramme <b>positif</b> = momentum de court terme haussier ; négatif = baissier." },
+  { k: ['moyenne', ' sma ', ' ema ', '200 jours', '50 jours', ' tendance ', 'mm 50', 'mm 200'], a: "Les <b>moyennes mobiles</b> (50 et 200 j) lissent le cours. Cours <b>au-dessus</b> de ses moyennes = tendance haussière ; en dessous = baissière. <a href='/guide#technique' target='_blank'>Détails</a>." },
+  { k: ['golden cross', 'death cross', 'croisement'], a: "Un <b>golden cross</b> = la moyenne 50 j passe au-dessus de la 200 j (signal de fond favorable). Un <b>death cross</b> = l'inverse (défavorable)." },
+  { k: ['bollinger', ' bandes'], a: "Les <b>bandes de Bollinger</b> forment un couloir autour du cours : proche du haut = tendu/cher à court terme, proche du bas = déprimé (rebond possible)." },
+  { k: ['momentum'], a: "Le <b>momentum</b> mesure la vitesse de variation (~60 séances). Fort et positif = dynamique porteuse ; négatif = essoufflement." },
+  { k: ['volatilit'], a: "La <b>volatilité</b> (%/an) mesure l'ampleur des variations : faible (&lt;15 %) = tranquille, élevée (&gt;30 %) = ça secoue. Utile pour dimensionner une position. <a href='/guide#risque' target='_blank'>Détails</a>." },
+  { k: ['sharpe'], a: "Le <b>ratio de Sharpe</b> = le rendement rapporté au risque pris. &gt;1 = bon, autour de 0 = médiocre, négatif = le risque n'a pas payé." },
+  { k: ['drawdown', 'pire baisse', 'perte max'], a: "Le <b>max drawdown</b> est la pire baisse subie, d'un sommet jusqu'au creux suivant. Un bon test : « aurais-je tenu ? »" },
+  { k: ['favori', ' etoile', 'memoriser'], a: "Cliquez l'<b>étoile ⭐</b> en haut d'une carte pour l'ajouter à vos favoris. Ils apparaissent en haut, avec un bouton <b>« Analyser mes favoris »</b>, et sont mémorisés dans votre navigateur." },
+  { k: ['alerte', ' seuil', 'cloche', 'prevenir', 'notification', ' notif'], a: "La <b>cloche 🔔</b> sur une carte fixe un <b>prix seuil</b> : quand le cours le franchit, l'alerte s'affiche en haut. Il y a aussi des alertes automatiques (RSI surachat, signal fort…). <a href='/guide#demarrer' target='_blank'>Détails</a>." },
+  { k: ['categorie', 'thematique', ' theme', 'watchlist'], a: "Les <b>catégories</b> sous la recherche (Indices, Tech US, Santé…) remplissent la recherche et lancent l'analyse en un clic — pour explorer sans connaître les symboles." },
+  { k: ['symbole', 'ticker', 'suffixe', 'action franc', 'valeur franc', 'paris', 'francfort', 'airbus', 'air pa'], a: "Valeurs américaines sans suffixe (ex. <code>NVDA</code>). Europe : ajoutez la place — Paris <code>.PA</code> (ex. <code>AIR.PA</code>), Francfort <code>.DE</code>, Zurich <code>.SW</code>. Séparez plusieurs symboles par des virgules." },
+  { k: [' guide ', 'apprendre', 'documentation', 'tutoriel', ' aide'], a: "Le <a href='/guide' target='_blank'>Guide de l'investisseur</a> explique tout : prise en main, indicateurs, risque, contexte, plan d'investissement et glossaire." },
+  { k: ['ecran d accueil', 'installer', 'application', ' icone', 'ajouter a l ecran'], a: "Sur téléphone, vous pouvez <b>ajouter l'appli à l'écran d'accueil</b> : iPhone (Safari) → Partager → « Sur l'écran d'accueil » ; Android (Chrome) → menu ⋮ → « Installer l'application »." },
+  { k: ['diversif', 'repartir', ' oeufs', ' panier'], a: "La <b>diversification</b> = répartir entre plusieurs titres, secteurs, zones et classes d'actifs pour réduire le risque. « Ne pas mettre tous ses œufs dans le même panier. » <a href='/guide#bases' target='_blank'>Détails</a>." },
+  { k: [' dca ', 'regulier', 'chaque mois', 'programme', 'lisser'], a: "Le <b>DCA</b> (investissement programmé) = investir un montant fixe à intervalle régulier. Ça lisse le prix d'achat et évite de « timer » le marché. <a href='/guide#plan' target='_blank'>Détails</a>." },
+  { k: [' etf ', 'indiciel', 'fonds'], a: "Un <b>ETF</b> est un fonds coté qui réplique un indice (ex. le monde entier). En un seul achat, vous êtes diversifié — la brique de base d'un portefeuille. <a href='/guide#bases' target='_blank'>Détails</a>." },
+  { k: [' or ', 'metal precieux', 'valeur refuge', 'mines d or', 'lingot'], a: "L'<b>or</b> est une valeur refuge : il tend à monter en période de stress. On lui alloue souvent 5–10 % d'un portefeuille diversifié." },
+  { k: [' plan', 'portefeuille', 'allocation', ' profil', 'combien investir', 'repartition'], a: "Un <b>plan</b> repose sur : horizon, tolérance au risque, diversification, régularité (DCA) et rééquilibrage. Le guide propose 3 profils illustratifs. <a href='/guide#plan' target='_blank'>Voir le plan</a>." },
+  { k: ['donnee', ' source', ' yahoo', 'd ou vien', 'cours reel', 'fiable', 'temps reel'], a: "Les cours sont <b>réels</b>, récupérés côté serveur via Yahoo Finance (Stooq en secours), sans clé API. Pas du temps réel à la seconde : des séances quotidiennes." },
+  { k: ['crypto', 'bitcoin', ' btc', 'ethereum', ' eth '], a: "Les cryptos (<code>BTC-USD</code>, <code>ETH-USD</code>…) fonctionnent aussi. Note : comme elles s'échangent 7j/7, les mesures de risque annualisées sont un peu approximatives, mais les indicateurs restent pertinents." },
+  { k: ['perte en capital', 'risque de perdre', 'garanti', 'sur de gagner'], a: "⚠ L'appli est <b>informative</b>, ce n'est pas un conseil en investissement. L'analyse technique décrit une configuration de cours, elle ne prédit pas l'avenir. Investir comporte un risque de perte en capital." },
+];
+
+function assistAnswer(q) {
+  const n = _norm(q);
+  if (/ (bonjour|salut|coucou|bonsoir|hello|hey) /.test(n)) return "Bonjour ! Posez-moi une question sur l'appli (score, RSI, favoris, alertes, catégories…) ou une notion d'investissement.";
+  if (/ (merci|super|parfait|genial|top|nickel) /.test(n)) return "Avec plaisir ! 🙂 D'autres questions ?";
+  if (ASSIST_ADVICE.some((k) => n.includes(k))) return ASSIST_ADVICE_ANSWER;
+  let best = null, bestScore = 0;
+  for (const e of ASSIST_KB) {
+    let s = 0;
+    for (const k of e.k) if (n.includes(k)) s += k.trim().split(' ').length;
+    if (s > bestScore) { bestScore = s; best = e; }
+  }
+  return best ? best.a : ASSIST_FALLBACK;
+}
+
+function initAssistant() {
+  const launch = document.getElementById('ask-launch'), panel = document.getElementById('ask-panel');
+  const msgs = document.getElementById('ask-msgs'), sugg = document.getElementById('ask-sugg');
+  const form = document.getElementById('ask-form'), inp = document.getElementById('ask-input');
+  const SUGG = ["C'est quoi le score ?", "Comment lire le RSI ?", "Comment ajouter un favori ?", "Comment créer une alerte ?", "C'est quoi un ETF ?"];
+  let greeted = false;
+  function addMsg(html, who) {
+    const d = document.createElement('div');
+    d.className = 'ask-msg ' + who;
+    d.innerHTML = html; // 'bot' = contenu de confiance ; 'me' = déjà échappé
+    msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+  }
+  function ask(q) {
+    q = String(q).trim(); if (!q) return;
+    addMsg(esc(q), 'me');
+    setTimeout(() => addMsg(assistAnswer(q), 'bot'), 160);
+  }
+  function open() {
+    panel.hidden = false; launch.setAttribute('aria-expanded', 'true');
+    if (!greeted) {
+      greeted = true;
+      addMsg("Bonjour 👋 Je suis l'assistant de l'appli. Posez une question sur le fonctionnement (score, RSI, favoris, alertes…) ou une notion. <i>Je ne donne pas de conseil d'investissement.</i>", 'bot');
+      sugg.innerHTML = SUGG.map((s) => `<button class="ask-chip" type="button">${esc(s)}</button>`).join('');
+    }
+    inp.focus();
+  }
+  function close() { panel.hidden = true; launch.setAttribute('aria-expanded', 'false'); }
+  launch.addEventListener('click', () => (panel.hidden ? open() : close()));
+  document.getElementById('ask-close').addEventListener('click', close);
+  form.addEventListener('submit', (e) => { e.preventDefault(); ask(inp.value); inp.value = ''; });
+  sugg.addEventListener('click', (e) => { const c = e.target.closest('.ask-chip'); if (c) ask(c.textContent); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !panel.hidden) close(); });
+}
+
 // Symboles reçus dans l'adresse (ex. depuis le guide : /?tickers=XOM,CVX&from=guide),
 // sinon titres mémorisés, sinon valeurs par défaut. Puis analyse au chargement.
 const _params = new URLSearchParams(location.search);
@@ -565,6 +691,7 @@ if (cameFromGuide) document.getElementById('backbar').innerHTML = '<a class="bac
 if ((fromUrl || cameFromGuide) && window.history.replaceState) window.history.replaceState(null, '', location.pathname);
 renderCategories();
 renderFavs();
+initAssistant();
 run();
 </script>
 </body>
