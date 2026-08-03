@@ -209,6 +209,7 @@
 
   .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
   .ticker { font-size: 21px; font-weight: 750; letter-spacing: -.01em; }
+  .coname { font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
   .price { font-size: 15px; color: var(--muted); margin-top: 3px; font-variant-numeric: tabular-nums; }
   .price strong { color: var(--text); font-weight: 650; }
   .asof { font-size: 11px; color: var(--faint); }
@@ -343,6 +344,27 @@ const SIGNAL_LABEL = { trend_lt:'Tendance long terme', trend_mt:'Tendance moyen 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt = (v, n=2) => (v==null ? '—' : Number(v).toFixed(n));
 
+// Noms d'entreprises pour les symboles courants (repli si l'API n'en fournit pas).
+const NAMES = {
+  SPY:'S&P 500', QQQ:'Nasdaq 100', DIA:'Dow Jones', '^GSPC':'S&P 500', '^FCHI':'CAC 40', '^GDAXI':'DAX 40',
+  AAPL:'Apple', MSFT:'Microsoft', GOOGL:'Alphabet', GOOG:'Alphabet', AMZN:'Amazon', META:'Meta', NVDA:'Nvidia', TSLA:'Tesla',
+  'MC.PA':'LVMH', 'OR.PA':"L'Oréal", 'TTE.PA':'TotalEnergies', 'AIR.PA':'Airbus', 'SAN.PA':'Sanofi', 'BNP.PA':'BNP Paribas',
+  XOM:'ExxonMobil', CVX:'Chevron', SHEL:'Shell',
+  'RHM.DE':'Rheinmetall', 'SAF.PA':'Safran', 'HO.PA':'Thales', LMT:'Lockheed Martin', RTX:'Raytheon',
+  NEM:'Newmont', GOLD:'Barrick Gold', GDX:"Mines d'or – VanEck", AEM:'Agnico Eagle',
+  TSM:'TSMC', AMD:'AMD', AVGO:'Broadcom', INTC:'Intel',
+  PG:'Procter & Gamble', KO:'Coca-Cola', COST:'Costco', WMT:'Walmart',
+  LLY:'Eli Lilly', JNJ:'Johnson & Johnson', PFE:'Pfizer', MRK:'Merck', ABBV:'AbbVie', NVO:'Novo Nordisk', 'NOVN.SW':'Novartis',
+  'BTC-USD':'Bitcoin', 'ETH-USD':'Ethereum', 'SOL-USD':'Solana',
+};
+function companyName(r) {
+  let n = (r && r.name) ? r.name : (NAMES[String(r && r.ticker).toUpperCase()] || '');
+  n = String(n).trim();
+  if (n.length > 30) n = n.slice(0, 29).trim() + '…';
+  return n;
+}
+function coHtml(r) { const n = companyName(r); return n ? ` <span class="coname">(${esc(n)})</span>` : ''; }
+
 // Jauge circulaire : anneau qui se remplit selon le score (0–100).
 function scoreRing(score, color) {
   const s = Math.max(0, Math.min(100, Number(score) || 0));
@@ -393,7 +415,7 @@ function riskChips(risk) {
 }
 
 function card(r) {
-  if (r.error) return `<div class="card err"><div class="ticker">${esc(r.ticker)}</div>
+  if (r.error) return `<div class="card err"><div class="ticker">${esc(r.ticker)}${coHtml(r)}</div>
     <div class="risk-summary" style="margin-top:8px">Impossible de récupérer ce titre : ${esc(r.error)}.<br>Vérifiez le symbole (ex. air.fr pour une valeur de Paris).</div></div>`;
   const color = LABEL_COLOR[r.label] || '#666';
   const recoText = LABEL_TEXT[r.label] || esc(r.label.replace('_', ' '));
@@ -411,7 +433,7 @@ function card(r) {
   return `<div class="card">
     <div class="card-head">
       <div>
-        <div class="ticker">${esc(r.ticker)} <button class="star${isFav(r.ticker) ? ' on' : ''}" data-t="${esc(r.ticker)}" title="Ajouter/retirer des favoris" aria-label="Favori">${isFav(r.ticker) ? '★' : '☆'}</button><button class="bell${getAlerts()[String(r.ticker).toUpperCase()] ? ' on' : ''}${customAlert(r) ? ' hit' : ''}" data-t="${esc(r.ticker)}" title="Alerte de prix" aria-label="Alerte de prix">🔔</button></div>
+        <div class="ticker">${esc(r.ticker)}${coHtml(r)} <button class="star${isFav(r.ticker) ? ' on' : ''}" data-t="${esc(r.ticker)}" title="Ajouter/retirer des favoris" aria-label="Favori">${isFav(r.ticker) ? '★' : '☆'}</button><button class="bell${getAlerts()[String(r.ticker).toUpperCase()] ? ' on' : ''}${customAlert(r) ? ' hit' : ''}" data-t="${esc(r.ticker)}" title="Alerte de prix" aria-label="Alerte de prix">🔔</button></div>
         <div class="price"><strong>${fmt(r.price)}</strong> <span class="asof">au ${esc(r.day)}</span></div>
         <span class="reco-pill" style="color:${color};background:${color}1f">${recoText}</span>
       </div>
