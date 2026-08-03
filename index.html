@@ -5,72 +5,188 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Analyse boursière</title>
 <style>
-  :root { color-scheme: light dark; }
-  * { box-sizing: border-box; }
-  body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-    margin: 0; background: #f5f6f8; color: #1a1a1a; }
-  header { background: #14213d; color: #fff; padding: 20px 18px; }
-  header h1 { margin: 0; font-size: 20px; font-weight: 600; }
-  header .sub { opacity: .75; font-size: 12.5px; margin-top: 4px; }
-  main { max-width: 1180px; margin: 0 auto; padding: 18px 14px 60px; }
-  .controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-  .controls input { flex: 1; min-width: 180px; padding: 12px 14px; font-size: 15px;
-    border: 1px solid #ccd2da; border-radius: 10px; background: #fff; color: #111; }
-  .controls button { padding: 12px 20px; font-size: 15px; font-weight: 600; border: none;
-    border-radius: 10px; background: #14213d; color: #fff; cursor: pointer; }
-  .controls button:disabled { opacity: .5; }
-  .hint { font-size: 12px; color: #888; margin-bottom: 18px; }
-  .banner { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin: 12px 0; }
-  .banner.err { background: #fdecea; color: #a5261b; border: 1px solid #f5c6c0; }
-  .banner.info { background: #e7f3ff; color: #0b4a8f; border: 1px solid #b6d4ff; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-  .card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-  .card-head { display: flex; justify-content: space-between; align-items: flex-start; }
-  .ticker { font-size: 20px; font-weight: 700; }
-  .price { font-size: 15px; color: #333; margin-top: 2px; }
-  .asof { font-size: 11px; color: #999; }
-  .gauge { text-align: center; min-width: 82px; }
-  .score { font-size: 32px; font-weight: 800; line-height: 1; }
-  .label { font-size: 11px; font-weight: 700; letter-spacing: .04em; margin-top: 2px; }
-  .spark { width: 100%; height: 50px; margin: 12px 0 8px; }
-  .headline { font-size: 13.5px; font-weight: 600; color: #222; margin: 4px 0 12px; }
-  ul.points { list-style: none; margin: 0 0 12px; padding: 0; }
-  ul.points li { display: flex; gap: 8px; font-size: 12.8px; line-height: 1.45; margin-bottom: 8px; color: #333; }
-  ul.points .dot { flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; }
-  .bull .dot { background: #0f9d58; } .bear .dot { background: #d32f2f; }
-  .warn .dot { background: #ef8f00; } .neutral .dot { background: #9aa0a6; }
-  .risk-summary { font-size: 12.5px; color: #555; background: #f7f8fa; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
-  .vigilance { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12.5px; color: #7a5c00; }
-  .vigilance ul { margin: 6px 0 0; padding-left: 18px; }
-  details summary { cursor: pointer; font-size: 12.5px; color: #666; }
-  table.metrics { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
-  table.metrics td { padding: 3px 0; border-bottom: 1px solid #f0f0f0; }
-  table.metrics td:last-child { text-align: right; font-weight: 600; }
-  .card.err { border: 1px solid #f5c6c0; }
-  h2 { margin: 32px 0 10px; font-size: 17px; }
-  .glossary dl { background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-  .glossary dt { font-weight: 700; margin-top: 12px; font-size: 13.5px; }
-  .glossary dt:first-child { margin-top: 0; }
-  .glossary dd { margin: 3px 0 0; font-size: 12.8px; color: #555; }
-  footer { color: #888; font-size: 12px; margin-top: 30px; }
-  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #ccd; border-top-color: #14213d;
-    border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  :root {
+    color-scheme: light dark;
+    --bg: #eef1f6;
+    --bg-grad-1: #f6f8fc;
+    --bg-grad-2: #e7ebf3;
+    --card: #ffffff;
+    --card-border: #e7e9ef;
+    --text: #16181d;
+    --muted: #6b7280;
+    --faint: #9aa0a6;
+    --border: #edeef2;
+    --input-bg: #ffffff;
+    --chip-bg: #f4f6fa;
+    --ring-track: #e9ebf1;
+    --pos: #16a34a;
+    --neg: #dc2626;
+    --warn: #ea8a00;
+    --neutral: #9aa0a6;
+    --accent: #2c4a8c;
+    --shadow: 0 2px 14px rgba(18,28,53,.07);
+    --radius: 16px;
+  }
   @media (prefers-color-scheme: dark) {
-    body { background: #0f1115; color: #e6e6e6; }
-    .controls input { background: #1a1d23; color: #eee; border-color: #33383f; }
-    .card, .glossary dl { background: #1a1d23; box-shadow: none; border: 1px solid #262a31; }
-    .price, .headline { color: #dcdcdc; } ul.points li { color: #c9c9c9; }
-    .risk-summary { background: #22262e; color: #b8b8b8; }
-    .vigilance { background: #2a2510; border-color: #4d4213; color: #d9c37a; }
-    table.metrics td { border-color: #262a31; } .glossary dd { color: #a9a9a9; }
+    :root {
+      --bg: #0d0f14;
+      --bg-grad-1: #12151c;
+      --bg-grad-2: #0b0d12;
+      --card: #171a21;
+      --card-border: #262a33;
+      --text: #e8eaee;
+      --muted: #9aa1ac;
+      --faint: #767c88;
+      --border: #23262e;
+      --input-bg: #1b1f27;
+      --chip-bg: #20242d;
+      --ring-track: #2a2f39;
+      --pos: #34d17f;
+      --neg: #f26d6d;
+      --warn: #f5a623;
+      --neutral: #8a909b;
+      --accent: #8fa8e6;
+      --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0; color: var(--text);
+    background: radial-gradient(1200px 600px at 50% -200px, var(--bg-grad-1), var(--bg-grad-2)) fixed, var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ─────────────────────────────────────────── */
+  header {
+    background: linear-gradient(135deg, #14213d 0%, #223a63 55%, #2c4a8c 100%);
+    color: #fff; padding: 26px 18px 24px;
+    box-shadow: 0 4px 24px rgba(20,33,61,.28);
+  }
+  .header-inner { max-width: 1180px; margin: 0 auto; }
+  header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -.01em; display: flex; align-items: center; gap: 9px; }
+  header h1 .spark-ico { font-size: 20px; }
+  header .sub { opacity: .8; font-size: 13px; margin-top: 5px; }
+
+  main { max-width: 1180px; margin: 0 auto; padding: 20px 14px 64px; }
+
+  /* ── Barre de recherche ─────────────────────────────── */
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+  .controls input {
+    flex: 1; min-width: 190px; padding: 14px 16px; font-size: 15.5px;
+    border: 1px solid var(--card-border); border-radius: 12px;
+    background: var(--input-bg); color: var(--text); outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .controls input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(44,74,140,.16); }
+  .controls button {
+    padding: 14px 24px; font-size: 15.5px; font-weight: 650; border: none;
+    border-radius: 12px; background: linear-gradient(135deg, #223a63, #2c4a8c);
+    color: #fff; cursor: pointer; transition: transform .08s, opacity .15s;
+  }
+  .controls button:hover { opacity: .93; }
+  .controls button:active { transform: translateY(1px); }
+  .controls button:disabled { opacity: .5; cursor: default; }
+  .hint { font-size: 12.5px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+
+  .banner { padding: 11px 15px; border-radius: 10px; font-size: 13px; margin: 12px 0; }
+  .banner.err { background: rgba(220,38,38,.1); color: #b3261b; border: 1px solid rgba(220,38,38,.28); }
+  .banner.info { background: rgba(44,74,140,.1); color: var(--accent); border: 1px solid rgba(44,74,140,.24); }
+
+  /* ── Grille de cartes ───────────────────────────────── */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; }
+  .card {
+    background: var(--card); border-radius: var(--radius); padding: 18px;
+    box-shadow: var(--shadow); border: 1px solid var(--card-border);
+    animation: rise .35s ease both;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .card.err { border-color: rgba(220,38,38,.35); }
+
+  .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .ticker { font-size: 21px; font-weight: 750; letter-spacing: -.01em; }
+  .price { font-size: 15px; color: var(--muted); margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .price strong { color: var(--text); font-weight: 650; }
+  .asof { font-size: 11px; color: var(--faint); }
+  .reco-pill {
+    display: inline-block; margin-top: 9px; padding: 4px 11px; border-radius: 999px;
+    font-size: 11.5px; font-weight: 700; letter-spacing: .03em;
+  }
+
+  /* ── Jauge circulaire ───────────────────────────────── */
+  .ring { flex: 0 0 auto; }
+  .ring-num { font-size: 21px; font-weight: 800; font-family: inherit; }
+  .ring-cap { font-size: 8.5px; font-weight: 600; fill: var(--faint); letter-spacing: .05em; }
+
+  /* ── Sparkline ──────────────────────────────────────── */
+  .spark { width: 100%; height: 58px; margin: 14px 0 6px; display: block; }
+
+  .headline { font-size: 14px; font-weight: 600; color: var(--text); margin: 6px 0 14px; line-height: 1.5; }
+
+  /* ── Chips de risque ────────────────────────────────── */
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+  .chip {
+    display: flex; flex-direction: column; gap: 1px; padding: 7px 11px; border-radius: 10px;
+    background: var(--chip-bg); min-width: 74px; flex: 1;
+  }
+  .chip .k { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+  .chip .v { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .chip.pos .v { color: var(--pos); } .chip.neg .v { color: var(--neg); }
+  .chip.warn .v { color: var(--warn); } .chip.flat .v { color: var(--text); }
+
+  /* ── Points d'analyse ───────────────────────────────── */
+  ul.points { list-style: none; margin: 0 0 14px; padding: 0; }
+  ul.points li {
+    display: flex; gap: 10px; font-size: 13px; line-height: 1.5; margin-bottom: 9px; color: var(--text);
+    padding-left: 10px; border-left: 3px solid var(--neutral);
+  }
+  ul.points li.bull { border-color: var(--pos); } ul.points li.bear { border-color: var(--neg); }
+  ul.points li.warn { border-color: var(--warn); } ul.points li.neutral { border-color: var(--neutral); }
+  ul.points li strong { font-weight: 650; }
+
+  .risk-summary { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+
+  .vigilance {
+    background: rgba(234,138,0,.1); border: 1px solid rgba(234,138,0,.32); border-radius: 10px;
+    padding: 11px 13px; margin-bottom: 12px; font-size: 12.5px; color: var(--warn);
+  }
+  .vigilance strong { color: var(--warn); }
+  .vigilance ul { margin: 6px 0 0; padding-left: 18px; }
+  .vigilance li { margin-bottom: 3px; }
+
+  details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); user-select: none; padding: 4px 0; }
+  details summary:hover { color: var(--text); }
+  table.metrics { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+  table.metrics td { padding: 5px 0; border-bottom: 1px solid var(--border); }
+  table.metrics td:last-child { text-align: right; font-weight: 650; font-variant-numeric: tabular-nums; }
+
+  h2 { margin: 38px 0 12px; font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
+  .glossary dl { background: var(--card); border-radius: var(--radius); padding: 18px 22px; box-shadow: var(--shadow); border: 1px solid var(--card-border); }
+  .glossary dt { font-weight: 700; margin-top: 14px; font-size: 13.5px; }
+  .glossary dt:first-child { margin-top: 0; }
+  .glossary dd { margin: 3px 0 0; font-size: 12.8px; color: var(--muted); line-height: 1.5; }
+
+  footer { color: var(--faint); font-size: 12px; margin-top: 34px; line-height: 1.55; }
+
+  .spinner {
+    display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(44,74,140,.3);
+    border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 480px) {
+    .grid { grid-template-columns: 1fr; }
+    header h1 { font-size: 20px; }
   }
 </style>
 </head>
 <body>
 <header>
-  <h1>Analyse boursière</h1>
-  <div class="sub">Cours réels · analyse technique expliquée</div>
+  <div class="header-inner">
+    <h1><span class="spark-ico">📈</span> Analyse boursière</h1>
+    <div class="sub">Cours réels · analyse technique expliquée en français</div>
+  </div>
 </header>
 <main>
   <div class="controls">
@@ -95,27 +211,71 @@
 </main>
 
 <script>
-const LABEL_COLOR = { STRONG_BUY:'#0f9d58', BUY:'#4caf50', HOLD:'#b0a000', SELL:'#ef6c00', STRONG_SELL:'#d32f2f' };
+const LABEL_COLOR = { STRONG_BUY:'#16a34a', BUY:'#3fae52', HOLD:'#c79a00', SELL:'#ef6c00', STRONG_SELL:'#dc2626' };
+const LABEL_TEXT  = { STRONG_BUY:'ACHAT MARQUÉ', BUY:'ACHAT', HOLD:'NEUTRE', SELL:'VENTE', STRONG_SELL:'VENTE MARQUÉE' };
 const SIGNAL_LABEL = { trend_lt:'Tendance long terme', trend_mt:'Tendance moyen terme',
   ma_cross:'Croisement MM 50/200', rsi:'RSI', macd:'MACD', bollinger:'Bollinger', momentum:'Momentum' };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt = (v, n=2) => (v==null ? '—' : Number(v).toFixed(n));
 
-function spark(vals) {
+// Jauge circulaire : anneau qui se remplit selon le score (0–100).
+function scoreRing(score, color) {
+  const s = Math.max(0, Math.min(100, Number(score) || 0));
+  const r = 30, c = 2 * Math.PI * r, filled = s / 100 * c;
+  return `<svg class="ring" viewBox="0 0 72 72" width="72" height="72" aria-hidden="true">
+    <circle cx="36" cy="36" r="${r}" fill="none" stroke="var(--ring-track)" stroke-width="7"/>
+    <circle cx="36" cy="36" r="${r}" fill="none" stroke="${color}" stroke-width="7" stroke-linecap="round"
+      stroke-dasharray="${filled.toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 36 36)"/>
+    <text x="36" y="40" text-anchor="middle" class="ring-num" fill="${color}">${Math.round(s)}</text>
+    <text x="36" y="52" text-anchor="middle" class="ring-cap">/ 100</text>
+  </svg>`;
+}
+
+// Mini-graphe avec léger dégradé sous la courbe.
+function spark(vals, id) {
   if (!vals || vals.length < 2) return '';
-  const lo = Math.min(...vals), hi = Math.max(...vals), rng = (hi-lo)||1, w=260, h=50;
-  const pts = vals.map((c,i)=>`${(i/(vals.length-1)*w).toFixed(1)},${(h-(c-lo)/rng*h).toFixed(1)}`).join(' ');
-  const col = vals[vals.length-1] >= vals[0] ? '#0f9d58' : '#d32f2f';
-  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><polyline fill="none" stroke="${col}" stroke-width="1.6" points="${pts}"/></svg>`;
+  const lo = Math.min(...vals), hi = Math.max(...vals), rng = (hi - lo) || 1, w = 300, h = 58, pad = 4;
+  const pts = vals.map((c, i) => [i / (vals.length - 1) * w, h - pad - (c - lo) / rng * (h - 2 * pad)]);
+  const line = pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  const area = `0,${h} ${line} ${w},${h}`;
+  const up = vals[vals.length - 1] >= vals[0];
+  const col = up ? 'var(--pos)' : 'var(--neg)';
+  const gid = 'grad-' + id;
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+    <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${col}" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="${col}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <polygon points="${area}" fill="url(#${gid})"/>
+    <polyline fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" points="${line}"/>
+  </svg>`;
+}
+
+// Petites étiquettes de risque colorées.
+function riskChips(risk) {
+  if (!risk) return '';
+  const c = [];
+  const perf = risk.ret_1y_pct;
+  if (perf != null) c.push({ k: 'Perf. 1 an', v: (perf >= 0 ? '+' : '') + fmt(perf, 1) + '%', t: perf >= 0 ? 'pos' : 'neg' });
+  const vol = risk.annual_vol_pct;
+  if (vol != null) c.push({ k: 'Volatilité', v: fmt(vol, 1) + '%', t: vol < 15 ? 'pos' : (vol < 30 ? 'warn' : 'neg') });
+  const dd = risk.max_drawdown_pct;
+  if (dd != null) c.push({ k: 'Max drawdown', v: fmt(dd, 1) + '%', t: dd < -35 ? 'neg' : 'warn' });
+  const sh = risk.sharpe;
+  if (sh != null) c.push({ k: 'Sharpe', v: fmt(sh, 2), t: sh >= 1 ? 'pos' : (sh >= 0 ? 'warn' : 'neg') });
+  if (!c.length) return '';
+  return `<div class="chips">${c.map(x => `<div class="chip ${x.t}"><span class="k">${x.k}</span><span class="v">${x.v}</span></div>`).join('')}</div>`;
 }
 
 function card(r) {
   if (r.error) return `<div class="card err"><div class="ticker">${esc(r.ticker)}</div>
-    <div class="risk-summary">Impossible de récupérer ce titre : ${esc(r.error)}.<br>Vérifiez le symbole (ex. air.fr pour une valeur de Paris).</div></div>`;
+    <div class="risk-summary" style="margin-top:8px">Impossible de récupérer ce titre : ${esc(r.error)}.<br>Vérifiez le symbole (ex. air.fr pour une valeur de Paris).</div></div>`;
   const color = LABEL_COLOR[r.label] || '#666';
-  const points = (r.points||[]).map(p => `<li class="${p.s}"><span class="dot"></span><span><strong>${esc(p.topic)}.</strong> ${esc(p.text)}</span></li>`).join('');
+  const recoText = LABEL_TEXT[r.label] || esc(r.label.replace('_', ' '));
+  const points = (r.points||[]).map(p => `<li class="${p.s}"><span><strong>${esc(p.topic)}.</strong> ${esc(p.text)}</span></li>`).join('');
+  const totalAbs = Object.values(r.contributions||{}).reduce((a,x)=>a+Math.abs(x),0) || 1;
   const contribs = Object.entries(r.contributions||{}).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]))
-    .map(([k,v])=>`<tr><td>${esc(SIGNAL_LABEL[k]||k)}</td><td style="color:${v>=0?'#0f9d58':'#d32f2f'}">${v>=0?'+':''}${(v/ (Object.values(r.contributions).reduce((a,x)=>a+Math.abs(x),0)||1) *50).toFixed(1)}</td></tr>`).join('');
+    .map(([k,v])=>`<tr><td>${esc(SIGNAL_LABEL[k]||k)}</td><td style="color:${v>=0?'var(--pos)':'var(--neg)'}">${v>=0?'+':''}${(v/totalAbs*50).toFixed(1)}</td></tr>`).join('');
   const metricsRows = [
     ['RSI (14)', fmt(r.metrics.rsi14,1)], ['SMA 50', fmt(r.metrics.sma50)], ['SMA 200', fmt(r.metrics.sma200)],
     ['Momentum 60 j', fmt(r.metrics.momentum_60,1)+'%'], ['Volatilité', fmt(r.risk.annual_vol_pct,1)+'%'],
@@ -125,15 +285,20 @@ function card(r) {
   const vigilance = (r.vigilance&&r.vigilance.length) ? `<div class="vigilance"><strong>⚠ Points de vigilance</strong><ul>${r.vigilance.map(v=>`<li>${esc(v)}</li>`).join('')}</ul></div>` : '';
   return `<div class="card">
     <div class="card-head">
-      <div><div class="ticker">${esc(r.ticker)}</div><div class="price">${fmt(r.price)} <span class="asof">au ${esc(r.day)}</span></div></div>
-      <div class="gauge"><div class="score" style="color:${color}">${Math.round(r.score)}</div><div class="label" style="color:${color}">${esc(r.label.replace('_',' '))}</div></div>
+      <div>
+        <div class="ticker">${esc(r.ticker)}</div>
+        <div class="price"><strong>${fmt(r.price)}</strong> <span class="asof">au ${esc(r.day)}</span></div>
+        <span class="reco-pill" style="color:${color};background:${color}1f">${recoText}</span>
+      </div>
+      ${scoreRing(r.score, color)}
     </div>
-    ${spark(r.spark)}
+    ${spark(r.spark, esc(r.ticker))}
     <div class="headline">${esc(r.headline)}</div>
+    ${riskChips(r.risk)}
     <ul class="points">${points}</ul>
     <div class="risk-summary">${esc(r.risk_summary||'')}</div>
     ${vigilance}
-    <details><summary>Détails chiffrés</summary><table class="metrics">${metricsRows}<tr><td colspan="2" style="padding-top:8px;color:#888;font-size:11px;text-transform:uppercase">Contributions au score</td></tr>${contribs}</table></details>
+    <details><summary>Détails chiffrés</summary><table class="metrics">${metricsRows}<tr><td colspan="2" style="padding-top:10px;color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:.03em">Contributions au score</td></tr>${contribs}</table></details>
   </div>`;
 }
 
