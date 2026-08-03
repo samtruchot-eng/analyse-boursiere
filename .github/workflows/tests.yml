@@ -1,0 +1,21 @@
+name: Tests
+
+# Lance automatiquement les tests des calculs à chaque changement,
+# pour être prévenu si une modification casse un indicateur ou le score.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      # Aucune dépendance à installer : les tests utilisent uniquement Node.
+      - name: Exécuter les tests
+        run: node api/analyze.test.js
