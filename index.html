@@ -265,7 +265,10 @@
   #alerts:not(:empty) { margin: 4px 0 18px; }
   .alerts-box { background: var(--card); border: 1px solid var(--card-border); border-left: 3px solid #eab308;
     border-radius: 12px; padding: 12px 16px; box-shadow: var(--shadow); }
-  .alerts-title { font-weight: 700; font-size: 13.5px; margin-bottom: 6px; }
+  .alerts-title { font-weight: 700; font-size: 13.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .notif-btn { border: 1px solid var(--card-border); background: var(--card); color: var(--accent); border-radius: 999px; padding: 3px 12px; font-size: 11.5px; font-weight: 650; cursor: pointer; transition: border-color .15s; }
+  .notif-btn:hover { border-color: var(--accent); }
+  .notif-on { font-size: 11px; color: var(--pos); font-weight: 650; }
   .alerts-box ul { list-style: none; margin: 0; padding: 0; }
   .alerts-box li { font-size: 12.8px; padding: 6px 0; border-top: 1px solid var(--border); color: var(--text);
     display: flex; gap: 8px; align-items: baseline; line-height: 1.4; }
@@ -672,6 +675,7 @@ const I18N = {
     alStrongBuy: s => `signal fort : achat marqué (score ${s})`, alStrongSell: s => `signal fort : vente marquée (score ${s})`,
     alNearHigh: p => `proche de son plus-haut 52 sem. (${p} %)`, alNearLow: 'proche de son plus-bas 52 sem.',
     alHit: (op, p, c) => `seuil ${op} ${p} atteint (cours ${c})`, alertsTitle: 'Alertes',
+    notifEnable: 'Activer les notifications', notifOn: '🔔 notifications activées',
     // Comparateur
     cmpTitle: (n) => `📊 Comparateur (${n}) · triez en cliquant une colonne`, colTicker: 'Titre', colScore: 'Score', colReco: 'Reco', colRet: 'Perf 1 an', colVol: 'Volatilité', colSharpe: 'Sharpe',
     // Invites
@@ -744,6 +748,7 @@ const I18N = {
     alStrongBuy: s => `strong signal: strong buy (score ${s})`, alStrongSell: s => `strong signal: strong sell (score ${s})`,
     alNearHigh: p => `near its 52-week high (${p}%)`, alNearLow: 'near its 52-week low',
     alHit: (op, p, c) => `threshold ${op} ${p} reached (price ${c})`, alertsTitle: 'Alerts',
+    notifEnable: 'Enable notifications', notifOn: '🔔 notifications on',
     cmpTitle: (n) => `📊 Comparison (${n}) · sort by clicking a column`, colTicker: 'Symbol', colScore: 'Score', colReco: 'Reco', colRet: '1y return', colVol: 'Volatility', colSharpe: 'Sharpe',
     alPromptCur: (t, op, p) => `Price alert for ${t} — current: ${op} ${p}.\nNew threshold price (leave empty to remove the alert):`,
     alPromptNew: (t, px) => `Price alert for ${t}${px != null ? ' (current price: ' + px + ')' : ''}.\nI'll warn you when the price crosses this threshold.\nThreshold price:`,
@@ -1075,15 +1080,42 @@ function autoAlerts(r) {
   return out;
 }
 
+// ── Notifications navigateur pour les alertes de prix ────────────────────────
+function notifSupported() { return typeof Notification !== 'undefined'; }
+function notifBtnHtml() {
+  if (!notifSupported()) return '';
+  const perm = Notification.permission;
+  if (perm === 'granted') return `<span class="notif-on">${t('notifOn')}</span>`;
+  if (perm === 'denied') return '';
+  return `<button class="notif-btn" id="notif-enable" type="button">🔔 ${t('notifEnable')}</button>`;
+}
+let notifiedAlerts = new Set();
+function maybeNotify(list) {
+  if (!notifSupported() || Notification.permission !== 'granted') return;
+  list.filter(a => a.sev === 'alert').forEach(a => {
+    const key = a.t + '|' + a.msg;
+    if (notifiedAlerts.has(key)) return;
+    notifiedAlerts.add(key);
+    try { new Notification(t('alertTitle') + ' — ' + a.t, { body: a.msg, tag: 'bfly-' + a.t, icon: '/icon-192.png' }); } catch (e) { }
+  });
+}
+
 function renderAlerts(rows) {
   const el = document.getElementById('alerts'); const list = [];
   rows.forEach(r => { const c = customAlert(r); if (c) list.push(c); autoAlerts(r).forEach(a => list.push(a)); });
   if (!list.length) { el.innerHTML = ''; return; }
   const order = { alert: 0, neg: 1, warn: 2, pos: 3, info: 4 };
   list.sort((a, b) => (order[a.sev] - order[b.sev]));
-  el.innerHTML = `<div class="alerts-box"><div class="alerts-title">🔔 ${t('alertsTitle')} (${list.length})</div><ul>` +
+  const hasCustom = list.some(a => a.sev === 'alert') || Object.keys(getAlerts()).length > 0;
+  el.innerHTML = `<div class="alerts-box"><div class="alerts-title">🔔 ${t('alertsTitle')} (${list.length})${hasCustom ? notifBtnHtml() : ''}</div><ul>` +
     list.map(a => `<li class="al-${a.sev}"><span class="al-t">${esc(a.t)}</span><span>${esc(a.msg)}</span></li>`).join('') + `</ul></div>`;
+  maybeNotify(list);
 }
+document.getElementById('alerts').addEventListener('click', e => {
+  if (e.target.closest('#notif-enable') && notifSupported()) {
+    Notification.requestPermission().then(() => renderAlerts(lastRows));
+  }
+});
 
 // ── Comparateur : tableau triable de tous les titres analysés ────────────────
 const LABEL_ORDER = { STRONG_BUY: 5, BUY: 4, HOLD: 3, SELL: 2, STRONG_SELL: 1 };
