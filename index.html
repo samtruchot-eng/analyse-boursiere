@@ -105,6 +105,13 @@
   header h1:hover .logo { animation: logoWiggle .7s ease; }
   @keyframes logoWiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-9deg); } 60% { transform: rotate(7deg); } }
   @media (prefers-reduced-motion: reduce) { .bfly, .bfly .w, header h1:hover .logo { animation: none; } }
+  /* ── Envolée de transition entre les pages ───────────── */
+  .bfly-burst { position: fixed; inset: 0; z-index: 9999; pointer-events: none; overflow: hidden; }
+  .bfly-f { position: absolute; opacity: 0; will-change: transform, opacity; animation-name: bflyFly; animation-timing-function: cubic-bezier(.38,0,.4,1); animation-fill-mode: both; }
+  .bfly-f svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 3px 6px rgba(120,60,110,.25)); }
+  .bfly-f .w { transform-box: view-box; transform-origin: 32px 32px; animation: bflyFlap var(--f, .4s) ease-in-out infinite; }
+  @keyframes bflyFly { 0% { transform: translate(0,0) rotate(0) scale(.5); opacity: 0; } 14% { opacity: var(--o, .92); } 100% { transform: translate(var(--dx), var(--dy)) rotate(var(--r)) scale(1.05); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .bfly-burst { display: none; } }
   header h1 { margin: 0; font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", "Hoefler Text", Georgia, serif; font-size: 27px; font-weight: 700; letter-spacing: .005em; display: flex; align-items: center; gap: 10px; }
   header h1 .logo { flex: 0 0 auto; display: block; }
   header .slogan { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", "Hoefler Text", Georgia, serif; font-size: 15.5px; font-style: italic; font-weight: 500; margin-top: 7px; opacity: .96; letter-spacing: .015em; }
@@ -1460,6 +1467,40 @@ function initPageButterflies() {
   }).join('');
   document.body.appendChild(layer);
 }
+
+// ── Envolée de papillons à la transition entre les pages ─────────────────────
+(function () {
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><g class="w wl"><ellipse cx="22" cy="24.5" rx="12" ry="10" fill="#c479a6"/><ellipse cx="24.8" cy="42.2" rx="9.2" ry="8" fill="#d98bb0"/></g><g class="w wr"><ellipse cx="42" cy="24.5" rx="12" ry="10" fill="#c479a6"/><ellipse cx="39.2" cy="42.2" rx="9.2" ry="8" fill="#d98bb0"/></g><rect x="30.4" y="19" width="3.2" height="28" rx="1.6" fill="#e7c256"/></svg>';
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  function burst(mode, done) {
+    if (reduce) { if (done) done(); return; }
+    const ov = document.createElement('div'); ov.className = 'bfly-burst';
+    const n = mode === 'leave' ? 18 : 14; let html = '';
+    for (let i = 0; i < n; i++) {
+      const L = rnd(4, 96), T = mode === 'leave' ? rnd(80, 108) : rnd(22, 78);
+      const dx = rnd(-38, 38), dy = mode === 'leave' ? rnd(-150, -95) : rnd(-110, -55), r = rnd(-70, 70);
+      const s = rnd(20, 52), dur = rnd(.62, 1.05), del = rnd(0, mode === 'leave' ? .18 : .3);
+      html += `<div class="bfly-f" style="left:${L.toFixed(1)}vw;top:${T.toFixed(1)}vh;width:${s.toFixed(0)}px;height:${s.toFixed(0)}px;--dx:${dx.toFixed(1)}vw;--dy:${dy.toFixed(1)}vh;--r:${r.toFixed(0)}deg;--f:${rnd(.28, .5).toFixed(2)}s;--o:${rnd(.8, .98).toFixed(2)};animation-duration:${dur.toFixed(2)}s;animation-delay:${del.toFixed(2)}s">${SVG}</div>`;
+    }
+    ov.innerHTML = html; document.body.appendChild(ov);
+    if (done) setTimeout(done, 560);
+    setTimeout(() => { if (ov.parentNode) ov.parentNode.removeChild(ov); }, 1400);
+  }
+  try { if (sessionStorage.getItem('bflyTransit')) { sessionStorage.removeItem('bflyTransit'); burst('arrive'); } } catch (e) { }
+  document.addEventListener('click', function (e) {
+    if (reduce || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const a = e.target.closest && e.target.closest('a'); if (!a) return;
+    const href = a.getAttribute('href') || '';
+    if (!href || href.charAt(0) === '#' || a.target === '_blank' || a.hasAttribute('download')) return;
+    if (a.hostname !== location.hostname) return;
+    if (a.pathname === location.pathname && a.search === location.search) return;
+    e.preventDefault();
+    const url = a.href;
+    try { sessionStorage.setItem('bflyTransit', '1'); } catch (er) { }
+    burst('leave', function () { window.location.href = url; });
+  }, true);
+})();
 
 // ── Assistant intégré : base de connaissances + moteur de réponse ────────────
 const _norm = (s) => ' ' + String(s).toLowerCase().normalize('NFD')
