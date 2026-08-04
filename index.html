@@ -364,6 +364,7 @@
   .banner { padding: 11px 15px; border-radius: 10px; font-size: 13px; margin: 12px 0; }
   .banner.err { background: rgba(220,38,38,.1); color: #b3261b; border: 1px solid rgba(220,38,38,.28); }
   .banner.info { background: rgba(168,106,168,.1); color: var(--accent); border: 1px solid rgba(168,106,168,.24); }
+  .banner.warn { background: rgba(217,164,65,.12); color: #9a6b00; border: 1px solid rgba(217,164,65,.34); }
 
   /* ── Grille de cartes ───────────────────────────────── */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; }
@@ -691,6 +692,7 @@ const I18N = {
     notePrompt: t => `Note personnelle pour ${t} (laissez vide pour supprimer) :`,
     // Statut
     loading: 'Récupération des cours réels et analyse…', noneFetched: "Aucun titre n'a pu être récupéré. Vérifiez les symboles ou réessayez dans un instant.", errPrefix: 'Erreur :', errRetry: 'Réessayez dans un instant.',
+    offlineBanner: when => `Hors ligne — affichage des dernières données enregistrées (${when}).`,
     // Favoris
     favTip: "⭐ Astuce : cliquez l'étoile ☆ en haut d'une carte pour l'ajouter à vos favoris.", favMine: '⭐ Mes favoris', favAnalyzeAll: 'Analyser mes favoris', favAnalyze: t => `Analyser ${t}`, remove: 'Retirer', removeAria: t => `Retirer ${t}`,
     // Score history / delta
@@ -762,6 +764,7 @@ const I18N = {
     alPromptNew: (t, px) => `Price alert for ${t}${px != null ? ' (current price: ' + px + ')' : ''}.\nI'll warn you when the price crosses this threshold.\nThreshold price:`,
     notePrompt: t => `Personal note for ${t} (leave empty to delete):`,
     loading: 'Fetching real prices and analysing…', noneFetched: 'No symbol could be fetched. Check the symbols or try again shortly.', errPrefix: 'Error:', errRetry: 'Try again shortly.',
+    offlineBanner: when => `Offline — showing the last saved data (${when}).`,
     favTip: '⭐ Tip: click the ☆ star at the top of a card to add it to your favourites.', favMine: '⭐ My favourites', favAnalyzeAll: 'Analyse my favourites', favAnalyze: t => `Analyse ${t}`, remove: 'Remove', removeAria: t => `Remove ${t}`,
     prevScore: (s, d) => `Previous score: ${s} on ${d}`, vsWord: 'vs', scoreEvo: n => `Score over time · ${n} readings`,
     simHead: '🧮 Simulator — recurring investment', simInvest1: 'I invest', simInvest2: 'per month over this period.',
@@ -1253,11 +1256,25 @@ async function run() {
     fetchBenchmark();
     const okCount = lastRows.filter(r=>!r.error).length;
     status.innerHTML = okCount ? '' : `<div class="banner err">${t('noneFetched')}</div>`;
+    if (okCount) { try { localStorage.setItem('offlineCache', JSON.stringify({ when: Date.now(), tickers, rows: lastRows })); } catch (_) {} }
   } catch (e) {
+    if (restoreOffline(status, out)) return;
     status.innerHTML = `<div class="banner err">${t('errPrefix')} ${esc(e.message||e)}. ${t('errRetry')}</div>`;
   } finally {
     btn.disabled = false;
   }
+}
+// Repli hors ligne : réaffiche la dernière analyse enregistrée avec un bandeau.
+function restoreOffline(status, out) {
+  let c; try { c = JSON.parse(localStorage.getItem('offlineCache') || 'null'); } catch (_) { return false; }
+  if (!c || !Array.isArray(c.rows) || !c.rows.length) return false;
+  lastRows = c.rows;
+  const when = new Date(c.when).toLocaleString(localeOf(), { dateStyle: 'medium', timeStyle: 'short' });
+  status.innerHTML = `<div class="banner warn">${t('offlineBanner', when)}</div>`;
+  out.innerHTML = lastRows.map(card).join('');
+  renderAlerts(lastRows);
+  renderCompare(lastRows);
+  return true;
 }
 
 const GLOSSARY_L = {
@@ -1646,7 +1663,12 @@ async function initMarket() {
     const res = await fetch('/api/analyze?tickers=' + encodeURIComponent(MARKET_SYMS.map(x => x.s).join(',')) + '&lang=' + currentLang());
     const d = await res.json();
     marketData = d.results || [];
-  } catch (e) { marketData = []; }
+    if (marketData.some(r => r && !r.error && r.price != null)) {
+      try { localStorage.setItem('marketCache', JSON.stringify(marketData)); } catch (_) {}
+    }
+  } catch (e) {
+    try { marketData = JSON.parse(localStorage.getItem('marketCache') || '[]'); } catch (_) { marketData = []; }
+  }
   renderMarket();
 }
 function renderMarket() {
@@ -2145,6 +2167,8 @@ initPageButterflies();
 applyLang();
 initMarket();
 run();
+// Mode hors-ligne léger : la coquille de l'app est mise en cache par le service worker.
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('/sw.js').catch(() => {});
 </script>
 </body>
 </html>

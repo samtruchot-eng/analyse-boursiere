@@ -1326,6 +1326,9 @@
   function toggleTop() { topBtn.classList.toggle('show', window.scrollY > 350); }
   window.addEventListener('scroll', toggleTop, { passive: true });
   toggleTop();
+
+  // Mode hors-ligne léger : mise en cache de la coquille par le service worker.
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('/sw.js').catch(function () {});
 </script>
 </body>
 </html>
