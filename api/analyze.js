@@ -290,7 +290,7 @@ module.exports = async (req, res) => {
         ticker: series.ticker, name: series.name || null, source: series.source, day: series.bars[series.bars.length - 1].day,
         price: a.metrics.price, score: a.value, label: a.label, reco: a.reco,
         metrics: a.metrics, risk: rk, contributions: a.contributions,
-        spark: closes.slice(-90), ...ex,
+        spark: closes.slice(-90), chart: closes.slice(-260), ...ex,
       });
     } catch (e) {
       results.push({ ticker: ticker.toUpperCase(), error: String(e.message || e) });
