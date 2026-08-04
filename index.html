@@ -193,6 +193,24 @@
   li.al-info { color: var(--muted); }
   li.al-alert { color: var(--neg); font-weight: 600; } li.al-alert .al-t { color: #fff; background: var(--neg); }
 
+  /* ── Comparateur ────────────────────────────────────── */
+  #compare:not(:empty) { margin: 0 0 18px; }
+  .cmp-box { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .cmp-title { font-weight: 700; font-size: 13.5px; margin-bottom: 10px; }
+  .cmp-scroll { overflow-x: auto; }
+  table.cmp { width: 100%; border-collapse: collapse; font-size: 12.8px; min-width: 520px; }
+  table.cmp th { text-align: right; padding: 8px 10px; font-size: 10.5px; text-transform: uppercase; letter-spacing: .03em;
+    color: var(--muted); border-bottom: 1px solid var(--border); cursor: pointer; white-space: nowrap; user-select: none; }
+  table.cmp th.left { text-align: left; }
+  table.cmp th:hover { color: var(--text); }
+  table.cmp td { padding: 9px 10px; border-bottom: 1px solid var(--border); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.cmp td.left { text-align: left; }
+  table.cmp tbody tr { cursor: pointer; }
+  table.cmp tbody tr:hover { background: var(--chip-bg); }
+  table.cmp tbody tr:last-child td { border-bottom: none; }
+  .cmp-co { color: var(--muted); font-size: 11.5px; }
+  .cmp-pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: .02em; }
+
   .banner { padding: 11px 15px; border-radius: 10px; font-size: 13px; margin: 12px 0; }
   .banner.err { background: rgba(220,38,38,.1); color: #b3261b; border: 1px solid rgba(220,38,38,.28); }
   .banner.info { background: rgba(168,106,168,.1); color: var(--accent); border: 1px solid rgba(168,106,168,.24); }
@@ -322,6 +340,7 @@
 
   <div id="status"></div>
   <div id="alerts"></div>
+  <div id="compare"></div>
   <div id="results" class="grid"></div>
 
   <h2>Comment lire le score</h2>
@@ -425,7 +444,7 @@ function riskChips(risk) {
 }
 
 function card(r) {
-  if (r.error) return `<div class="card err"><div class="ticker">${esc(r.ticker)}${coHtml(r)}</div>
+  if (r.error) return `<div class="card err" id="card-${esc(r.ticker)}"><div class="ticker">${esc(r.ticker)}${coHtml(r)}</div>
     <div class="risk-summary" style="margin-top:8px">Impossible de récupérer ce titre : ${esc(r.error)}.<br>Vérifiez le symbole (ex. air.fr pour une valeur de Paris).</div></div>`;
   const color = LABEL_COLOR[r.label] || '#666';
   const recoText = LABEL_TEXT[r.label] || esc(r.label.replace('_', ' '));
@@ -440,7 +459,7 @@ function card(r) {
     ['Perf. 1 an', fmt(r.risk.ret_1y_pct,1)+'%'],
   ].map(([l,v])=>`<tr><td>${l}</td><td>${v}</td></tr>`).join('');
   const vigilance = (r.vigilance&&r.vigilance.length) ? `<div class="vigilance"><strong>⚠ Points de vigilance</strong><ul>${r.vigilance.map(v=>`<li>${esc(v)}</li>`).join('')}</ul></div>` : '';
-  return `<div class="card">
+  return `<div class="card" id="card-${esc(r.ticker)}">
     <div class="card-head">
       <div>
         <div class="ticker">${esc(r.ticker)}${coHtml(r)} <button class="star${isFav(r.ticker) ? ' on' : ''}" data-t="${esc(r.ticker)}" title="Ajouter/retirer des favoris" aria-label="Favori">${isFav(r.ticker) ? '★' : '☆'}</button><button class="bell${getAlerts()[String(r.ticker).toUpperCase()] ? ' on' : ''}${customAlert(r) ? ' hit' : ''}" data-t="${esc(r.ticker)}" title="Alerte de prix" aria-label="Alerte de prix">🔔</button></div>
@@ -499,10 +518,67 @@ function renderAlerts(rows) {
     list.map(a => `<li class="al-${a.sev}"><span class="al-t">${esc(a.t)}</span><span>${esc(a.msg)}</span></li>`).join('') + `</ul></div>`;
 }
 
+// ── Comparateur : tableau triable de tous les titres analysés ────────────────
+const LABEL_ORDER = { STRONG_BUY: 5, BUY: 4, HOLD: 3, SELL: 2, STRONG_SELL: 1 };
+const CMP_COLS = [
+  { key: 'ticker', label: 'Titre', align: 'left' }, { key: 'score', label: 'Score', align: 'right' },
+  { key: 'label', label: 'Reco', align: 'left' }, { key: 'ret', label: 'Perf 1 an', align: 'right' },
+  { key: 'vol', label: 'Volatilité', align: 'right' }, { key: 'sharpe', label: 'Sharpe', align: 'right' },
+];
+let cmpSort = { key: 'score', dir: -1 };
+function cmpVal(r, key) {
+  const rk = r.risk || {};
+  switch (key) {
+    case 'ticker': return String(r.ticker);
+    case 'score': return r.score ?? -1;
+    case 'label': return LABEL_ORDER[r.label] ?? 0;
+    case 'ret': return rk.ret_1y_pct ?? -1e9;
+    case 'vol': return rk.annual_vol_pct ?? 1e9;
+    case 'sharpe': return rk.sharpe ?? -1e9;
+  }
+}
+function renderCompare(rows) {
+  const el = document.getElementById('compare');
+  const data = rows.filter(r => !r.error);
+  if (data.length < 2) { el.innerHTML = ''; return; }
+  const sorted = data.slice().sort((a, b) => {
+    const va = cmpVal(a, cmpSort.key), vb = cmpVal(b, cmpSort.key);
+    if (typeof va === 'string') return cmpSort.dir * va.localeCompare(vb);
+    return cmpSort.dir * (va - vb);
+  });
+  const arrow = k => cmpSort.key === k ? (cmpSort.dir < 0 ? ' ▾' : ' ▴') : '';
+  const head = CMP_COLS.map(c => `<th data-k="${c.key}" class="${c.align}">${c.label}${arrow(c.key)}</th>`).join('');
+  const body = sorted.map(r => {
+    const color = LABEL_COLOR[r.label] || 'var(--muted)';
+    const perf = r.risk ? r.risk.ret_1y_pct : null;
+    return `<tr data-t="${esc(r.ticker)}">
+      <td class="left"><b>${esc(r.ticker)}</b> <span class="cmp-co">${esc(companyName(r))}</span></td>
+      <td class="right"><b style="color:${color}">${Math.round(r.score)}</b></td>
+      <td class="left"><span class="cmp-pill" style="color:${color};background:${color}1f">${esc(LABEL_TEXT[r.label] || r.label)}</span></td>
+      <td class="right" style="color:${perf >= 0 ? 'var(--pos)' : 'var(--neg)'}">${perf == null ? '—' : (perf >= 0 ? '+' : '') + fmt(perf, 1) + '%'}</td>
+      <td class="right">${fmt(r.risk && r.risk.annual_vol_pct, 1)}%</td>
+      <td class="right">${fmt(r.risk && r.risk.sharpe, 2)}</td>
+    </tr>`;
+  }).join('');
+  el.innerHTML = `<div class="cmp-box"><div class="cmp-title">📊 Comparateur (${data.length}) · triez en cliquant une colonne</div>
+    <div class="cmp-scroll"><table class="cmp"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div></div>`;
+}
+document.getElementById('compare').addEventListener('click', e => {
+  const th = e.target.closest('th');
+  if (th) {
+    const k = th.dataset.k;
+    if (cmpSort.key === k) cmpSort.dir *= -1; else cmpSort = { key: k, dir: k === 'ticker' ? 1 : -1 };
+    renderCompare(lastRows); return;
+  }
+  const tr = e.target.closest('tr[data-t]');
+  if (tr) { const c = document.getElementById('card-' + tr.dataset.t); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+});
+
 // Ré-affiche les cartes + alertes à partir des derniers résultats (après un changement).
 function rerender() {
   document.getElementById('results').innerHTML = lastRows.map(card).join('');
   renderAlerts(lastRows);
+  renderCompare(lastRows);
 }
 
 // Créer / modifier / supprimer une alerte de prix pour un titre.
@@ -541,6 +617,7 @@ async function run() {
     lastRows = (data.results||[]).slice().sort((a,b)=>(b.score??-1)-(a.score??-1));
     out.innerHTML = lastRows.map(card).join('');
     renderAlerts(lastRows);
+    renderCompare(lastRows);
     const okCount = lastRows.filter(r=>!r.error).length;
     status.innerHTML = okCount ? '' : `<div class="banner err">Aucun titre n'a pu être récupéré. Vérifiez les symboles ou réessayez dans un instant.</div>`;
   } catch (e) {
