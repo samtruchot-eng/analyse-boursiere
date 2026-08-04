@@ -261,6 +261,8 @@
   .pf-leg .lg-p { color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
   .pf-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; }
   .pf-block-t { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 650; margin-bottom: 10px; }
+  .pf-backup { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .pf-backup-note { flex-basis: 100%; font-size: 11px; color: var(--faint); line-height: 1.5; margin-top: 2px; }
 
   .banner { padding: 11px 15px; border-radius: 10px; font-size: 13px; margin: 12px 0; }
   .banner.err { background: rgba(220,38,38,.1); color: #b3261b; border: 1px solid rgba(220,38,38,.28); }
@@ -436,6 +438,13 @@
       (toutes les minutes si « Auto » est coché) — pas du temps réel à la seconde. Vos positions sont mémorisées
       dans ce navigateur uniquement. Les totaux sont regroupés par devise ; le <b>total en euros</b> convertit
       les autres devises avec un taux de change récupéré en direct (à titre indicatif).</div>
+    <div class="pf-backup">
+      💾 Sauvegarde :
+      <button class="pf-refresh" id="pf-export" type="button">Exporter</button>
+      <button class="pf-refresh" id="pf-import" type="button">Importer</button>
+      <input id="pf-file" type="file" accept="application/json,.json" hidden>
+      <span class="pf-backup-note">Enregistre (ou restaure) vos favoris, positions, alertes et historique dans un fichier — pour les sauvegarder ou les transférer sur un autre appareil.</span>
+    </div>
   </section>
 
   <div class="controls">
@@ -1236,8 +1245,38 @@ async function refreshPf() {
   renderPf();
 }
 
+// Sauvegarde / restauration de toutes les données locales.
+const BACKUP_KEYS = ['favorites', 'portfolio', 'alerts', 'scoreHistory', 'tickers', 'catGroup'];
+function exportData() {
+  const data = {};
+  BACKUP_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v != null) data[k] = v; });
+  const blob = new Blob([JSON.stringify({ app: 'butterfly', v: 1, exported: new Date().toISOString(), data }, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'butterfly-sauvegarde-' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+function importData(file) {
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const obj = JSON.parse(rd.result);
+      const data = (obj && obj.data && typeof obj.data === 'object') ? obj.data : obj;
+      if (!data || typeof data !== 'object') throw new Error('invalide');
+      if (!BACKUP_KEYS.some(k => data[k] != null)) throw new Error('rien à restaurer');
+      if (!window.confirm('Restaurer cette sauvegarde ? Vos favoris, positions, alertes et historique actuels seront remplacés.')) return;
+      BACKUP_KEYS.forEach(k => { if (data[k] != null) localStorage.setItem(k, String(data[k])); });
+      location.reload();
+    } catch (e) { window.alert('Fichier de sauvegarde invalide.'); }
+  };
+  rd.readAsText(file);
+}
+
 function initPortfolio() {
   const sec = document.getElementById('portfolio');
+  document.getElementById('pf-export').addEventListener('click', exportData);
+  document.getElementById('pf-import').addEventListener('click', () => document.getElementById('pf-file').click());
+  document.getElementById('pf-file').addEventListener('change', e => { if (e.target.files[0]) importData(e.target.files[0]); e.target.value = ''; });
   document.getElementById('pf-open').addEventListener('click', () => {
     sec.hidden = !sec.hidden;
     if (!sec.hidden) { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); refreshPf(); }
