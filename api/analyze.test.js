@@ -7,7 +7,8 @@
 
 const { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown,
   obv, trendCorr, atr, adx, stochastic, rsiDivergence,
-  toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr } =
+  toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr,
+  mfi, psar, squeeze, relVolume } =
   require('./analyze.js')._internal;
 
 let pass = 0, fail = 0;
@@ -186,6 +187,42 @@ function ramp(a, b, n) {
   ok('betaCorr sans dates communes = null', betaCorr([{ day: 'x', close: 1 }], [{ day: 'y', close: 1 }]) === null);
 }
 
+// ── MFI (Money Flow Index) ───────────────────────────────────────────────────
+{
+  const up = ramp(100, 200, 40).map((c) => ({ high: c, low: c, close: c, volume: 1000 }));
+  const down = ramp(200, 100, 40).map((c) => ({ high: c, low: c, close: c, volume: 1000 }));
+  ok('mfi hausse → proche 100', mfi(up, 14) > 90);
+  ok('mfi baisse → proche 0', mfi(down, 14) < 10);
+  ok('mfi sans volume = null', mfi(ramp(100, 200, 40).map((c) => ({ high: c, low: c, close: c, volume: 0 })), 14) === null);
+}
+
+// ── Parabolic SAR ────────────────────────────────────────────────────────────
+{
+  const up = ramp(100, 200, 60).map((c) => ({ high: c, low: c, close: c }));
+  const down = ramp(200, 100, 60).map((c) => ({ high: c, low: c, close: c }));
+  const su = psar(up), sd = psar(down);
+  ok('psar hausse → up=true et SAR sous le cours', su && su.up === true && su.sar <= 200);
+  ok('psar baisse → up=false et SAR au-dessus du cours', sd && sd.up === false && sd.sar >= 100);
+  ok('psar trop court = null', psar(up.slice(0, 3)) === null);
+}
+
+// ── Squeeze de volatilité ────────────────────────────────────────────────────
+{
+  // Série très plate → bandes resserrées → squeeze probablement actif.
+  const flat = Array.from({ length: 40 }, (_, i) => ({ high: 100.2, low: 99.8, close: 100 + (i % 2 ? 0.05 : -0.05) }));
+  const sq = squeeze(flat, 20);
+  ok('squeeze renvoie {on, width_pct}', sq && typeof sq.on === 'boolean' && sq.width_pct != null);
+  ok('squeeze série trop courte = null', squeeze([{ close: 1 }], 20) === null);
+}
+
+// ── Volume relatif ───────────────────────────────────────────────────────────
+{
+  const bars = Array.from({ length: 30 }, () => ({ close: 100, volume: 1000 }));
+  bars[bars.length - 1].volume = 3000; // dernier jour = 3× la moyenne
+  ok('relVolume ≈ 3 quand dernier volume triple', Math.abs(relVolume(bars, 20) - 3) < 0.2);
+  ok('relVolume sans volume = null', relVolume(Array.from({ length: 30 }, () => ({ close: 100, volume: 0 })), 20) === null);
+}
+
 // ── analyze() : score et cohérence ───────────────────────────────────────────
 {
   const a = analyze(bars(ramp(100, 200, 260)));
@@ -203,6 +240,8 @@ function ramp(a, b, n) {
   ok('analyze confiance exposée', a.metrics.confidence != null && a.metrics.confidence_label != null);
   ok('analyze fourchette 1 mois exposée', a.metrics.proj_low_1m != null && a.metrics.proj_high_1m != null);
   ok('analyze événements = tableau', Array.isArray(a.metrics.events));
+  ok('analyze Parabolic SAR exposé', a.metrics.psar != null && a.metrics.psar_dir != null);
+  ok('analyze champ squeeze présent', 'squeeze' in a.metrics);
 
   const b = analyze(bars(ramp(200, 100, 260)));
   ok('analyze tendance baissière → score < 50', b.value < 50);

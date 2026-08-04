@@ -355,6 +355,61 @@ function betaCorr(stockBars, marketBars) {
   return { beta: round(beta, 2), corr: round(corr, 2) };
 }
 
+// ── MFI (Money Flow Index) : un « RSI » pondéré par les volumes ───────────────
+function mfi(barsArr, p = 14) {
+  if (barsArr.length < p + 1) return null;
+  const tp = barsArr.map(b => ((b.high != null ? b.high : b.close) + (b.low != null ? b.low : b.close) + b.close) / 3);
+  let pos = 0, neg = 0;
+  for (let i = barsArr.length - p; i < barsArr.length; i++) {
+    const rmf = tp[i] * (barsArr[i].volume || 0);
+    if (tp[i] > tp[i - 1]) pos += rmf; else if (tp[i] < tp[i - 1]) neg += rmf;
+  }
+  if (pos + neg === 0) return null; // pas de volume exploitable
+  if (neg === 0) return 100;
+  return 100 - 100 / (1 + pos / neg);
+}
+
+// ── Parabolic SAR : points de retournement / stop suiveur ─────────────────────
+function psar(barsArr, step = 0.02, maxStep = 0.2) {
+  const n = barsArr.length;
+  if (n < 5) return null;
+  const H = i => barsArr[i].high != null ? barsArr[i].high : barsArr[i].close;
+  const L = i => barsArr[i].low != null ? barsArr[i].low : barsArr[i].close;
+  let up = H(1) >= H(0), af = step, ep = up ? H(0) : L(0), sar = up ? L(0) : H(0);
+  for (let i = 1; i < n; i++) {
+    sar = sar + af * (ep - sar);
+    if (up) {
+      sar = Math.min(sar, L(i - 1), L(Math.max(0, i - 2)));
+      if (L(i) < sar) { up = false; sar = ep; ep = L(i); af = step; }
+      else if (H(i) > ep) { ep = H(i); af = Math.min(af + step, maxStep); }
+    } else {
+      sar = Math.max(sar, H(i - 1), H(Math.max(0, i - 2)));
+      if (H(i) > sar) { up = true; sar = ep; ep = H(i); af = step; }
+      else if (L(i) < ep) { ep = L(i); af = Math.min(af + step, maxStep); }
+    }
+  }
+  return { sar, up };
+}
+
+// ── Squeeze : compression de volatilité (Bollinger à l'intérieur de Keltner) ──
+function squeeze(barsArr, p = 20) {
+  const closes = barsArr.map(b => b.close);
+  if (closes.length < p + 1) return null;
+  const bb = bollinger(closes, p, 2);
+  const bu = lastDefined(bb.up), bl = lastDefined(bb.low), mid = lastDefined(ema(closes, p)), a = atr(barsArr, p);
+  if (bu == null || bl == null || mid == null || a == null) return null;
+  const ku = mid + 1.5 * a, kl = mid - 1.5 * a;
+  return { on: bu < ku && bl > kl, width_pct: round((bu - bl) / closes[closes.length - 1] * 100, 1) };
+}
+
+// ── Volume relatif : volume du jour vs sa moyenne récente (conviction) ────────
+function relVolume(barsArr, p = 20) {
+  const vols = barsArr.map(b => b.volume || 0);
+  if (!vols.some(v => v > 0) || vols.length < p + 1) return null;
+  const avg = vols.slice(-p - 1, -1).reduce((a, b) => a + b, 0) / p;
+  return avg > 0 ? round(vols[vols.length - 1] / avg, 2) : null;
+}
+
 // ── Risque ─────────────────────────────────────────────────────────────────
 
 function dailyReturns(c) { const r = []; for (let i = 1; i < c.length; i++) if (c[i - 1]) r.push(c[i] / c[i - 1] - 1); return r; }
@@ -394,6 +449,7 @@ function clamp(x, lo = -1, hi = 1) { return Math.max(lo, Math.min(hi, x)); }
 const WEIGHTS = {
   trend_lt: 1.5, trend_mt: 1.2, ma_cross: 1.3, rsi: 1.0, macd: 1.2, bollinger: 0.8, momentum: 1.0,
   trend_strength: 1.1, volume: 0.9, stoch: 0.7, divergence: 0.8, htf_trend: 1.3,
+  mfi: 0.8, psar: 0.9,
 };
 
 function analyze(series) {
@@ -415,6 +471,10 @@ function analyze(series) {
   const levels = findLevels(series.bars, price);
   const events = detectEvents(series.bars);
   const proj = projRange(c, price);
+  const mfiV = mfi(series.bars, 14);
+  const ps = psar(series.bars);
+  const sq = squeeze(series.bars, 20);
+  const relVol = relVolume(series.bars, 20);
 
   const signals = {};
   if (sma50) signals.trend_mt = clamp((price / sma50 - 1) * 8);
@@ -445,6 +505,14 @@ function analyze(series) {
   else if (div === 'bull') signals.divergence = 0.6;
   // Tendance de fond (hebdomadaire) : donne au score une conscience du long terme.
   if (wk) signals.htf_trend = wk.s30 ? clamp((wk.price / wk.s30 - 1) * 4) : clamp(wk.sc / 3);
+  // MFI : surachat/survente pondéré par les volumes.
+  if (mfiV != null) {
+    if (mfiV >= 80) signals.mfi = clamp(-(mfiV - 80) / 15);
+    else if (mfiV <= 20) signals.mfi = clamp((20 - mfiV) / 15);
+    else signals.mfi = clamp((mfiV - 50) / 50);
+  }
+  // Parabolic SAR : sens de la tendance (cours au-dessus / en dessous du SAR).
+  if (ps && ps.sar) signals.psar = clamp((ps.up ? 1 : -1) * (0.35 + Math.min(0.65, Math.abs(price / ps.sar - 1) * 10)));
 
   let tw = 0, wsum = 0; const contrib = {};
   for (const [k, s] of Object.entries(signals)) { const w = WEIGHTS[k] || 1; tw += w; wsum += s * w; contrib[k] = s * w; }
@@ -467,6 +535,8 @@ function analyze(series) {
     support: levels.support, resistance: levels.resistance,
     support_dist_pct: levels.support_dist_pct, resistance_dist_pct: levels.resistance_dist_pct,
     proj_low_1m: proj ? proj.low : null, proj_high_1m: proj ? proj.high : null, proj_pct_1m: proj ? proj.pct : null,
+    mfi: round(mfiV, 1), psar: ps ? round(ps.sar, 2) : null, psar_dir: ps ? (ps.up ? 'up' : 'down') : null,
+    squeeze: sq ? sq.on : null, rel_volume: relVol,
     events,
   };
   return { signals, value, label, reco, metrics, contributions: contrib, price };
@@ -563,6 +633,22 @@ function explain(a, rk, ticker) {
     pts.push({ s: 'warn', topic: 'Niveau', text: `Résistance proche vers ${m.resistance} (+${m.resistance_dist_pct} %) : zone où le cours a déjà buté.` });
   if (m.support != null && m.support_dist_pct != null && m.support_dist_pct >= -4)
     pts.push({ s: 'bull', topic: 'Niveau', text: `Support proche vers ${m.support} (${m.support_dist_pct} %) : zone qui a déjà soutenu le cours.` });
+  // MFI : surachat/survente pondéré par les volumes.
+  if (m.mfi != null) {
+    if (m.mfi >= 80) { pts.push({ s: 'warn', topic: 'Flux (MFI)', text: `MFI à ${m.mfi} : suracheté volumes inclus, prudence à court terme.` }); vig.push('MFI en surachat (>80) : afflux d\'achats déjà important.'); }
+    else if (m.mfi <= 20) pts.push({ s: 'bull', topic: 'Flux (MFI)', text: `MFI à ${m.mfi} : survendu volumes inclus, rebond possible.` });
+    else pts.push({ s: m.mfi >= 50 ? 'bull' : 'neutral', topic: 'Flux (MFI)', text: `MFI à ${m.mfi} : flux d'argent ${m.mfi >= 50 ? 'plutôt acheteur' : 'équilibré'}.` });
+  }
+  // Parabolic SAR : sens + niveau de stop suiveur.
+  if (m.psar != null && m.psar_dir) {
+    if (m.psar_dir === 'up') pts.push({ s: 'bull', topic: 'SAR', text: `Parabolic SAR sous le cours (${m.psar}) : tendance haussière ; ce niveau sert de stop suiveur (bascule si le cours passe dessous).` });
+    else pts.push({ s: 'bear', topic: 'SAR', text: `Parabolic SAR au-dessus du cours (${m.psar}) : tendance baissière ; se retournerait si le cours repasse au-dessus.` });
+  }
+  // Volume relatif : conviction derrière le mouvement du jour.
+  if (m.rel_volume != null && m.rel_volume >= 1.5)
+    pts.push({ s: 'warn', topic: 'Volume relatif', text: `Volume ${m.rel_volume}× la moyenne : forte activité, le mouvement récent est appuyé par les échanges.` });
+  // Squeeze : compression de volatilité (mouvement important possible, sens inconnu).
+  if (m.squeeze) { pts.push({ s: 'warn', topic: 'Compression', text: `Compression de volatilité (« squeeze ») : les bandes se resserrent, un mouvement ample peut suivre — sans en indiquer le sens.` }); vig.push('Compression de volatilité : un mouvement important peut se déclencher.'); }
 
   const parts = [];
   if (rk.annual_vol_pct != null) {
@@ -628,4 +714,4 @@ module.exports = async (req, res) => {
 };
 
 // Exposé pour les tests (n'affecte pas le handler par défaut utilisé par Vercel).
-module.exports._internal = { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown, obv, trendCorr, atr, adx, stochastic, rsiDivergence, toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr };
+module.exports._internal = { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown, obv, trendCorr, atr, adx, stochastic, rsiDivergence, toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr, mfi, psar, squeeze, relVolume };

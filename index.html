@@ -570,11 +570,11 @@ const LABEL_TEXT  = { STRONG_BUY:'ACHAT MARQUÉ', BUY:'ACHAT', HOLD:'NEUTRE', SE
 const SIGNAL_LABEL = { trend_lt:'Tendance long terme', trend_mt:'Tendance moyen terme',
   ma_cross:'Croisement MM 50/200', rsi:'RSI', macd:'MACD', bollinger:'Bollinger', momentum:'Momentum',
   trend_strength:'Force de tendance (ADX)', volume:'Volume (OBV)', stoch:'Stochastique', divergence:'Divergence RSI',
-  htf_trend:'Tendance de fond (hebdo)' };
+  htf_trend:'Tendance de fond (hebdo)', mfi:'Flux monétaire (MFI)', psar:'Parabolic SAR' };
 // Poids de chaque facteur (identiques au moteur d'analyse) — sert à reconstituer
 // la part exacte de chaque facteur dans le score, pour l'explication détaillée.
 const SIGNAL_WEIGHT = { trend_lt:1.5, trend_mt:1.2, ma_cross:1.3, rsi:1.0, macd:1.2, bollinger:0.8, momentum:1.0,
-  trend_strength:1.1, volume:0.9, stoch:0.7, divergence:0.8, htf_trend:1.3 };
+  trend_strength:1.1, volume:0.9, stoch:0.7, divergence:0.8, htf_trend:1.3, mfi:0.8, psar:0.9 };
 const SIGNAL_DESC = {
   trend_lt:'Position du cours vs sa moyenne 200 jours (tendance de fond)',
   trend_mt:'Position du cours vs sa moyenne 50 jours (moyen terme)',
@@ -587,7 +587,9 @@ const SIGNAL_DESC = {
   volume:'Les volumes confirment-ils le mouvement du cours ?',
   stoch:'Position du cours dans son couloir haut/bas récent',
   divergence:'Cohérence entre le cours et l\'élan (RSI)',
-  htf_trend:'Tendance de fond lue sur le graphe hebdomadaire' };
+  htf_trend:'Tendance de fond lue sur le graphe hebdomadaire',
+  mfi:'Surachat/survente pondéré par les volumes (RSI + volume)',
+  psar:'Sens de la tendance et niveau de stop suiveur' };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt = (v, n=2) => (v==null ? '—' : Number(v).toFixed(n));
 
@@ -763,10 +765,15 @@ function card(r) {
   const resTxt = m.resistance==null ? '—' : `${fmt(m.resistance)} (+${fmt(m.resistance_dist_pct,1)}%)`;
   const projTxt = m.proj_low_1m==null ? '—' : `${fmt(m.proj_low_1m)} – ${fmt(m.proj_high_1m)}`;
   const betaTxt = m.beta==null ? '—' : `${fmt(m.beta,2)} (corr. ${fmt(m.market_corr,2)})`;
+  const sarTxt = m.psar==null ? '—' : `${fmt(m.psar)} (${m.psar_dir==='up'?'sous le cours ↑':'au-dessus ↓'})`;
+  const rvolTxt = m.rel_volume==null ? '—' : `×${fmt(m.rel_volume,2)}`;
+  const sqzTxt = m.squeeze==null ? '—' : (m.squeeze?'oui (compression)':'non');
   const metricsRows = [
     ['Tendance de fond (hebdo)', wkTxt], ['Confiance du signal', confTxt],
-    ['RSI (14)', fmt(m.rsi14,1)], ['Stochastique', fmt(m.stoch,1)],
-    ['Force de tendance (ADX)', adxTxt], ['Volume (OBV)', obvTxt],
+    ['RSI (14)', fmt(m.rsi14,1)], ['Flux monétaire (MFI)', fmt(m.mfi,1)],
+    ['Stochastique', fmt(m.stoch,1)], ['Force de tendance (ADX)', adxTxt],
+    ['Volume (OBV)', obvTxt], ['Volume relatif', rvolTxt],
+    ['Parabolic SAR', sarTxt], ['Compression (squeeze)', sqzTxt],
     ['SMA 50', fmt(m.sma50)], ['SMA 200', fmt(m.sma200)],
     ['Support proche', supTxt], ['Résistance proche', resTxt],
     ['Fourchette 1 mois', projTxt], ['Bêta vs S&P 500', betaTxt],
