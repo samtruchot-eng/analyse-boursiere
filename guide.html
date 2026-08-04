@@ -1263,11 +1263,14 @@
     // Papillons en filigrane sur toute la page (visibles au défilement).
     var tint = '<svg viewBox="0 0 64 64" aria-hidden="true"><g class="w wl"><ellipse cx="22" cy="24.5" rx="12" ry="10" fill="currentColor"/><ellipse cx="24.8" cy="42.2" rx="9.2" ry="8" fill="currentColor" opacity="0.82"/></g><g class="w wr"><ellipse cx="42" cy="24.5" rx="12" ry="10" fill="currentColor"/><ellipse cx="39.2" cy="42.2" rx="9.2" ry="8" fill="currentColor" opacity="0.82"/></g><rect x="30.4" y="19" width="3.2" height="28" rx="1.6" fill="currentColor" opacity="0.7"/></svg>';
     var spots = [
-      { t: 8, l: 5, s: 30, d: 8, f: .8, o: .13 }, { t: 18, r: 6, s: 20, d: 10, f: .95, o: .10 },
-      { t: 28, l: 3, s: 24, d: 9, f: .85, o: .11 }, { t: 40, r: 5, s: 34, d: 11, f: .75, o: .09 },
-      { t: 52, l: 7, s: 18, d: 9, f: 1, o: .12 }, { t: 63, r: 4, s: 26, d: 8.5, f: .85, o: .10 },
-      { t: 74, l: 5, s: 22, d: 10, f: .9, o: .11 }, { t: 85, r: 7, s: 28, d: 9, f: .8, o: .09 },
-      { t: 94, l: 6, s: 18, d: 10, f: 1.05, o: .10 }
+      { t: 5, l: 7, s: 62, d: 9, f: .8, o: .15 }, { t: 10, l: 64, s: 46, d: 11, f: .95, o: .12 },
+      { t: 16, l: 34, s: 80, d: 10, f: .8, o: .10 }, { t: 22, l: 82, s: 44, d: 9, f: 1, o: .14 },
+      { t: 28, l: 12, s: 56, d: 12, f: .85, o: .13 }, { t: 35, l: 54, s: 72, d: 10, f: .75, o: .09 },
+      { t: 42, l: 78, s: 50, d: 9, f: .9, o: .13 }, { t: 49, l: 24, s: 86, d: 11, f: .8, o: .10 },
+      { t: 56, l: 60, s: 46, d: 10, f: 1, o: .13 }, { t: 63, l: 6, s: 62, d: 9, f: .85, o: .12 },
+      { t: 70, l: 44, s: 74, d: 11, f: .75, o: .09 }, { t: 77, l: 74, s: 50, d: 9, f: .9, o: .13 },
+      { t: 84, l: 18, s: 58, d: 10, f: 1.05, o: .12 }, { t: 91, l: 56, s: 44, d: 9, f: .95, o: .11 },
+      { t: 97, l: 30, s: 66, d: 10, f: .8, o: .11 }
     ];
     var pl = document.createElement('div'); pl.className = 'page-flutter';
     pl.innerHTML = spots.map(function (x, i) {
