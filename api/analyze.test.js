@@ -8,7 +8,7 @@
 const { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown,
   obv, trendCorr, atr, adx, stochastic, rsiDivergence,
   toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr,
-  mfi, psar, squeeze, relVolume, fetchFundamentals } =
+  mfi, psar, squeeze, relVolume, fetchFundamentals, fetchNews } =
   require('./analyze.js')._internal;
 
 let pass = 0, fail = 0;
@@ -276,21 +276,55 @@ function ramp(a, b, n) {
 // CommonJS n'autorise pas `await` au niveau racine.
 (async () => {
   const realFetch = global.fetch;
-  // Cas nominal : parsing correct + rendement en %, date de résultats.
+  // Cas nominal : base « quote » + enrichissement « quoteSummary ».
   const ets = Math.round(Date.now() / 1000) + 3 * 86400; // dans 3 jours
-  global.fetch = async () => ({
-    ok: true,
-    json: async () => ({ quoteResponse: { result: [{
+  global.fetch = async (u) => {
+    const url = String(u);
+    if (url.includes('/v7/finance/quote')) return { ok: true, json: async () => ({ quoteResponse: { result: [{
       symbol: 'AAPL', trailingPE: 30, forwardPE: 28, epsTrailingTwelveMonths: 6,
       trailingAnnualDividendYield: 0.005, marketCap: 3.5e12, currency: 'USD', earningsTimestamp: ets,
-    }] } }),
-  });
+      priceToBook: 45, averageAnalystRating: '1.9 - Buy', regularMarketPrice: 200,
+      fiftyTwoWeekLow: 150, fiftyTwoWeekHigh: 250,
+    }] } }) };
+    if (url.includes('fc.yahoo.com')) return { headers: { getSetCookie: () => ['A1=tok; Path=/'] }, text: async () => '' };
+    if (url.includes('getcrumb')) return { text: async () => 'CR' };
+    if (url.includes('/v10/finance/quoteSummary')) return { ok: true, json: async () => ({ quoteSummary: { result: [{
+      financialData: { currentPrice: { raw: 200 }, targetMeanPrice: { raw: 240 }, recommendationKey: 'buy',
+        recommendationMean: { raw: 1.9 }, profitMargins: { raw: 0.25 }, revenueGrowth: { raw: 0.08 },
+        returnOnEquity: { raw: 1.4 }, debtToEquity: { raw: 150.5 } },
+      defaultKeyStatistics: { pegRatio: { raw: 2.1 } },
+      summaryDetail: {}, price: { currency: 'USD' }, calendarEvents: {},
+    }] } }) };
+    return { ok: false, json: async () => ({}) };
+  };
   const f = (await fetchFundamentals(['AAPL'])).AAPL;
   ok('fund AAPL présent', !!f);
   ok('fund PER lu', f && f.pe === 30);
   approx('fund dividende en %', f && f.divYield, 0.5, 0.001);
   ok('fund earningsInDays ≈ 3', f && f.earningsInDays >= 2 && f.earningsInDays <= 3);
   ok('fund earningsDate au format ISO', f && /^\d{4}-\d{2}-\d{2}$/.test(f.earningsDate));
+  ok('fund note analystes', f && f.analystLabel === 'Buy' && f.analystMean === 1.9);
+  ok('fund position 52 sem.', f && f.pos52 === 50);
+  ok('fund objectif de cours', f && f.targetMean === 240);
+  approx('fund potentiel vs cours', f && f.targetUpsidePct, 20, 0.1);
+  ok('fund recommandation', f && f.recommendation === 'buy');
+  approx('fund marge nette %', f && f.profitMargin, 25, 0.01);
+  approx('fund croissance CA %', f && f.revenueGrowth, 8, 0.01);
+  approx('fund ROE %', f && f.roe, 140, 0.01);
+  ok('fund dette/FP (ratio)', f && f.debtToEquity === 1.51);
+  ok('fund PEG', f && f.peg === 2.1);
+
+  // Actualités : parsing du flux RSS (CDATA, entités, date).
+  global.fetch = async () => ({ ok: true, text: async () => `<?xml version="1.0"?><rss><channel>
+    <item><title><![CDATA[Apple lance un produit & bat les attentes]]></title><link>https://ex.com/a</link><pubDate>Mon, 04 Aug 2026 12:00:00 GMT</pubDate></item>
+    <item><title>Deuxi&#232;me titre</title><link>https://ex.com/b</link><pubDate>Sun, 03 Aug 2026 09:00:00 GMT</pubDate></item>
+    </channel></rss>` });
+  const news = await fetchNews('AAPL');
+  ok('news : 2 items', news.length === 2);
+  ok('news : CDATA + entité &', news[0].title === 'Apple lance un produit & bat les attentes');
+  ok('news : lien et date', news[0].link === 'https://ex.com/a' && news[0].date === '2026-08-04');
+  global.fetch = async () => ({ ok: false, text: async () => '' });
+  ok('news : repli [] si HTTP KO', (await fetchNews('AAPL')).length === 0);
 
   // Repli cookie + crumb : 1er quote refusé (401) → cookie → crumb → 2e quote OK.
   {

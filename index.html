@@ -499,7 +499,16 @@
   .fund-k { color: var(--muted); }
   .fund-v { font-weight: 650; font-variant-numeric: tabular-nums; }
   .fund-warn { color: #b3261b; font-weight: 700; }
+  .fund-pos { color: var(--pos); } .fund-neg { color: var(--neg); }
   .fund-note { margin: 9px 0 0; font-size: 11.5px; line-height: 1.5; color: var(--muted); }
+  .news { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .news-list { list-style: none; margin: 0; padding: 0; }
+  .news-list li { font-size: 12.5px; line-height: 1.45; padding: 5px 0; border-bottom: 1px solid var(--border); }
+  .news-list li:last-child { border-bottom: 0; }
+  .news-list a { color: var(--accent); text-decoration: none; }
+  .news-list a:hover { text-decoration: underline; }
+  .news-date { display: inline-block; min-width: 46px; color: var(--faint); font-variant-numeric: tabular-nums; margin-right: 8px; }
+  .news-note { margin: 8px 0 0; font-size: 11px; color: var(--faint); font-style: italic; }
   table.metrics { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
   table.metrics td { padding: 5px 0; border-bottom: 1px solid var(--border); }
   table.metrics td:last-child { text-align: right; font-weight: 650; font-variant-numeric: tabular-nums; }
@@ -661,9 +670,12 @@ const I18N = {
     backupNote: 'Enregistre (ou restaure) vos favoris, positions, alertes et historique dans un fichier — pour les sauvegarder ou les transférer sur un autre appareil.',
     slogan: 'La bourse, en toute clarté.',
     marketToday: 'Le marché aujourd\'hui', mkGold: 'Or', mkOil: 'Pétrole',
-    fundTitle: 'Repères fondamentaux', fundPE: 'PER', fundFPE: 'PER prévu', fundDiv: 'Dividende', fundNoDiv: 'aucun', fundCap: 'Capitalisation', fundEarn: 'Prochain résultat',
+    fundTitle: 'Repères fondamentaux', fundPE: 'PER', fundFPE: 'PER prévu', fundPEG: 'PEG', fundPB: 'Cours/actif', fundDiv: 'Dividende', fundNoDiv: 'aucun', fundCap: 'Capitalisation', fundEarn: 'Prochain résultat',
+    fund52: 'Position 52 sem.', fundMargin: 'Marge nette', fundGrowth: 'Croissance CA', fundRoe: 'Rentabilité (ROE)', fundDebt: 'Dette / fonds propres', fundAnalysts: 'Avis des analystes', fundTarget: 'Objectif de cours',
+    fundReco: { strong_buy: 'Achat fort', buy: 'Achat', hold: 'Conserver', sell: 'Vente', strong_sell: 'Vente forte', underperform: 'Sous-performance', outperform: 'Surperformance' },
+    newsTitle: 'Actualités récentes', newsNote: 'Titres bruts de Yahoo Finance — non filtrés, non analysés. À vous de juger.',
     fundEarnIn: (d, date) => d === 0 ? `aujourd'hui (${date})` : `dans ${d} j (le ${date})`,
-    fundNote: "Analyse 100 % technique : elle ne tient compte ni des résultats d'entreprise, ni du PER, ni des dividendes, ni de l'actualité. Un titre peut avoir un bon score la veille d'un mauvais résultat — vérifiez la date du prochain résultat et les nouvelles récentes avant toute décision.",
+    fundNote: "Analyse 100 % technique : le score ne tient compte ni des résultats d'entreprise, ni des dividendes, ni de l'actualité. Les repères et actualités ci-dessus sont donnés pour contexte — à vous de les juger. Vérifiez toujours la date du prochain résultat et les nouvelles récentes avant toute décision.",
     phTickers: 'Ex. AAPL, MSFT, NVDA', analyze: 'Analyser',
     hint: 'Séparez les symboles par des virgules. Ex. AAPL (Apple), MSFT (Microsoft), NVDA (Nvidia), SPY (indice S&P 500), air.fr (Airbus Paris).',
     catsLabel: 'Explorer par catégorie', howToScore: 'Comment lire le score',
@@ -741,9 +753,12 @@ const I18N = {
     backupNote: 'Saves (or restores) your favourites, positions, alerts and history to a file — to back them up or move them to another device.',
     slogan: 'The market, made clear.',
     marketToday: 'Markets today', mkGold: 'Gold', mkOil: 'Oil',
-    fundTitle: 'Fundamental snapshot', fundPE: 'P/E', fundFPE: 'Fwd P/E', fundDiv: 'Dividend', fundNoDiv: 'none', fundCap: 'Market cap', fundEarn: 'Next earnings',
+    fundTitle: 'Fundamental snapshot', fundPE: 'P/E', fundFPE: 'Fwd P/E', fundPEG: 'PEG', fundPB: 'Price/Book', fundDiv: 'Dividend', fundNoDiv: 'none', fundCap: 'Market cap', fundEarn: 'Next earnings',
+    fund52: '52-week position', fundMargin: 'Net margin', fundGrowth: 'Revenue growth', fundRoe: 'Return (ROE)', fundDebt: 'Debt / equity', fundAnalysts: 'Analyst view', fundTarget: 'Price target',
+    fundReco: { strong_buy: 'Strong buy', buy: 'Buy', hold: 'Hold', sell: 'Sell', strong_sell: 'Strong sell', underperform: 'Underperform', outperform: 'Outperform' },
+    newsTitle: 'Recent news', newsNote: 'Raw headlines from Yahoo Finance — not filtered or analysed. Your call.',
     fundEarnIn: (d, date) => d === 0 ? `today (${date})` : `in ${d}d (${date})`,
-    fundNote: "100% technical analysis: it does not factor in company earnings, valuation (P/E), dividends or news. A stock can score well the day before a bad earnings report — check the next earnings date and recent news before any decision.",
+    fundNote: "100% technical analysis: the score does not factor in company earnings, dividends or news. The markers and news above are shown for context — your call to judge them. Always check the next earnings date and recent news before any decision.",
     phTickers: 'e.g. AAPL, MSFT, NVDA', analyze: 'Analyse',
     hint: 'Separate symbols with commas. e.g. AAPL (Apple), MSFT (Microsoft), NVDA (Nvidia), SPY (S&P 500 index), air.fr (Airbus Paris).',
     catsLabel: 'Explore by category', howToScore: 'How to read the score',
@@ -1024,15 +1039,53 @@ function fmtCap(v) {
   if (v >= 1e6) return fmt(v / 1e6, 0) + ' M';
   return fmt(v, 0);
 }
-// Repères fondamentaux + rappel honnête que l'analyse reste 100 % technique.
+// Traduit la recommandation des analystes (clé Yahoo → libellé lisible).
+function recoLabel(key) {
+  const map = (I18N[currentLang()] || I18N.fr).fundReco || {};
+  return map[key] || String(key || '').replace(/_/g, ' ');
+}
+function pctCell(v, digits) {
+  if (v == null || !isFinite(v)) return '—';
+  const cls = v > 0 ? 'pos' : (v < 0 ? 'neg' : '');
+  return `<span class="${cls === 'pos' ? 'fund-pos' : (cls === 'neg' ? 'fund-neg' : '')}">${v > 0 ? '+' : ''}${fmt(v, digits)}%</span>`;
+}
+// Actualités récentes (titres bruts du flux Yahoo). Rien si vide.
+function newsHtml(r) {
+  const n = (r.news || []).filter(x => x && x.title);
+  if (!n.length) return '';
+  const items = n.map(x => {
+    const dt = x.date ? `<span class="news-date">${esc(new Date(x.date + 'T00:00:00').toLocaleDateString(localeOf(), { day: 'numeric', month: 'short' }))}</span>` : '';
+    const title = esc(x.title);
+    const inner = x.link ? `<a href="${esc(x.link)}" target="_blank" rel="noopener">${title}</a>` : title;
+    return `<li>${dt}${inner}</li>`;
+  }).join('');
+  return `<div class="news"><div class="fund-hd">${t('newsTitle')}</div><ul class="news-list">${items}</ul><p class="news-note">${t('newsNote')}</p></div>`;
+}
+// Repères fondamentaux étendus + rappel honnête que le score reste technique.
 function fundHtml(r) {
   const f = r.fund;
   const rows = [];
   if (f) {
     if (f.pe != null) rows.push([t('fundPE'), fmt(f.pe, 1)]);
     if (f.forwardPE != null) rows.push([t('fundFPE'), fmt(f.forwardPE, 1)]);
+    if (f.peg != null) rows.push([t('fundPEG'), fmt(f.peg, 2)]);
+    if (f.pb != null) rows.push([t('fundPB'), fmt(f.pb, 1)]);
     if (f.divYield != null) rows.push([t('fundDiv'), f.divYield > 0 ? fmt(f.divYield, 2) + '%' : t('fundNoDiv')]);
     if (f.marketCap != null) rows.push([t('fundCap'), fmtCap(f.marketCap)]);
+    if (f.profitMargin != null) rows.push([t('fundMargin'), pctCell(f.profitMargin, 1)]);
+    if (f.revenueGrowth != null) rows.push([t('fundGrowth'), pctCell(f.revenueGrowth, 1)]);
+    if (f.roe != null) rows.push([t('fundRoe'), pctCell(f.roe, 1)]);
+    if (f.debtToEquity != null) rows.push([t('fundDebt'), fmt(f.debtToEquity, 2)]);
+    if (f.pos52 != null) rows.push([t('fund52'), fmt(f.pos52, 0) + '%']);
+    if (f.recommendation || f.analystLabel) {
+      const lab = f.recommendation ? recoLabel(f.recommendation) : esc(f.analystLabel);
+      const mean = f.recMean != null ? ` (${fmt(f.recMean, 1)}/5)` : (f.analystMean != null ? ` (${fmt(f.analystMean, 1)}/5)` : '');
+      rows.push([t('fundAnalysts'), `${lab}${mean}`]);
+    }
+    if (f.targetMean != null) {
+      const up = f.targetUpsidePct != null ? ` (${pctCell(f.targetUpsidePct, 1)})` : '';
+      rows.push([t('fundTarget'), `${fmt(f.targetMean)}${up}`]);
+    }
     if (f.earningsDate) {
       const d = f.earningsInDays;
       const near = d != null && d >= 0 && d <= 7;
@@ -1041,7 +1094,7 @@ function fundHtml(r) {
     }
   }
   const grid = rows.length ? `<div class="fund-hd">${t('fundTitle')}</div><div class="fund-grid">${rows.map(([l, v]) => `<div class="fund-cell"><span class="fund-k">${l}</span><span class="fund-v">${v}</span></div>`).join('')}</div>` : '';
-  return `<div class="fund">${grid}<p class="fund-note">${t('fundNote')}</p></div>`;
+  return `<div class="fund">${grid}${newsHtml(r)}<p class="fund-note">${t('fundNote')}</p></div>`;
 }
 function card(r) {
   if (r.error) return `<div class="card err" id="card-${esc(r.ticker)}"><div class="ticker">${esc(r.ticker)}${coHtml(r)}</div>

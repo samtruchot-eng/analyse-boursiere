@@ -87,22 +87,41 @@ async function yahooQuote(syms, creds) {
   return (data && data.quoteResponse && data.quoteResponse.result) || null;
 }
 
-// Fondamentaux légers via Yahoo (PER, dividende, capitalisation, prochaine date
-// de résultats). Purement optionnel et défensif : si l'appel échoue on renvoie
-// {} et l'analyse technique reste complète et inchangée. Un seul appel pour tous
-// les symboles (avec repli cookie + crumb si Yahoo l'exige).
+// Détails fondamentaux enrichis (objectif de cours, marges, croissance, dette,
+// consensus des analystes) via l'endpoint « quoteSummary » — un appel par
+// symbole. Best effort : renvoie null si indisponible.
+async function yahooSummary(sym, creds) {
+  const mods = 'financialData,defaultKeyStatistics,summaryDetail,calendarEvents,price';
+  const c = (creds && creds.crumb) ? `&crumb=${encodeURIComponent(creds.crumb)}` : '';
+  const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(sym)}?modules=${mods}${c}`;
+  const headers = { 'User-Agent': YF_UA };
+  if (creds && creds.cookie) headers.cookie = creds.cookie;
+  const res = await fetch(url, { headers });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return (data && data.quoteSummary && data.quoteSummary.result && data.quoteSummary.result[0]) || null;
+}
+
+// Yahoo enveloppe ses nombres en { raw, fmt } : on extrait la valeur brute.
+function rawOf(o) { return (o && typeof o === 'object' && 'raw' in o) ? o.raw : (typeof o === 'number' ? o : null); }
+function pctRound(x) { return (typeof x === 'number' && isFinite(x)) ? round(x * 100, 2) : null; }
+
+// Fondamentaux via Yahoo : base « quote » (PER, dividende, capitalisation, date
+// de résultats, note des analystes) + enrichissement « quoteSummary » (objectif
+// de cours, marges, croissance, dette). Purement optionnel et défensif : si un
+// appel échoue, on garde ce qu'on a et l'analyse technique reste inchangée.
 async function fetchFundamentals(tickers) {
+  const out = {};
   try {
-    const syms = tickers.map(t => t.toUpperCase()).join(',');
-    let arr = await yahooQuote(syms, null);        // tentative directe
-    if (!arr || !arr.length) {                     // sinon : cookie + crumb
-      const creds = await yahooCreds();
-      arr = await yahooQuote(syms, creds);
+    const list = tickers.map(t => t.toUpperCase());
+    let creds = null;
+    let arr = await yahooQuote(list.join(','), null);   // tentative directe
+    if (!arr || !arr.length) {                          // sinon : cookie + crumb
+      creds = await yahooCreds();
+      arr = await yahooQuote(list.join(','), creds);
     }
-    if (!arr) return {};
     const num = (x) => (typeof x === 'number' && isFinite(x)) ? x : null;
-    const out = {};
-    for (const q of arr) {
+    for (const q of (arr || [])) {
       const sym = String(q.symbol || '').toUpperCase();
       if (!sym) continue;
       let earningsDate = null, earningsInDays = null;
@@ -112,16 +131,89 @@ async function fetchFundamentals(tickers) {
         earningsInDays = Math.round((et * 1000 - Date.now()) / 86400000);
       }
       const dy = num(q.trailingAnnualDividendYield);
+      let analystLabel = null, analystMean = null;
+      if (typeof q.averageAnalystRating === 'string' && q.averageAnalystRating.includes('-')) {
+        const [mean, lab] = q.averageAnalystRating.split('-');
+        analystMean = num(parseFloat(mean)); analystLabel = lab.trim() || null;
+      }
+      let pos52 = null;
+      if (num(q.fiftyTwoWeekLow) != null && num(q.fiftyTwoWeekHigh) != null && q.fiftyTwoWeekHigh > q.fiftyTwoWeekLow && num(q.regularMarketPrice) != null) {
+        pos52 = round((q.regularMarketPrice - q.fiftyTwoWeekLow) / (q.fiftyTwoWeekHigh - q.fiftyTwoWeekLow) * 100, 0);
+      }
       out[sym] = {
-        pe: num(q.trailingPE), forwardPE: num(q.forwardPE),
-        eps: num(q.epsTrailingTwelveMonths),
-        divYield: dy != null ? round(dy * 100, 2) : null,
+        pe: num(q.trailingPE), forwardPE: num(q.forwardPE), eps: num(q.epsTrailingTwelveMonths),
+        pb: num(q.priceToBook), divYield: dy != null ? round(dy * 100, 2) : null,
         marketCap: num(q.marketCap), currency: q.currency || null,
+        analystLabel, analystMean, pos52, price52: num(q.regularMarketPrice),
         earningsDate, earningsInDays,
       };
     }
+
+    // Enrichissement quoteSummary (objectif de cours, marges, croissance…).
+    if (!creds) { try { creds = await yahooCreds(); } catch (e) { creds = null; } }
+    await Promise.all(list.map(async (sym) => {
+      try {
+        const s = await yahooSummary(sym, creds);
+        if (!s) return;
+        const fd = s.financialData || {}, ks = s.defaultKeyStatistics || {}, sd = s.summaryDetail || {}, pr = s.price || {}, ce = s.calendarEvents || {};
+        const base = out[sym] || (out[sym] = {});
+        const price = rawOf(fd.currentPrice) != null ? rawOf(fd.currentPrice) : rawOf(pr.regularMarketPrice);
+        const target = rawOf(fd.targetMeanPrice);
+        if (target != null) { base.targetMean = round(target, 2); if (price) base.targetUpsidePct = round((target / price - 1) * 100, 1); }
+        if (fd.recommendationKey && fd.recommendationKey !== 'none') base.recommendation = fd.recommendationKey;
+        if (rawOf(fd.recommendationMean) != null) base.recMean = round(rawOf(fd.recommendationMean), 1);
+        base.profitMargin = pctRound(rawOf(fd.profitMargins));
+        base.revenueGrowth = pctRound(rawOf(fd.revenueGrowth));
+        base.roe = pctRound(rawOf(fd.returnOnEquity));
+        const de = rawOf(fd.debtToEquity); if (de != null) base.debtToEquity = round(de / 100, 2); // ratio (150 % → 1.5)
+        if (base.peg == null && rawOf(ks.pegRatio) != null) base.peg = round(rawOf(ks.pegRatio), 2);
+        if (base.pb == null && rawOf(ks.priceToBook) != null) base.pb = round(rawOf(ks.priceToBook), 2);
+        if (base.pe == null && rawOf(sd.trailingPE) != null) base.pe = round(rawOf(sd.trailingPE), 2);
+        if (base.marketCap == null && rawOf(sd.marketCap) != null) base.marketCap = rawOf(sd.marketCap);
+        if (!base.currency && pr.currency) base.currency = pr.currency;
+        if (base.earningsDate == null && ce.earnings && Array.isArray(ce.earnings.earningsDate) && ce.earnings.earningsDate.length) {
+          const ets = rawOf(ce.earnings.earningsDate[0]);
+          if (typeof ets === 'number' && isFinite(ets)) {
+            base.earningsDate = new Date(ets * 1000).toISOString().slice(0, 10);
+            base.earningsInDays = Math.round((ets * 1000 - Date.now()) / 86400000);
+          }
+        }
+      } catch (e) { /* on garde la base */ }
+    }));
     return out;
-  } catch (e) { return {}; }
+  } catch (e) { return out; }
+}
+
+// Actualités récentes d'un titre via le flux RSS public de Yahoo Finance
+// (aucune authentification requise). Renvoie [] en cas d'échec.
+async function fetchNews(ticker, max = 4) {
+  try {
+    const url = `https://feeds.finance.yahoo.com/rss/2.0/headline?s=${encodeURIComponent(ticker)}&region=US&lang=en-US`;
+    const res = await fetch(url, { headers: { 'User-Agent': YF_UA } });
+    if (!res.ok) return [];
+    const xml = await res.text();
+    const items = [];
+    const re = /<item>([\s\S]*?)<\/item>/g;
+    const clean = (s) => s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+      .replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
+    const pick = (block, tag) => { const r = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`).exec(block); return r ? clean(r[1]) : ''; };
+    let m;
+    while ((m = re.exec(xml)) && items.length < max) {
+      const block = m[1];
+      const title = pick(block, 'title'), link = pick(block, 'link'), pub = pick(block, 'pubDate');
+      let date = null;
+      if (pub) { const d = new Date(pub); if (!isNaN(d.getTime())) date = d.toISOString().slice(0, 10); }
+      if (title) items.push({ title, link, date });
+    }
+    return items;
+  } catch (e) { return []; }
+}
+
+// Actualités pour plusieurs symboles, en parallèle.
+async function fetchNewsMap(tickers) {
+  const out = {};
+  await Promise.all(tickers.map(async (t) => { out[t.toUpperCase()] = await fetchNews(t); }));
+  return out;
 }
 
 // Essaie Yahoo (fiable côté serveur), puis Stooq en secours.
@@ -804,9 +896,12 @@ module.exports = async (req, res) => {
   let market = null;
   if (needMarket) { try { market = await fetchSeries(MARKET); } catch (e) { market = null; } }
 
-  // Repères fondamentaux (optionnels) — un seul appel pour tous les symboles.
-  let funds = {};
-  try { funds = await fetchFundamentals(tickers); } catch (e) { funds = {}; }
+  // Repères fondamentaux et actualités (optionnels) — récupérés en parallèle.
+  let funds = {}, newsMap = {};
+  await Promise.all([
+    fetchFundamentals(tickers).then(x => { funds = x || {}; }).catch(() => { funds = {}; }),
+    fetchNewsMap(tickers).then(x => { newsMap = x || {}; }).catch(() => { newsMap = {}; }),
+  ]);
 
   const results = [];
   for (const ticker of tickers) {
@@ -846,6 +941,7 @@ module.exports = async (req, res) => {
         ticker: series.ticker, name: series.name || null, currency: series.currency || null, source: series.source, day: series.bars[series.bars.length - 1].day,
         price: a.metrics.price, score: a.value, label: a.label, reco: a.reco,
         metrics: a.metrics, risk: rk, contributions: a.contributions, fund,
+        news: newsMap[series.ticker.toUpperCase()] || [],
         spark: closes.slice(-90), chart: closes.slice(-260), ...ex,
       });
     } catch (e) {
@@ -858,4 +954,4 @@ module.exports = async (req, res) => {
 };
 
 // Exposé pour les tests (n'affecte pas le handler par défaut utilisé par Vercel).
-module.exports._internal = { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown, obv, trendCorr, atr, adx, stochastic, rsiDivergence, toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr, mfi, psar, squeeze, relVolume, fetchFundamentals };
+module.exports._internal = { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown, obv, trendCorr, atr, adx, stochastic, rsiDivergence, toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr, mfi, psar, squeeze, relVolume, fetchFundamentals, fetchNews };
