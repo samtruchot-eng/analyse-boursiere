@@ -242,6 +242,16 @@
   tfoot.pf-tot td { font-weight: 700; border-top: 2px solid var(--border); border-bottom: none; padding-top: 11px; }
   .pf-empty { font-size: 13px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
   .pf-note { font-size: 11.5px; color: var(--faint); margin-top: 12px; line-height: 1.5; }
+  #pf-chart:not(:empty) { margin: 16px 0 4px; }
+  .pf-chart { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+  .pf-donut { flex: 0 0 auto; }
+  .pf-donut-n { font-size: 22px; font-weight: 800; fill: var(--text); }
+  .pf-donut-l { font-size: 8px; fill: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .pf-leg { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 7px 18px; flex: 1; min-width: 220px; }
+  .pf-leg .it { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+  .pf-leg i { width: 10px; height: 10px; border-radius: 3px; flex: 0 0 auto; }
+  .pf-leg .lg-t { font-weight: 650; color: var(--text); }
+  .pf-leg .lg-p { color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
 
   .banner { padding: 11px 15px; border-radius: 10px; font-size: 13px; margin: 12px 0; }
   .banner.err { background: rgba(220,38,38,.1); color: #b3261b; border: 1px solid rgba(220,38,38,.28); }
@@ -396,10 +406,12 @@
       <input id="pf-buy" type="number" step="any" min="0" placeholder="Prix d'achat (opt.)">
       <button type="submit">Ajouter</button>
     </form>
+    <div id="pf-chart"></div>
     <div id="pf-body"></div>
     <div class="pf-note">⚠ Suivi indicatif. Cours du dernier point de marché, réactualisé à chaque rafraîchissement
       (toutes les minutes si « Auto » est coché) — pas du temps réel à la seconde. Vos positions sont mémorisées
-      dans ce navigateur uniquement. Les totaux sont regroupés par devise pour ne pas mélanger € et $.</div>
+      dans ce navigateur uniquement. Les totaux sont regroupés par devise ; le <b>total en euros</b> convertit
+      les autres devises avec un taux de change récupéré en direct (à titre indicatif).</div>
   </section>
 
   <div class="controls">
@@ -922,12 +934,35 @@ function setPf(a) { localStorage.setItem('portfolio', JSON.stringify(a)); update
 function updatePfBadge() { const n = getPf().length; document.getElementById('pf-open').textContent = n ? `💼 Portefeuille (${n})` : '💼 Portefeuille'; }
 function fmtNum(v, n = 0) { return v == null ? '—' : Number(v).toLocaleString('fr-FR', { minimumFractionDigits: n, maximumFractionDigits: n }); }
 let pfPrices = {};   // SYMBOLE -> { price, name, currency } ou { error:true }
+let pfFx = { EUR: 1 }; // DEVISE -> taux vers l'euro (1 unité = X €)
 let pfTimer = null;
+const PF_COLORS = ['#c479a6', '#9f8ede', '#4fa587', '#d29a45', '#7cc0d6', '#e08b8b', '#8fb98f', '#b07ac0', '#d68fb0', '#6fb0a0'];
+
+function toEur(value, cur) {
+  if (value == null) return null;
+  const rate = cur === 'EUR' ? 1 : pfFx[cur];
+  return rate != null ? value * rate : null;
+}
+
+// Camembert (donut) de répartition, en valeur € si possible.
+function pfDonut(items) {
+  const total = items.reduce((s, x) => s + x.value, 0) || 1;
+  const r = 42, c = 2 * Math.PI * r; let off = 0;
+  const rings = items.map(it => {
+    const len = it.value / total * c;
+    const seg = `<circle cx="60" cy="60" r="${r}" fill="none" stroke="${it.color}" stroke-width="16" stroke-linecap="butt" stroke-dasharray="${len.toFixed(2)} ${(c - len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 60 60)"/>`;
+    off += len; return seg;
+  }).join('');
+  return `<svg viewBox="0 0 120 120" width="120" height="120" class="pf-donut" aria-hidden="true">${rings}
+    <text x="60" y="58" text-anchor="middle" class="pf-donut-n">${items.length}</text>
+    <text x="60" y="72" text-anchor="middle" class="pf-donut-l">position${items.length > 1 ? 's' : ''}</text></svg>`;
+}
 
 function renderPf() {
   updatePfBadge();
-  const pf = getPf(), body = document.getElementById('pf-body');
+  const pf = getPf(), body = document.getElementById('pf-body'), chartEl = document.getElementById('pf-chart');
   if (!pf.length) {
+    chartEl.innerHTML = '';
     body.innerHTML = `<div class="pf-empty">Aucune position pour l'instant. Ajoutez-en une ci-dessus : un <b>symbole</b> et une <b>quantité</b> (et le <b>prix d'achat</b> si vous voulez suivre la plus-value).</div>`;
     return;
   }
@@ -962,7 +997,8 @@ function renderPf() {
     tot[cur].val += info.price * p.qty;
     if (p.buy != null && p.buy !== '') { tot[cur].cost += p.buy * p.qty; tot[cur].hasCost = true; }
   });
-  const foot = Object.entries(tot).map(([cur, t]) => {
+  const currencies = new Set(Object.keys(tot));
+  let foot = Object.entries(tot).map(([cur, t]) => {
     const pl = t.hasCost ? t.val - t.cost : null;
     const plp = (pl != null && t.cost > 0) ? pl / t.cost * 100 : null;
     const cls = pl == null ? '' : (pl >= 0 ? 'pf-pos' : 'pf-neg');
@@ -970,9 +1006,45 @@ function renderPf() {
       <td class="${cls}">${pl != null ? (pl >= 0 ? '+' : '') + fmtNum(pl, 2) + ' ' + esc(cur) : '—'}</td>
       <td class="${cls}">${plp != null ? (plp >= 0 ? '+' : '') + fmt(plp, 1) + '%' : '—'}</td><td></td></tr>`;
   }).join('');
+
+  // Total converti en euros (sauf si tout est déjà en euros).
+  const showEuro = !(currencies.size === 1 && currencies.has('EUR'));
+  if (showEuro) {
+    let eVal = 0, eCost = 0, eHasCost = false, approx = false;
+    pf.forEach(p => {
+      const info = pfPrices[String(p.sym).toUpperCase()] || {};
+      if (info.price == null) return;
+      const ev = toEur(info.price * p.qty, info.currency || '?');
+      if (ev == null) { approx = true; return; }
+      eVal += ev;
+      if (p.buy != null && p.buy !== '') { const ec = toEur(p.buy * p.qty, info.currency || '?'); if (ec != null) { eCost += ec; eHasCost = true; } }
+    });
+    if (eVal > 0) {
+      const pl = eHasCost ? eVal - eCost : null;
+      const plp = (pl != null && eCost > 0) ? pl / eCost * 100 : null;
+      const cls = pl == null ? '' : (pl >= 0 ? 'pf-pos' : 'pf-neg');
+      foot += `<tr><td class="left" colspan="4">Total en euros${approx ? ' (partiel)' : ''}</td><td>${fmtNum(eVal, 2)} €</td>
+        <td class="${cls}">${pl != null ? (pl >= 0 ? '+' : '') + fmtNum(pl, 2) + ' €' : '—'}</td>
+        <td class="${cls}">${plp != null ? (plp >= 0 ? '+' : '') + fmt(plp, 1) + '%' : '—'}</td><td></td></tr>`;
+    }
+  }
+
   body.innerHTML = `<div class="pf-scroll"><table class="pf">
     <thead><tr><th class="left">Titre</th><th>Qté</th><th>PRU</th><th>Cours</th><th>Valeur</th><th>+/−</th><th>%</th><th></th></tr></thead>
     <tbody>${rows}</tbody><tfoot class="pf-tot">${foot}</tfoot></table></div>`;
+
+  // Camembert de répartition (valeur en € si convertible, sinon valeur brute).
+  const items = pf.map((p, i) => {
+    const info = pfPrices[String(p.sym).toUpperCase()] || {};
+    if (info.price == null) return null;
+    const val = info.price * p.qty, ev = toEur(val, info.currency || '?');
+    return { label: String(p.sym).toUpperCase(), value: ev != null ? ev : val, color: PF_COLORS[i % PF_COLORS.length] };
+  }).filter(Boolean).sort((a, b) => b.value - a.value);
+  if (items.length) {
+    const t2 = items.reduce((s, x) => s + x.value, 0) || 1;
+    const leg = items.map(it => `<div class="it"><i style="background:${it.color}"></i><span class="lg-t">${esc(it.label)}</span><span class="lg-p">${fmt(it.value / t2 * 100, 1)}%</span></div>`).join('');
+    chartEl.innerHTML = `<div class="pf-chart">${pfDonut(items)}<div class="pf-leg">${leg}</div></div>`;
+  } else { chartEl.innerHTML = ''; }
 }
 
 async function refreshPf() {
@@ -987,6 +1059,15 @@ async function refreshPf() {
     (data.results || []).forEach(r => {
       pfPrices[String(r.ticker).toUpperCase()] = r.error ? { error: true } : { price: r.price, name: r.name, currency: r.currency };
     });
+    // Taux de change vers l'euro pour les devises présentes (ex. USDEUR=X).
+    const curs = [...new Set((data.results || []).filter(r => !r.error).map(r => r.currency).filter(c => c && c !== 'EUR'))];
+    if (curs.length) {
+      try {
+        const fx = await fetch('/api/analyze?tickers=' + encodeURIComponent(curs.map(c => c + 'EUR=X').join(',')));
+        const fxd = await fx.json();
+        (fxd.results || []).forEach(r => { if (!r.error && r.price) pfFx[String(r.ticker).slice(0, 3).toUpperCase()] = r.price; });
+      } catch (e) { /* garde les derniers taux connus */ }
+    }
     document.getElementById('pf-updated').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   } catch (e) { /* on garde les derniers prix connus */ }
   btn.disabled = false; btn.textContent = '↻ Rafraîchir';
