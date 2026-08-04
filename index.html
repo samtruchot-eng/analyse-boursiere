@@ -79,7 +79,7 @@
   html { -webkit-text-size-adjust: 100%; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    margin: 0; color: var(--text);
+    margin: 0; color: var(--text); position: relative;
     background: radial-gradient(1200px 600px at 50% -200px, var(--bg-grad-1), var(--bg-grad-2)) fixed, var(--bg);
     -webkit-font-smoothing: antialiased;
   }
@@ -95,7 +95,7 @@
 
   /* ── Papillons décoratifs (incrustations animées) ────── */
   .flutter { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
-  .page-flutter { position: absolute; top: 0; left: 0; width: 100%; overflow: hidden; pointer-events: none; z-index: -1; color: var(--accent); }
+  .page-flutter { position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: -1; color: var(--accent); }
   .bfly { position: absolute; opacity: var(--o, .16); animation: bflyFloat var(--d, 7s) ease-in-out infinite; animation-delay: var(--dl, 0s); will-change: transform; }
   .bfly svg { display: block; width: 100%; height: 100%; }
   .bfly .w { transform-box: view-box; transform-origin: 32px 32px; animation: bflyFlap var(--f, .8s) ease-in-out infinite; animation-delay: var(--dl, 0s); }
@@ -1459,9 +1459,6 @@ function initPageButterflies() {
     return `<div class="bfly" style="top:${x.t}%;${pos};width:${x.s}px;height:${x.s}px;--d:${x.d}s;--f:${x.f}s;--dl:${(i * .55).toFixed(1)}s;--o:${x.o}">${BFLY_TINT}</div>`;
   }).join('');
   document.body.appendChild(layer);
-  const fit = () => { layer.style.height = document.documentElement.scrollHeight + 'px'; };
-  fit(); setTimeout(fit, 900);
-  let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(fit, 200); }, { passive: true });
 }
 
 // ── Assistant intégré : base de connaissances + moteur de réponse ────────────
