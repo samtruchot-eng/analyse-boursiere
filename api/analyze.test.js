@@ -6,7 +6,8 @@
 // pour pouvoir être branché sur une intégration continue plus tard.
 
 const { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown,
-  obv, trendCorr, atr, adx, stochastic, rsiDivergence } =
+  obv, trendCorr, atr, adx, stochastic, rsiDivergence,
+  toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr } =
   require('./analyze.js')._internal;
 
 let pass = 0, fail = 0;
@@ -118,6 +119,73 @@ function ramp(a, b, n) {
   ok('divergence série trop courte = null', rsiDivergence([1, 2, 3], rsi([1, 2, 3], 14), 40) === null);
 }
 
+// ── Multi-horizon (hebdomadaire) ─────────────────────────────────────────────
+{
+  const b = ramp(100, 200, 260).map((c) => ({ high: c, low: c, close: c }));
+  const w = toWeekly(b);
+  ok('toWeekly ≈ 1/5 des barres', Math.abs(w.length - Math.ceil(260 / 5)) <= 1);
+  ok('toWeekly dernier close = dernier jour', Math.abs(w[w.length - 1].close - 200) < 0.001);
+  const wt = weeklyTrend(b);
+  ok('weeklyTrend hausse → bull', wt && wt.dir === 'bull');
+  const wtd = weeklyTrend(ramp(200, 100, 260).map((c) => ({ high: c, low: c, close: c })));
+  ok('weeklyTrend baisse → bear', wtd && wtd.dir === 'bear');
+  ok('weeklyTrend trop court = null', weeklyTrend([{ close: 1 }]) === null);
+}
+
+// ── Supports / résistances ───────────────────────────────────────────────────
+{
+  // Cours en dents de scie autour de 100 avec un creux marqué et un sommet marqué.
+  const arr = [];
+  for (let i = 0; i < 140; i++) arr.push(100 + 5 * Math.sin(i / 3));
+  arr[40] = 80; arr[90] = 125; // pivot bas et pivot haut nets
+  const bs = arr.map((c) => ({ high: c, low: c, close: c }));
+  const lv = findLevels(bs, arr[arr.length - 1]);
+  ok('findLevels renvoie support ou résistance', lv.support != null || lv.resistance != null);
+  if (lv.support != null) ok('support sous le cours', lv.support < arr[arr.length - 1]);
+  if (lv.resistance != null) ok('résistance au-dessus du cours', lv.resistance > arr[arr.length - 1]);
+}
+
+// ── Événements récents ───────────────────────────────────────────────────────
+{
+  const up = ramp(50, 200, 300).map((c) => ({ high: c, low: c, close: c }));
+  const ev = detectEvents(up);
+  ok('detectEvents renvoie un tableau', Array.isArray(ev));
+  ok('série au plus-haut → événement plus-haut 52 sem.', ev.some((e) => /plus-haut/.test(e.text)));
+}
+
+// ── Confiance du signal ──────────────────────────────────────────────────────
+{
+  const allBull = signalConfidence({ a: 1, b: 0.8, c: 0.5 }, 30);
+  const mixed = signalConfidence({ a: 1, b: -0.9, c: 0.8, d: -0.7 }, 15);
+  ok('confiance élevée si facteurs alignés', allBull.value >= 70);
+  ok('confiance plus faible si facteurs contradictoires', mixed.value < allBull.value);
+  ok('confiance a un label', ['élevée', 'moyenne', 'faible'].includes(allBull.label));
+}
+
+// ── Fourchette probable à 1 mois ─────────────────────────────────────────────
+{
+  const pr = projRange(ramp(100, 130, 200), 130);
+  ok('projRange renvoie low < prix < high', pr && pr.low < 130 && pr.high > 130);
+  ok('projRange trop court = null', projRange([1, 2, 3], 3) === null);
+}
+
+// ── Bêta / corrélation ───────────────────────────────────────────────────────
+{
+  // Titre = 2× les rendements du marché (aligné par date) → bêta ≈ 2, corr ≈ 1.
+  const mkt = [], stk = [];
+  let mp = 100, sp = 100;
+  for (let i = 0; i < 120; i++) {
+    const day = '2025-' + String(1 + (i % 12)).padStart(2, '0') + '-' + String(1 + (i % 27)).padStart(2, '0') + '-' + i;
+    const ret = (i % 2 === 0 ? 0.01 : -0.008);
+    mp *= (1 + ret); sp *= (1 + ret * 2);
+    mkt.push({ day, close: mp }); stk.push({ day, close: sp });
+  }
+  const bc = betaCorr(stk, mkt);
+  ok('betaCorr bêta ≈ 2', bc && Math.abs(bc.beta - 2) < 0.15);
+  ok('betaCorr corrélation ≈ 1', bc && bc.corr > 0.98);
+  ok('betaCorr sans dates communes = null', betaCorr([{ day: 'x', close: 1 }], [{ day: 'y', close: 1 }]) === null);
+}
+
 // ── analyze() : score et cohérence ───────────────────────────────────────────
 {
   const a = analyze(bars(ramp(100, 200, 260)));
@@ -131,6 +199,10 @@ function ramp(a, b, n) {
   ok('analyze Stochastique exposé dans metrics', a.metrics.stoch != null);
   ok('analyze ATR exposé dans metrics', a.metrics.atr_pct != null);
   ok('analyze champ divergence présent', 'divergence' in a.metrics);
+  ok('analyze tendance hebdo exposée', a.metrics.weekly_trend != null);
+  ok('analyze confiance exposée', a.metrics.confidence != null && a.metrics.confidence_label != null);
+  ok('analyze fourchette 1 mois exposée', a.metrics.proj_low_1m != null && a.metrics.proj_high_1m != null);
+  ok('analyze événements = tableau', Array.isArray(a.metrics.events));
 
   const b = analyze(bars(ramp(200, 100, 260)));
   ok('analyze tendance baissière → score < 50', b.value < 50);

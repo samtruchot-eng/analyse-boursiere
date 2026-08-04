@@ -366,6 +366,7 @@
   .score-btn:hover .ring circle:nth-child(2) { stroke-width: 8; }
   .sx-lead { font-size: 15px; font-weight: 750; color: var(--text); margin-bottom: 4px; }
   .sx-lead .sx-pill { font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; margin-left: 6px; vertical-align: 2px; }
+  .sx-conf { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin: 2px 0 10px; padding: 8px 11px; background: var(--chip-bg); border-radius: 9px; }
   .sx-intro { font-size: 12.8px; color: var(--muted); line-height: 1.55; margin: 6px 0 14px; }
   .sx-row { display: grid; grid-template-columns: minmax(0,1fr) 96px 46px; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
   .sx-name { font-size: 12.5px; font-weight: 650; color: var(--text); display: flex; flex-direction: column; min-width: 0; }
@@ -568,11 +569,12 @@ const LABEL_COLOR = { STRONG_BUY:'#4fa587', BUY:'#6cb492', HOLD:'#c9a24e', SELL:
 const LABEL_TEXT  = { STRONG_BUY:'ACHAT MARQUÉ', BUY:'ACHAT', HOLD:'NEUTRE', SELL:'VENTE', STRONG_SELL:'VENTE MARQUÉE' };
 const SIGNAL_LABEL = { trend_lt:'Tendance long terme', trend_mt:'Tendance moyen terme',
   ma_cross:'Croisement MM 50/200', rsi:'RSI', macd:'MACD', bollinger:'Bollinger', momentum:'Momentum',
-  trend_strength:'Force de tendance (ADX)', volume:'Volume (OBV)', stoch:'Stochastique', divergence:'Divergence RSI' };
+  trend_strength:'Force de tendance (ADX)', volume:'Volume (OBV)', stoch:'Stochastique', divergence:'Divergence RSI',
+  htf_trend:'Tendance de fond (hebdo)' };
 // Poids de chaque facteur (identiques au moteur d'analyse) — sert à reconstituer
 // la part exacte de chaque facteur dans le score, pour l'explication détaillée.
 const SIGNAL_WEIGHT = { trend_lt:1.5, trend_mt:1.2, ma_cross:1.3, rsi:1.0, macd:1.2, bollinger:0.8, momentum:1.0,
-  trend_strength:1.1, volume:0.9, stoch:0.7, divergence:0.8 };
+  trend_strength:1.1, volume:0.9, stoch:0.7, divergence:0.8, htf_trend:1.3 };
 const SIGNAL_DESC = {
   trend_lt:'Position du cours vs sa moyenne 200 jours (tendance de fond)',
   trend_mt:'Position du cours vs sa moyenne 50 jours (moyen terme)',
@@ -584,7 +586,8 @@ const SIGNAL_DESC = {
   trend_strength:'Force et sens de la tendance (ADX + DI)',
   volume:'Les volumes confirment-ils le mouvement du cours ?',
   stoch:'Position du cours dans son couloir haut/bas récent',
-  divergence:'Cohérence entre le cours et l\'élan (RSI)' };
+  divergence:'Cohérence entre le cours et l\'élan (RSI)',
+  htf_trend:'Tendance de fond lue sur le graphe hebdomadaire' };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt = (v, n=2) => (v==null ? '—' : Number(v).toFixed(n));
 
@@ -674,8 +677,12 @@ function openScore(ticker) {
     </div>`;
   }).join('');
   const total = rows.reduce((a, x) => a + x.pts, 0);
+  const conf = r.metrics && r.metrics.confidence;
+  const confColor = conf==null ? 'var(--muted)' : (conf>=70?'var(--pos)':(conf>=50?'var(--warn)':'var(--neg)'));
+  const confLine = conf==null ? '' : `<div class="sx-conf">Confiance du signal : <strong style="color:${confColor}">${esc(r.metrics.confidence_label)}</strong> (${conf}/100) — mesure l'accord entre les facteurs. Plus les facteurs vont dans le même sens, plus le score est fiable.</div>`;
   document.getElementById('score-body').innerHTML = `
     <div class="sx-lead">Score ${Math.round(r.score)}/100<span class="sx-pill" style="color:${color};background:${color}1f">${esc(recoText)}</span></div>
+    ${confLine}
     <div class="sx-intro">Le score part de <strong>50 (neutre)</strong>. Chaque facteur technique le pousse vers le <span style="color:var(--pos)">haut (vert)</span> ou le <span style="color:var(--neg)">bas (rouge)</span>. Plus la barre est longue, plus le facteur pèse. Les facteurs sont classés du plus influent au moins influent.</div>
     ${body}
     <div class="sx-total"><strong>50</strong> (neutre) ${total >= 0 ? '+' : '−'} <strong>${Math.abs(total).toFixed(1)}</strong> (somme des facteurs) = <strong style="color:${color}">${Math.round(r.score)}/100</strong>.</div>
@@ -750,10 +757,19 @@ function card(r) {
   const m = r.metrics;
   const obvTxt = m.obv_trend==null ? '—' : (m.obv_trend>0.3?'confirme ↑':(m.obv_trend<-0.3?'confirme ↓':'neutre'));
   const adxTxt = m.adx==null ? '—' : fmt(m.adx,1)+(m.adx>=25?' (forte)':(m.adx<18?' (faible)':' (modérée)'));
+  const wkTxt = { bull:'haussière ↑', bear:'baissière ↓', neutral:'hésitante' }[m.weekly_trend] || '—';
+  const confTxt = m.confidence==null ? '—' : `${m.confidence_label} (${m.confidence}/100)`;
+  const supTxt = m.support==null ? '—' : `${fmt(m.support)} (${fmt(m.support_dist_pct,1)}%)`;
+  const resTxt = m.resistance==null ? '—' : `${fmt(m.resistance)} (+${fmt(m.resistance_dist_pct,1)}%)`;
+  const projTxt = m.proj_low_1m==null ? '—' : `${fmt(m.proj_low_1m)} – ${fmt(m.proj_high_1m)}`;
+  const betaTxt = m.beta==null ? '—' : `${fmt(m.beta,2)} (corr. ${fmt(m.market_corr,2)})`;
   const metricsRows = [
+    ['Tendance de fond (hebdo)', wkTxt], ['Confiance du signal', confTxt],
     ['RSI (14)', fmt(m.rsi14,1)], ['Stochastique', fmt(m.stoch,1)],
     ['Force de tendance (ADX)', adxTxt], ['Volume (OBV)', obvTxt],
     ['SMA 50', fmt(m.sma50)], ['SMA 200', fmt(m.sma200)],
+    ['Support proche', supTxt], ['Résistance proche', resTxt],
+    ['Fourchette 1 mois', projTxt], ['Bêta vs S&P 500', betaTxt],
     ['Momentum 60 j', fmt(m.momentum_60,1)+'%'], ['Mouvement/jour (ATR)', m.atr_pct==null?'—':'±'+fmt(m.atr_pct,2)+'%'],
     ['Volatilité', fmt(r.risk.annual_vol_pct,1)+'%'],
     ['Ratio de Sharpe', fmt(r.risk.sharpe,2)], ['Max drawdown', fmt(r.risk.max_drawdown_pct,1)+'%'],

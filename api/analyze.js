@@ -243,6 +243,118 @@ function rsiDivergence(closes, rsiArr, look = 40) {
   return null;
 }
 
+// ── Multi-horizon : regroupe le quotidien en « semaines » (5 séances) ─────────
+function toWeekly(barsArr) {
+  const w = [];
+  for (let i = 0; i < barsArr.length; i += 5) {
+    const chunk = barsArr.slice(i, i + 5);
+    w.push({
+      close: chunk[chunk.length - 1].close,
+      high: Math.max(...chunk.map(b => b.high != null ? b.high : b.close)),
+      low: Math.min(...chunk.map(b => b.low != null ? b.low : b.close)),
+    });
+  }
+  return w;
+}
+// Tendance de fond, lue sur le graphe hebdomadaire.
+function weeklyTrend(barsArr) {
+  const w = toWeekly(barsArr).map(b => b.close);
+  if (w.length < 12) return null;
+  const price = w[w.length - 1];
+  const s10 = lastDefined(sma(w, 10)), s30 = lastDefined(sma(w, Math.min(30, w.length)));
+  const wr = lastDefined(rsi(w, 14));
+  let sc = 0;
+  if (s10) sc += price > s10 ? 1 : -1;
+  if (s30) sc += price > s30 ? 1 : -1;
+  if (s10 && s30) sc += s10 > s30 ? 1 : -1;
+  return { dir: sc >= 2 ? 'bull' : (sc <= -2 ? 'bear' : 'neutral'), sc, price, s30, rsi: round(wr, 1) };
+}
+
+// ── Supports / résistances : plus proches pivots au-dessus / en dessous ───────
+function findLevels(barsArr, price) {
+  const n = barsArr.length, k = 5, look = Math.min(130, n);
+  const highs = [], lows = [];
+  for (let i = n - look + k; i < n - k; i++) {
+    if (i < k) continue;
+    const h = barsArr[i].high != null ? barsArr[i].high : barsArr[i].close;
+    const l = barsArr[i].low != null ? barsArr[i].low : barsArr[i].close;
+    let isH = true, isL = true;
+    for (let j = i - k; j <= i + k; j++) {
+      const hj = barsArr[j].high != null ? barsArr[j].high : barsArr[j].close;
+      const lj = barsArr[j].low != null ? barsArr[j].low : barsArr[j].close;
+      if (hj > h) isH = false;
+      if (lj < l) isL = false;
+    }
+    if (isH) highs.push(h);
+    if (isL) lows.push(l);
+  }
+  const res = highs.filter(h => h > price * 1.001).sort((a, b) => a - b)[0];
+  const sup = lows.filter(l => l < price * 0.999).sort((a, b) => b - a)[0];
+  return {
+    resistance: res != null ? round(res, 2) : null, support: sup != null ? round(sup, 2) : null,
+    resistance_dist_pct: res != null ? round((res / price - 1) * 100) : null,
+    support_dist_pct: sup != null ? round((sup / price - 1) * 100) : null,
+  };
+}
+
+// ── Événements récents (≈ 7 dernières séances) ───────────────────────────────
+function detectEvents(barsArr) {
+  const closes = barsArr.map(b => b.close), n = closes.length, price = closes[n - 1];
+  const s50 = sma(closes, 50), s200 = sma(closes, 200), ev = [], seen = new Set();
+  const add = (s, text) => { if (!seen.has(text)) { seen.add(text); ev.push({ s, text }); } };
+  for (let i = Math.max(1, n - 7); i < n; i++) {
+    if (s50[i] != null && s200[i] != null && s50[i - 1] != null && s200[i - 1] != null) {
+      if (s50[i - 1] <= s200[i - 1] && s50[i] > s200[i]) add('bull', 'Golden cross tout récent : la moyenne 50 j vient de repasser au-dessus de la 200 j.');
+      if (s50[i - 1] >= s200[i - 1] && s50[i] < s200[i]) add('bear', 'Death cross tout récent : la moyenne 50 j vient de repasser sous la 200 j.');
+    }
+  }
+  const win = closes.slice(-252);
+  if (price >= Math.max(...win) * 0.999) add('bull', 'Nouveau plus-haut de 52 semaines.');
+  if (price <= Math.min(...win) * 1.001) add('bear', 'Nouveau plus-bas de 52 semaines.');
+  const prev20 = closes.slice(-21, -1);
+  if (prev20.length) {
+    if (price > Math.max(...prev20)) add('bull', 'Cassure à la hausse : le cours dépasse le sommet des 20 dernières séances.');
+    if (price < Math.min(...prev20)) add('bear', 'Cassure à la baisse : le cours enfonce le creux des 20 dernières séances.');
+  }
+  return ev;
+}
+
+// ── Indice de confiance : les facteurs sont-ils d'accord entre eux ? ──────────
+function signalConfidence(contribs, adxVal) {
+  const vals = Object.values(contribs);
+  if (!vals.length) return { value: 0, label: 'faible' };
+  const net = vals.reduce((a, b) => a + b, 0);
+  const totAbs = vals.reduce((a, b) => a + Math.abs(b), 0) || 1;
+  const agree = vals.filter(v => (net >= 0 ? v >= 0 : v < 0)).reduce((a, b) => a + Math.abs(b), 0);
+  let conf = agree / totAbs;
+  if (adxVal != null) conf = conf * 0.85 + clamp((adxVal - 15) / 30, 0, 1) * 0.15;
+  const value = Math.round(conf * 100);
+  return { value, label: value >= 70 ? 'élevée' : (value >= 50 ? 'moyenne' : 'faible') };
+}
+
+// ── Fourchette probable à 1 mois (± 1 écart-type, ≈ 2 chances sur 3) ──────────
+function projRange(closes, price) {
+  const r = dailyReturns(closes);
+  if (r.length < 20) return null;
+  const sig = stdev(r) * Math.sqrt(21);
+  return { low: round(price * (1 - sig), 2), high: round(price * (1 + sig), 2), pct: round(sig * 100, 1) };
+}
+
+// ── Bêta & corrélation vs un indice de marché (aligne par date) ───────────────
+function betaCorr(stockBars, marketBars) {
+  const mMap = new Map(marketBars.map(b => [b.day, b.close]));
+  const s = [], m = [];
+  for (const b of stockBars) { const mc = mMap.get(b.day); if (mc != null) { s.push(b.close); m.push(mc); } }
+  if (s.length < 40) return null;
+  const sr = dailyReturns(s), mr = dailyReturns(m), n = Math.min(sr.length, mr.length);
+  const sa = sr.slice(-n), ma = mr.slice(-n), ms = mean(sa), mm = mean(ma);
+  let cov = 0, vm = 0, vs = 0;
+  for (let i = 0; i < n; i++) { const ds = sa[i] - ms, dm = ma[i] - mm; cov += ds * dm; vm += dm * dm; vs += ds * ds; }
+  const beta = vm > 0 ? cov / vm : null;
+  const corr = (vm > 0 && vs > 0) ? cov / Math.sqrt(vm * vs) : null;
+  return { beta: round(beta, 2), corr: round(corr, 2) };
+}
+
 // ── Risque ─────────────────────────────────────────────────────────────────
 
 function dailyReturns(c) { const r = []; for (let i = 1; i < c.length; i++) if (c[i - 1]) r.push(c[i] / c[i - 1] - 1); return r; }
@@ -281,7 +393,7 @@ function clamp(x, lo = -1, hi = 1) { return Math.max(lo, Math.min(hi, x)); }
 
 const WEIGHTS = {
   trend_lt: 1.5, trend_mt: 1.2, ma_cross: 1.3, rsi: 1.0, macd: 1.2, bollinger: 0.8, momentum: 1.0,
-  trend_strength: 1.1, volume: 0.9, stoch: 0.7, divergence: 0.8,
+  trend_strength: 1.1, volume: 0.9, stoch: 0.7, divergence: 0.8, htf_trend: 1.3,
 };
 
 function analyze(series) {
@@ -299,6 +411,10 @@ function analyze(series) {
   const obvTrend = hasVolume ? trendCorr(obv(c, volumes), 40) : null;
   const atrVal = atr(series.bars, 14);
   const div = rsiDivergence(c, rsiArr, 40);
+  const wk = weeklyTrend(series.bars);
+  const levels = findLevels(series.bars, price);
+  const events = detectEvents(series.bars);
+  const proj = projRange(c, price);
 
   const signals = {};
   if (sma50) signals.trend_mt = clamp((price / sma50 - 1) * 8);
@@ -327,12 +443,15 @@ function analyze(series) {
   }
   if (div === 'bear') signals.divergence = -0.6;
   else if (div === 'bull') signals.divergence = 0.6;
+  // Tendance de fond (hebdomadaire) : donne au score une conscience du long terme.
+  if (wk) signals.htf_trend = wk.s30 ? clamp((wk.price / wk.s30 - 1) * 4) : clamp(wk.sc / 3);
 
   let tw = 0, wsum = 0; const contrib = {};
   for (const [k, s] of Object.entries(signals)) { const w = WEIGHTS[k] || 1; tw += w; wsum += s * w; contrib[k] = s * w; }
   const avg = tw ? wsum / tw : 0;
   const value = Math.round((50 + avg * 50) * 10) / 10;
   const { label, reco } = labelFor(value);
+  const confidence = signalConfidence(contrib, adxData ? adxData.adx : null);
 
   const metrics = {
     price: round(price, 2), sma50: round(sma50, 2), sma200: round(sma200, 2),
@@ -343,6 +462,12 @@ function analyze(series) {
     stoch: round(stochK, 1), obv_trend: round(obvTrend, 2),
     atr_pct: (atrVal != null && price) ? round(atrVal / price * 100, 2) : null,
     divergence: div,
+    weekly_trend: wk ? wk.dir : null, weekly_rsi: wk ? wk.rsi : null,
+    confidence: confidence.value, confidence_label: confidence.label,
+    support: levels.support, resistance: levels.resistance,
+    support_dist_pct: levels.support_dist_pct, resistance_dist_pct: levels.resistance_dist_pct,
+    proj_low_1m: proj ? proj.low : null, proj_high_1m: proj ? proj.high : null, proj_pct_1m: proj ? proj.pct : null,
+    events,
   };
   return { signals, value, label, reco, metrics, contributions: contrib, price };
 }
@@ -419,6 +544,26 @@ function explain(a, rk, ticker) {
   if (m.divergence === 'bear') { pts.push({ s: 'warn', topic: 'Divergence', text: `Divergence baissière : le cours fait un nouveau sommet mais l'élan (RSI) faiblit — essoufflement possible.` }); vig.push('Divergence baissière prix / RSI : la hausse s\'essouffle.'); }
   else if (m.divergence === 'bull') pts.push({ s: 'bull', topic: 'Divergence', text: `Divergence haussière : le cours fait un nouveau creux mais l'élan (RSI) se redresse — rebond possible.` });
 
+  // Multi-horizon : accord ou désaccord entre le court terme (quotidien) et le fond (hebdo).
+  if (m.weekly_trend) {
+    const st = (price > m.sma50 && price > m.sma200) ? 'bull' : ((price < m.sma50 && price < m.sma200) ? 'bear' : 'neutral');
+    const frDir = { bull: 'haussière', bear: 'baissière', neutral: 'hésitante' };
+    if (m.weekly_trend === st && st !== 'neutral')
+      pts.push({ s: st, topic: 'Multi-horizon', text: `Court terme et tendance de fond (hebdomadaire) sont alignés en ${frDir[st]} : configuration cohérente, signal plus fiable.` });
+    else if (st !== 'neutral' && m.weekly_trend !== 'neutral' && m.weekly_trend !== st) {
+      pts.push({ s: 'warn', topic: 'Multi-horizon', text: `Désaccord d'horizons : court terme ${frDir[st]} mais fond ${frDir[m.weekly_trend]} (hebdomadaire) — signal à confirmer, prudence.` });
+      vig.push('Court terme et tendance de fond ne vont pas dans le même sens.');
+    } else
+      pts.push({ s: 'neutral', topic: 'Multi-horizon', text: `Tendance de fond (hebdomadaire) : ${frDir[m.weekly_trend]}.` });
+  }
+  // Événements récents (croisements, cassures, nouveaux extrêmes).
+  (m.events || []).forEach(e => pts.push({ s: e.s, topic: 'Événement', text: e.text }));
+  // Niveaux clés : support / résistance les plus proches.
+  if (m.resistance != null && m.resistance_dist_pct != null && m.resistance_dist_pct <= 4)
+    pts.push({ s: 'warn', topic: 'Niveau', text: `Résistance proche vers ${m.resistance} (+${m.resistance_dist_pct} %) : zone où le cours a déjà buté.` });
+  if (m.support != null && m.support_dist_pct != null && m.support_dist_pct >= -4)
+    pts.push({ s: 'bull', topic: 'Niveau', text: `Support proche vers ${m.support} (${m.support_dist_pct} %) : zone qui a déjà soutenu le cours.` });
+
   const parts = [];
   if (rk.annual_vol_pct != null) {
     if (rk.annual_vol_pct < 15) parts.push(`volatilité faible (${rk.annual_vol_pct} %/an)`);
@@ -428,7 +573,9 @@ function explain(a, rk, ticker) {
   if (rk.max_drawdown_pct != null) { parts.push(`pire baisse ${rk.max_drawdown_pct} %`); if (rk.max_drawdown_pct < -35) vig.push(`Le titre a déjà perdu ${Math.abs(rk.max_drawdown_pct)} % depuis un sommet.`); }
   if (rk.sharpe != null) parts.push(rk.sharpe >= 1 ? `Sharpe solide (${rk.sharpe})` : (rk.sharpe >= 0 ? `Sharpe modeste (${rk.sharpe})` : `Sharpe négatif (${rk.sharpe})`));
   if (m.atr_pct != null) parts.push(`mouvement quotidien typique ±${m.atr_pct} %`);
-  const risk_summary = parts.length ? 'Profil de risque : ' + parts.join(', ') + '.' : '';
+  let risk_summary = parts.length ? 'Profil de risque : ' + parts.join(', ') + '.' : '';
+  if (m.proj_low_1m != null) risk_summary += ` Fourchette probable à 1 mois (≈ 2 chances sur 3) : ${m.proj_low_1m} – ${m.proj_high_1m}.`;
+  if (m.confidence != null) risk_summary += ` Confiance du signal : ${m.confidence_label} (${m.confidence}/100 — accord entre les facteurs).`;
 
   return { headline, points: pts, risk_summary, vigilance: vig };
 }
@@ -441,6 +588,12 @@ module.exports = async (req, res) => {
   const raw = (url.searchParams.get('tickers') || 'AAPL,MSFT,NVDA').trim();
   const tickers = raw.split(',').map(t => t.trim()).filter(Boolean).slice(0, 12);
 
+  // Indice de marché (S&P 500) récupéré une seule fois, pour le bêta / la corrélation.
+  const MARKET = 'SPY';
+  const needMarket = tickers.some(t => t.toUpperCase() !== MARKET);
+  let market = null;
+  if (needMarket) { try { market = await fetchSeries(MARKET); } catch (e) { market = null; } }
+
   const results = [];
   for (const ticker of tickers) {
     try {
@@ -449,6 +602,16 @@ module.exports = async (req, res) => {
       const a = analyze(series);
       const rk = riskMetrics(closes);
       const ex = explain(a, rk, series.ticker);
+      let bc = null;
+      if (market && series.ticker !== MARKET) {
+        bc = betaCorr(series.bars, market.bars);
+        if (bc && bc.beta != null) {
+          a.metrics.beta = bc.beta; a.metrics.market_corr = bc.corr;
+          const amp = bc.beta >= 1.15 ? `amplifie les mouvements du marché (×${bc.beta})`
+            : (bc.beta <= 0.85 ? `plus calme que le marché (×${bc.beta})` : `bouge à peu près comme le marché (×${bc.beta})`);
+          ex.points.push({ s: 'neutral', topic: 'Marché', text: `Bêta ${bc.beta} : le titre ${amp}. Corrélation ${bc.corr} au S&P 500.` });
+        }
+      }
       results.push({
         ticker: series.ticker, name: series.name || null, currency: series.currency || null, source: series.source, day: series.bars[series.bars.length - 1].day,
         price: a.metrics.price, score: a.value, label: a.label, reco: a.reco,
@@ -465,4 +628,4 @@ module.exports = async (req, res) => {
 };
 
 // Exposé pour les tests (n'affecte pas le handler par défaut utilisé par Vercel).
-module.exports._internal = { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown, obv, trendCorr, atr, adx, stochastic, rsiDivergence };
+module.exports._internal = { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown, obv, trendCorr, atr, adx, stochastic, rsiDivergence, toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr };
