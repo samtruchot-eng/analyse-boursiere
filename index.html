@@ -355,6 +355,10 @@
   .sim-row input:focus { border-color: var(--accent); }
   #sim-out { font-size: 13px; color: var(--text); margin-top: 10px; line-height: 1.55; }
   .sim-note { display: block; font-size: 11px; color: var(--faint); margin-top: 4px; }
+  .chart-periods { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .cp-btn { border: 1px solid var(--card-border); background: var(--chip-bg); color: var(--muted); border-radius: 999px; padding: 5px 13px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .cp-btn:hover { border-color: var(--accent); color: var(--text); }
+  .cp-btn.on { background: var(--accent); color: #fff; border-color: transparent; }
 
   .headline { font-size: 14px; font-weight: 600; color: var(--text); margin: 6px 0 14px; line-height: 1.5; }
 
@@ -508,6 +512,7 @@
   <div class="modal-card">
     <div class="modal-head"><span id="chart-title"></span><button id="chart-close" aria-label="Fermer">✕</button></div>
     <div id="chart-body"></div>
+    <div id="chart-periods" class="chart-periods"></div>
     <div class="chart-legend">
       <span><i class="sw sw-price"></i>Cours</span>
       <span><i class="sw sw-50"></i>Moyenne 50 j</span>
@@ -979,9 +984,8 @@ function smaSeries(v, p) {
   for (let i = 0; i < v.length; i++) { s += v[i]; if (i >= p) s -= v[i - p]; if (i >= p - 1) out[i] = s / p; }
   return out;
 }
-function bigChart(closes) {
+function bigChart(closes, s50, s200) {
   const w = 680, h = 300, pL = 6, pR = 6, pT = 12, pB = 14;
-  const s50 = smaSeries(closes, 50), s200 = smaSeries(closes, 200);
   const defined = closes.concat(s50.filter(x => x != null), s200.filter(x => x != null));
   const lo = Math.min(...defined), hi = Math.max(...defined), rng = (hi - lo) || 1;
   const X = i => pL + i / (closes.length - 1) * (w - pL - pR);
@@ -995,7 +999,8 @@ function bigChart(closes) {
     <polyline fill="none" stroke="var(--text)" stroke-width="2" stroke-linejoin="round" points="${pts(closes)}"/>
   </svg>`;
 }
-let chartCloses = null;
+let chartCloses = null, chartFull = null, chartPeriodDays = 0;
+const CHART_PERIODS = [{ k: '1M', d: 21 }, { k: '3M', d: 63 }, { k: '6M', d: 126 }, { k: '1A', d: 0 }];
 // Simule un investissement programmé (montant fixe ~chaque mois) sur l'historique.
 function simulateDCA(closes, monthly) {
   if (!closes || closes.length < 2 || !(monthly > 0)) return null;
@@ -1022,18 +1027,29 @@ function openChart(ticker) {
   if (!r || r.error) return;
   const closes = (r.chart && r.chart.length >= 30) ? r.chart : (r.spark || []);
   if (closes.length < 2) return;
-  chartCloses = closes;
+  chartFull = closes; chartPeriodDays = 0;
   document.getElementById('chart-title').innerHTML = `${esc(r.ticker)} <small>${esc(companyName(r))} · ${fmt(r.price)} au ${esc(r.day)}</small>`;
-  document.getElementById('chart-body').innerHTML = bigChart(closes);
   document.getElementById('chart-sim').innerHTML = `<div class="sim-head">🧮 Simulateur — investissement programmé</div>
     <label class="sim-row">J'investis <input id="sim-amount" type="number" min="0" step="any" value="100"> par mois sur cette période.</label>
     <div id="sim-out"></div>`;
-  updateSim();
+  renderChartView();
   document.getElementById('chart-modal').hidden = false;
+}
+function renderChartView() {
+  const full = chartFull; if (!full) return;
+  const s50 = smaSeries(full, 50), s200 = smaSeries(full, 200);
+  const start = chartPeriodDays > 0 ? Math.max(0, full.length - chartPeriodDays) : 0;
+  chartCloses = full.slice(start);
+  document.getElementById('chart-body').innerHTML = bigChart(chartCloses, s50.slice(start), s200.slice(start));
+  document.getElementById('chart-periods').innerHTML = CHART_PERIODS.map(pp => `<button class="cp-btn${pp.d === chartPeriodDays ? ' on' : ''}" data-d="${pp.d}">${pp.k}</button>`).join('');
+  updateSim();
 }
 function closeChart() { document.getElementById('chart-modal').hidden = true; }
 document.getElementById('chart-close').addEventListener('click', closeChart);
-document.getElementById('chart-modal').addEventListener('click', e => { if (e.target.id === 'chart-modal') closeChart(); });
+document.getElementById('chart-modal').addEventListener('click', e => {
+  const cp = e.target.closest('.cp-btn'); if (cp) { chartPeriodDays = +cp.dataset.d; renderChartView(); return; }
+  if (e.target.id === 'chart-modal') closeChart();
+});
 document.getElementById('chart-modal').addEventListener('input', e => { if (e.target.id === 'sim-amount') updateSim(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeChart(); });
 document.getElementById('favbar').addEventListener('click', e => {
