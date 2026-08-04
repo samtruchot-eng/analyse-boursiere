@@ -1473,24 +1473,15 @@ function initPageButterflies() {
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><g class="w wl"><ellipse cx="22" cy="24.5" rx="12" ry="10" fill="#c479a6"/><ellipse cx="24.8" cy="42.2" rx="9.2" ry="8" fill="#d98bb0"/></g><g class="w wr"><ellipse cx="42" cy="24.5" rx="12" ry="10" fill="#c479a6"/><ellipse cx="39.2" cy="42.2" rx="9.2" ry="8" fill="#d98bb0"/></g><rect x="30.4" y="19" width="3.2" height="28" rx="1.6" fill="#e7c256"/></svg>';
   const rnd = (a, b) => a + Math.random() * (b - a);
-  function burst(mode, done, ox, oy) {
+  function burst(mode, done) {
     if (reduce) { if (done) done(); return; }
     const ov = document.createElement('div'); ov.className = 'bfly-burst';
-    const fromBtn = mode === 'leave' && ox != null; const n = mode === 'leave' ? 34 : 26; let html = '';
+    const n = mode === 'leave' ? 34 : 26; let html = '';
     for (let i = 0; i < n; i++) {
-      const s = rnd(42, 94), dur = rnd(1.15, 2), del = rnd(0, mode === 'leave' ? .3 : .5), r = rnd(-70, 70);
-      let pos, mov;
-      if (fromBtn) {
-        const ang = rnd(0, Math.PI * 2), dist = rnd(150, 580);
-        const dx = Math.cos(ang) * dist, dy = Math.sin(ang) * dist - rnd(120, 320);
-        pos = `left:${(ox - s / 2).toFixed(0)}px;top:${(oy - s / 2).toFixed(0)}px`;
-        mov = `--dx:${dx.toFixed(0)}px;--dy:${dy.toFixed(0)}px`;
-      } else {
-        const L = rnd(2, 98), T = mode === 'leave' ? rnd(78, 112) : rnd(18, 82);
-        const dx = rnd(-42, 42), dy = mode === 'leave' ? rnd(-155, -100) : rnd(-115, -60);
-        pos = `left:${L.toFixed(1)}vw;top:${T.toFixed(1)}vh`; mov = `--dx:${dx.toFixed(1)}vw;--dy:${dy.toFixed(1)}vh`;
-      }
-      html += `<div class="bfly-f" style="${pos};width:${s.toFixed(0)}px;height:${s.toFixed(0)}px;${mov};--r:${r.toFixed(0)}deg;--f:${rnd(.34, .58).toFixed(2)}s;--o:${rnd(.82, .98).toFixed(2)};animation-duration:${dur.toFixed(2)}s;animation-delay:${del.toFixed(2)}s">${SVG}</div>`;
+      const L = rnd(2, 98), T = mode === 'leave' ? rnd(78, 112) : rnd(18, 82);
+      const dx = rnd(-42, 42), dy = mode === 'leave' ? rnd(-155, -100) : rnd(-115, -60), r = rnd(-70, 70);
+      const s = rnd(42, 94), dur = rnd(1.15, 2), del = rnd(0, mode === 'leave' ? .4 : .5);
+      html += `<div class="bfly-f" style="left:${L.toFixed(1)}vw;top:${T.toFixed(1)}vh;width:${s.toFixed(0)}px;height:${s.toFixed(0)}px;--dx:${dx.toFixed(1)}vw;--dy:${dy.toFixed(1)}vh;--r:${r.toFixed(0)}deg;--f:${rnd(.34, .58).toFixed(2)}s;--o:${rnd(.82, .98).toFixed(2)};animation-duration:${dur.toFixed(2)}s;animation-delay:${del.toFixed(2)}s">${SVG}</div>`;
     }
     ov.innerHTML = html; document.body.appendChild(ov);
     if (done) setTimeout(done, 920);
@@ -1505,9 +1496,9 @@ function initPageButterflies() {
     if (a.hostname !== location.hostname) return;
     if (a.pathname === location.pathname && a.search === location.search) return;
     e.preventDefault();
-    const url = a.href, rect = a.getBoundingClientRect();
+    const url = a.href;
     try { sessionStorage.setItem('bflyTransit', '1'); } catch (er) { }
-    burst('leave', function () { window.location.href = url; }, rect.left + rect.width / 2, rect.top + rect.height / 2);
+    burst('leave', function () { window.location.href = url; });
   }, true);
 })();
 
