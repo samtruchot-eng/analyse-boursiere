@@ -59,6 +59,17 @@
       --shadow: none;
     }
   }
+  /* Choix manuel du thème (prioritaire sur le système). */
+  :root[data-theme="light"] {
+    --paper: #fbf1f5; --surface: #ffffff; --surface-2: #faecf1; --ink: #4d3644; --ink-soft: #6e5566; --muted: #a58a98;
+    --line: #f2e2ea; --navy: #5e3a52; --indigo: #a86aa8; --gold: #b98a2e; --gold-soft: #f7ecd6; --pos: #4fa587;
+    --neg: #d16f7c; --warn: #c98f3f; --oblig: #8f6f9c; --cash: #b3a0ac; --shadow: 0 1px 2px rgba(120,60,100,.04), 0 8px 30px rgba(120,60,100,.06);
+  }
+  :root[data-theme="dark"] {
+    --paper: #17121a; --surface: #211a25; --surface-2: #1a141e; --ink: #ecdfe7; --ink-soft: #c3b2bd; --muted: #b39fac;
+    --line: #2e2532; --navy: #3a2b38; --indigo: #d0a3d6; --gold: #d7b25c; --gold-soft: #2a2016; --pos: #6ec6a2;
+    --neg: #ef9aa4; --warn: #e6bd72; --oblig: #a98cc0; --cash: #7d6f7a; --shadow: none;
+  }
 
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
@@ -90,6 +101,9 @@
   nav.topbar a.back { font-size: .9rem; font-weight: 600; color: var(--ink); border: none; display: inline-flex; align-items: center; gap: 7px; }
   nav.topbar a.back:hover { color: var(--indigo); }
   nav.topbar .brand { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  nav.topbar .tb-right { display: flex; align-items: center; gap: 10px; }
+  nav.topbar .tb-theme { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 5px 10px; font-size: 14px; line-height: 1; cursor: pointer; }
+  nav.topbar .tb-theme:hover { border-color: var(--indigo); }
 
   /* ── Masthead ─────────────────────────────────── */
   header.mast {
@@ -244,7 +258,7 @@
 <nav class="topbar">
   <div class="wrap">
     <a class="back" href="/">← Retour à l'analyse</a>
-    <span class="brand">butterfly</span>
+    <div class="tb-right"><span class="brand">butterfly</span><button class="tb-theme" id="theme-btn" type="button" aria-label="Basculer clair/sombre">🌙</button></div>
   </div>
 </nav>
 
@@ -663,6 +677,24 @@
 <a class="toplink" id="toplink" href="#sommaire">↑ Haut</a>
 
 <script>
+  // Thème clair/sombre (choix mémorisé, partagé avec l'appli).
+  function currentTheme() {
+    const s = localStorage.getItem('theme');
+    if (s === 'light' || s === 'dark') return s;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function applyTheme() {
+    const s = localStorage.getItem('theme');
+    if (s === 'light' || s === 'dark') document.documentElement.setAttribute('data-theme', s);
+    else document.documentElement.removeAttribute('data-theme');
+    const btn = document.getElementById('theme-btn');
+    if (btn) { const dark = currentTheme() === 'dark'; btn.textContent = dark ? '☀️' : '🌙'; btn.title = dark ? 'Passer en clair' : 'Passer en sombre'; }
+  }
+  document.getElementById('theme-btn').addEventListener('click', function () {
+    localStorage.setItem('theme', currentTheme() === 'dark' ? 'light' : 'dark'); applyTheme();
+  });
+  applyTheme();
+
   // Boutons « Analyser » : ouvre l'appli avec la watchlist pré-remplie (+ retour au guide).
   document.querySelectorAll('.watch').forEach(function (w) {
     var syms = w.querySelector('.wl-syms'), go = w.querySelector('.wl-go');
