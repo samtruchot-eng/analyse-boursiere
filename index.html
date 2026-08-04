@@ -89,8 +89,21 @@
     background: linear-gradient(135deg, #e08bb0 0%, #c98fc0 52%, #ad9fe6 100%);
     color: #fff; padding: 26px 18px 24px;
     box-shadow: 0 4px 24px rgba(150,90,140,.30);
+    position: relative; overflow: hidden;
   }
-  .header-inner { max-width: 1180px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .header-inner { max-width: 1180px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; position: relative; z-index: 1; }
+
+  /* ── Papillons décoratifs (incrustations animées) ────── */
+  .flutter { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+  .bfly { position: absolute; opacity: var(--o, .16); animation: bflyFloat var(--d, 7s) ease-in-out infinite; animation-delay: var(--dl, 0s); will-change: transform; }
+  .bfly svg { display: block; width: 100%; height: 100%; }
+  .bfly .w { transform-box: view-box; transform-origin: 32px 32px; animation: bflyFlap var(--f, .8s) ease-in-out infinite; animation-delay: var(--dl, 0s); }
+  @keyframes bflyFlap { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(.5); } }
+  @keyframes bflyFloat { 0%, 100% { transform: translate(0, 0) rotate(-5deg); } 50% { transform: translate(12px, -16px) rotate(6deg); } }
+  header h1 .logo { transition: transform .2s; }
+  header h1:hover .logo { animation: logoWiggle .7s ease; }
+  @keyframes logoWiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-9deg); } 60% { transform: rotate(7deg); } }
+  @media (prefers-reduced-motion: reduce) { .bfly, .bfly .w, header h1:hover .logo { animation: none; } }
   header h1 { margin: 0; font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", "Hoefler Text", Georgia, serif; font-size: 27px; font-weight: 700; letter-spacing: .005em; display: flex; align-items: center; gap: 10px; }
   header h1 .logo { flex: 0 0 auto; display: block; }
   header .slogan { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", "Hoefler Text", Georgia, serif; font-size: 15.5px; font-style: italic; font-weight: 500; margin-top: 7px; opacity: .96; letter-spacing: .015em; }
@@ -1396,6 +1409,20 @@ applyTheme();
 document.getElementById('go').addEventListener('click', run);
 document.getElementById('tickers').addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
 
+// ── Papillons décoratifs animés dans l'en-tête ───────────────────────────────
+const BFLY_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><g class="w wl"><ellipse cx="22" cy="24.5" rx="12" ry="10" fill="#fff"/><ellipse cx="24.8" cy="42.2" rx="9.2" ry="8" fill="#fff" opacity="0.85"/></g><g class="w wr"><ellipse cx="42" cy="24.5" rx="12" ry="10" fill="#fff"/><ellipse cx="39.2" cy="42.2" rx="9.2" ry="8" fill="#fff" opacity="0.85"/></g><rect x="30.4" y="19" width="3.2" height="28" rx="1.6" fill="#f3dca0"/><path d="M32 19.6 C 30 15.5, 28.2 14, 26.6 13.6" fill="none" stroke="#f3dca0" stroke-width="1.4" stroke-linecap="round"/><path d="M32 19.6 C 34 15.5, 35.8 14, 37.4 13.6" fill="none" stroke="#f3dca0" stroke-width="1.4" stroke-linecap="round"/></svg>';
+function initButterflies() {
+  const host = document.querySelector('header'); if (!host) return;
+  const defs = [
+    { top: '16%', left: '39%', size: 26, d: 7, f: .7, dl: 0, o: .18 },
+    { top: '54%', left: '53%', size: 17, d: 9, f: .95, dl: 1.4, o: .13 },
+    { top: '10%', left: '64%', size: 22, d: 8, f: .8, dl: .6, o: .12 },
+  ];
+  const layer = document.createElement('div'); layer.className = 'flutter';
+  layer.innerHTML = defs.map(x => `<div class="bfly" style="top:${x.top};left:${x.left};width:${x.size}px;height:${x.size}px;--d:${x.d}s;--f:${x.f}s;--dl:${x.dl}s;--o:${x.o}">${BFLY_SVG}</div>`).join('');
+  host.insertBefore(layer, host.firstChild);
+}
+
 // ── Assistant intégré : base de connaissances + moteur de réponse ────────────
 const _norm = (s) => ' ' + String(s).toLowerCase().normalize('NFD')
   .replace(/[^a-z0-9]+/g, ' ').trim() + ' ';
@@ -1799,6 +1826,7 @@ renderCategories();
 renderFavs();
 initAssistant();
 initPortfolio();
+initButterflies();
 applyLang();
 run();
 </script>
