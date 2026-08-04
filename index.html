@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Analyse boursière</title>
-<meta name="description" content="Cours réels et analyse technique expliquée en français : score sur 100, indicateurs (RSI, MACD…), profil de risque, favoris et alertes.">
+<title>butterfly</title>
+<meta name="description" content="butterfly — cours réels et analyse technique expliquée en français : score sur 100, indicateurs (RSI, MACD…), profil de risque, favoris et alertes.">
 <meta name="theme-color" content="#14213d">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
-<meta name="apple-mobile-web-app-title" content="Bourse">
+<meta name="apple-mobile-web-app-title" content="butterfly">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Analyse boursière">
-<meta property="og:description" content="Cours réels et analyse technique expliquée en français : score, indicateurs, risque, favoris et alertes.">
+<meta property="og:title" content="butterfly">
+<meta property="og:description" content="butterfly — cours réels et analyse technique expliquée en français : score, indicateurs, risque, favoris et alertes.">
 <meta property="og:image" content="/icon-512.png">
 <style>
   :root {
@@ -78,7 +78,7 @@
   }
   .header-inner { max-width: 1180px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -.01em; display: flex; align-items: center; gap: 9px; }
-  header h1 .spark-ico { font-size: 20px; }
+  header h1 .logo { flex: 0 0 auto; display: block; }
   header .sub { opacity: .8; font-size: 13px; margin-top: 5px; }
   .guide-link { color: #fff; text-decoration: none; font-size: 13.5px; font-weight: 600;
     border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: 8px 15px;
@@ -289,7 +289,17 @@
 <header>
   <div class="header-inner">
     <div>
-      <h1><span class="spark-ico">📈</span> Analyse boursière</h1>
+      <h1><svg class="logo" viewBox="0 0 64 64" width="26" height="26" aria-hidden="true">
+        <ellipse cx="22" cy="24.5" rx="12" ry="10" fill="#fff"/>
+        <ellipse cx="42" cy="24.5" rx="12" ry="10" fill="#fff"/>
+        <ellipse cx="24.8" cy="42.2" rx="9.2" ry="8" fill="#fff" opacity="0.9"/>
+        <ellipse cx="39.2" cy="42.2" rx="9.2" ry="8" fill="#fff" opacity="0.9"/>
+        <rect x="30.2" y="18.6" width="3.6" height="29" rx="1.8" fill="#e7c256"/>
+        <path d="M32 19.4 C 30 15, 28 13.5, 26.2 13" fill="none" stroke="#e7c256" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M32 19.4 C 34 15, 36 13.5, 37.8 13" fill="none" stroke="#e7c256" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="25.9" cy="12.8" r="1.5" fill="#e7c256"/>
+        <circle cx="38.1" cy="12.8" r="1.5" fill="#e7c256"/>
+      </svg> butterfly</h1>
       <div class="sub">Cours réels · analyse technique expliquée en français</div>
     </div>
     <a class="guide-link" href="/guide">📘 Guide →</a>

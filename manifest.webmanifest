@@ -1,7 +1,7 @@
 {
-  "name": "Analyse boursière",
-  "short_name": "Bourse",
-  "description": "Cours réels et analyse technique expliquée en français : score, indicateurs, risque, favoris et alertes.",
+  "name": "butterfly",
+  "short_name": "butterfly",
+  "description": "butterfly — cours réels et analyse technique expliquée en français : score, indicateurs, risque, favoris et alertes.",
   "lang": "fr",
   "start_url": "/",
   "scope": "/",
