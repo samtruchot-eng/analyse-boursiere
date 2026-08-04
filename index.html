@@ -268,6 +268,11 @@
   .pf-block-t { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 650; margin-bottom: 10px; }
   .pf-backup { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .pf-backup-note { flex-basis: 100%; font-size: 11px; color: var(--faint); line-height: 1.5; margin-top: 2px; }
+  .pf-hist { margin-bottom: 20px; }
+  .pf-hist-top { font-size: 15px; margin: 4px 0 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .pf-hist-top b { font-size: 21px; font-weight: 750; font-variant-numeric: tabular-nums; }
+  .pf-hist-svg { width: 100%; height: 54px; display: block; }
+  .pf-hist-note { font-size: 11px; color: var(--faint); margin-top: 5px; }
 
   .banner { padding: 11px 15px; border-radius: 10px; font-size: 13px; margin: 12px 0; }
   .banner.err { background: rgba(220,38,38,.1); color: #b3261b; border: 1px solid rgba(220,38,38,.28); }
@@ -1104,6 +1109,28 @@ function toEur(value, cur) {
   return rate != null ? value * rate : null;
 }
 
+// Historique de la valeur totale du portefeuille (un point par jour, en €).
+function getPfHistory() { try { return JSON.parse(localStorage.getItem('pfHistory') || '[]'); } catch (e) { return []; } }
+function recordPfValue(v) {
+  const h = getPfHistory(), today = new Date().toISOString().slice(0, 10);
+  if (h.length && h[h.length - 1].d === today) h[h.length - 1].v = Math.round(v);
+  else h.push({ d: today, v: Math.round(v) });
+  while (h.length > 90) h.shift();
+  localStorage.setItem('pfHistory', JSON.stringify(h));
+}
+function pfHistBlock() {
+  const h = getPfHistory(); if (h.length < 2) return '';
+  const vals = h.map(x => x.v), w = 520, ht = 54, lo = Math.min(...vals), hi = Math.max(...vals), rng = (hi - lo) || 1;
+  const pts = vals.map((v, i) => `${(i / (vals.length - 1) * w).toFixed(1)},${(ht - (v - lo) / rng * (ht - 6) - 3).toFixed(1)}`).join(' ');
+  const first = h[0], last = h[h.length - 1], d = last.v - first.v, pct = first.v > 0 ? d / first.v * 100 : 0;
+  const cls = d >= 0 ? 'up' : 'down', arrow = d >= 0 ? '▲' : '▼', col = d >= 0 ? 'var(--pos)' : 'var(--neg)';
+  return `<div class="pf-hist"><div class="pf-block-t">Valeur du portefeuille dans le temps</div>
+    <div class="pf-hist-top"><b>${fmtNum(last.v, 0)} €</b><span class="delta ${cls}">${arrow} ${d >= 0 ? '+' : ''}${fmt(pct, 1)} % <small>depuis le ${esc(frDate(first.d))}</small></span></div>
+    <svg class="pf-hist-svg" viewBox="0 0 ${w} ${ht}" preserveAspectRatio="none"><defs><linearGradient id="pfg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".2"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+      <polygon points="0,${ht} ${pts} ${w},${ht}" fill="url(#pfg)"/><polyline fill="none" stroke="${col}" stroke-width="2" points="${pts}"/></svg>
+    <div class="pf-hist-note">${h.length} relevés · un point par jour où vous ouvrez le portefeuille.</div></div>`;
+}
+
 // Camembert (donut) de répartition, en valeur € si possible.
 function pfDonut(items) {
   const total = items.reduce((s, x) => s + x.value, 0) || 1;
@@ -1234,9 +1261,10 @@ function renderPf() {
   });
   const secItems = Object.entries(secMap).map(([label, value]) => ({ label, value }))
     .sort((a, b) => b.value - a.value).map((it, i) => ({ ...it, color: PF_COLORS[i % PF_COLORS.length] }));
-  chartEl.innerHTML = posItems.length
+  const charts = posItems.length
     ? `<div class="pf-charts">${pfChartBlock('Par position', posItems)}${pfChartBlock('Par secteur', secItems)}</div>`
     : '';
+  chartEl.innerHTML = pfHistBlock() + charts;
 }
 
 async function refreshPf() {
@@ -1260,6 +1288,15 @@ async function refreshPf() {
         (fxd.results || []).forEach(r => { if (!r.error && r.price) pfFx[String(r.ticker).slice(0, 3).toUpperCase()] = r.price; });
       } catch (e) { /* garde les derniers taux connus */ }
     }
+    // Enregistre la valeur totale du jour (en €) pour le suivi dans le temps.
+    let tot = 0, any = false;
+    getPf().forEach(p => {
+      const info = pfPrices[String(p.sym).toUpperCase()];
+      if (!info || info.price == null) return;
+      const ev = toEur(info.price * p.qty, info.currency || '?');
+      if (ev != null) { tot += ev; any = true; }
+    });
+    if (any && tot > 0) recordPfValue(tot);
     document.getElementById('pf-updated').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   } catch (e) { /* on garde les derniers prix connus */ }
   btn.disabled = false; btn.textContent = '↻ Rafraîchir';
@@ -1267,7 +1304,7 @@ async function refreshPf() {
 }
 
 // Sauvegarde / restauration de toutes les données locales.
-const BACKUP_KEYS = ['favorites', 'portfolio', 'alerts', 'scoreHistory', 'notes', 'tickers', 'catGroup'];
+const BACKUP_KEYS = ['favorites', 'portfolio', 'alerts', 'scoreHistory', 'notes', 'pfHistory', 'tickers', 'catGroup'];
 function exportData() {
   const data = {};
   BACKUP_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v != null) data[k] = v; });
