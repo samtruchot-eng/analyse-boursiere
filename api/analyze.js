@@ -186,7 +186,7 @@ async function fetchFundamentals(tickers) {
 
 // Actualités récentes d'un titre via le flux RSS public de Yahoo Finance
 // (aucune authentification requise). Renvoie [] en cas d'échec.
-async function fetchNews(ticker, max = 4) {
+async function fetchNews(ticker, max = 7) {
   try {
     const url = `https://feeds.finance.yahoo.com/rss/2.0/headline?s=${encodeURIComponent(ticker)}&region=US&lang=en-US`;
     const res = await fetch(url, { headers: { 'User-Agent': YF_UA } });

@@ -508,6 +508,13 @@
   .news-list a { color: var(--accent); text-decoration: none; }
   .news-list a:hover { text-decoration: underline; }
   .news-date { display: inline-block; min-width: 46px; color: var(--faint); font-variant-numeric: tabular-nums; margin-right: 8px; }
+  .news-tag { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; padding: 1px 6px; border-radius: 6px; margin-right: 7px; vertical-align: 1px; }
+  .nt-risk { background: rgba(220,38,38,.13); color: #b3261b; }
+  .nt-res { background: rgba(168,106,168,.15); color: var(--accent); }
+  .nt-gui { background: rgba(37,99,235,.13); color: #2563eb; }
+  .nt-ana { background: rgba(13,148,136,.14); color: #0d9488; }
+  .nt-div, .nt-buy { background: rgba(22,163,74,.14); color: #16a34a; }
+  .nt-deal { background: rgba(217,164,65,.18); color: #9a6b00; }
   .news-note { margin: 8px 0 0; font-size: 11px; color: var(--faint); font-style: italic; }
   table.metrics { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
   table.metrics td { padding: 5px 0; border-bottom: 1px solid var(--border); }
@@ -673,7 +680,8 @@ const I18N = {
     fundTitle: 'Repères fondamentaux', fundPE: 'PER', fundFPE: 'PER prévu', fundPEG: 'PEG', fundPB: 'Cours/actif', fundDiv: 'Dividende', fundNoDiv: 'aucun', fundCap: 'Capitalisation', fundEarn: 'Prochain résultat',
     fund52: 'Position 52 sem.', fundMargin: 'Marge nette', fundGrowth: 'Croissance CA', fundRoe: 'Rentabilité (ROE)', fundDebt: 'Dette / fonds propres', fundAnalysts: 'Avis des analystes', fundTarget: 'Objectif de cours',
     fundReco: { strong_buy: 'Achat fort', buy: 'Achat', hold: 'Conserver', sell: 'Vente', strong_sell: 'Vente forte', underperform: 'Sous-performance', outperform: 'Surperformance' },
-    newsTitle: 'Actualités récentes', newsNote: 'Titres bruts de Yahoo Finance — non filtrés, non analysés. À vous de juger.',
+    newsTitle: 'Actualités récentes', newsNote: 'Titres de Yahoo Finance — les plus parlants sont remontés et étiquetés. À vous de juger.',
+    nt_results: 'Résultats', nt_guidance: 'Prévisions', nt_analyst: 'Analystes', nt_dividend: 'Dividende', nt_buyback: 'Rachat', nt_deal: 'Opération', nt_risk: 'Risque',
     fundEarnIn: (d, date) => d === 0 ? `aujourd'hui (${date})` : `dans ${d} j (le ${date})`,
     fundNote: "Analyse 100 % technique : le score ne tient compte ni des résultats d'entreprise, ni des dividendes, ni de l'actualité. Les repères et actualités ci-dessus sont donnés pour contexte — à vous de les juger. Vérifiez toujours la date du prochain résultat et les nouvelles récentes avant toute décision.",
     phTickers: 'Ex. AAPL, MSFT, NVDA', analyze: 'Analyser',
@@ -756,7 +764,8 @@ const I18N = {
     fundTitle: 'Fundamental snapshot', fundPE: 'P/E', fundFPE: 'Fwd P/E', fundPEG: 'PEG', fundPB: 'Price/Book', fundDiv: 'Dividend', fundNoDiv: 'none', fundCap: 'Market cap', fundEarn: 'Next earnings',
     fund52: '52-week position', fundMargin: 'Net margin', fundGrowth: 'Revenue growth', fundRoe: 'Return (ROE)', fundDebt: 'Debt / equity', fundAnalysts: 'Analyst view', fundTarget: 'Price target',
     fundReco: { strong_buy: 'Strong buy', buy: 'Buy', hold: 'Hold', sell: 'Sell', strong_sell: 'Strong sell', underperform: 'Underperform', outperform: 'Outperform' },
-    newsTitle: 'Recent news', newsNote: 'Raw headlines from Yahoo Finance — not filtered or analysed. Your call.',
+    newsTitle: 'Recent news', newsNote: 'Headlines from Yahoo Finance — the most telling ones are pulled up and tagged. Your call.',
+    nt_results: 'Earnings', nt_guidance: 'Guidance', nt_analyst: 'Analysts', nt_dividend: 'Dividend', nt_buyback: 'Buyback', nt_deal: 'Deal', nt_risk: 'Risk',
     fundEarnIn: (d, date) => d === 0 ? `today (${date})` : `in ${d}d (${date})`,
     fundNote: "100% technical analysis: the score does not factor in company earnings, dividends or news. The markers and news above are shown for context — your call to judge them. Always check the next earnings date and recent news before any decision.",
     phTickers: 'e.g. AAPL, MSFT, NVDA', analyze: 'Analyse',
@@ -1049,17 +1058,37 @@ function pctCell(v, digits) {
   const cls = v > 0 ? 'pos' : (v < 0 ? 'neg' : '');
   return `<span class="${cls === 'pos' ? 'fund-pos' : (cls === 'neg' ? 'fund-neg' : '')}">${v > 0 ? '+' : ''}${fmt(v, digits)}%</span>`;
 }
-// Actualités récentes (titres bruts du flux Yahoo). Rien si vide.
+// Étiquetage léger des actualités : on repère les sujets qui comptent (résultats,
+// dividende, analystes, risque…) via des mots-clés (les titres Yahoo sont en
+// anglais) et on remonte ces actus en tête, avec une petite étiquette.
+const NEWS_TOPICS = [
+  { k: 'risk', cls: 'nt-risk', kws: ['lawsuit', 'sues', 'sued', 'probe', 'investigation', ' sec ', 'recall', 'fraud', 'layoff', 'plunge', 'plunges', 'tumble', 'tumbles', 'sinks', 'slump', 'crash', 'warns', 'halts', 'antitrust'] },
+  { k: 'results', cls: 'nt-res', kws: ['earnings', 'results', 'quarter', 'q1 ', 'q2 ', 'q3 ', 'q4 ', 'revenue', 'profit', 'beats', 'misses', ' eps ', 'sales'] },
+  { k: 'analyst', cls: 'nt-ana', kws: ['upgrade', 'upgrades', 'downgrade', 'downgrades', 'price target', 'rating', 'initiated', 'overweight', 'underweight', 'analyst', 'buy rating', 'sell rating'] },
+  { k: 'guidance', cls: 'nt-gui', kws: ['guidance', 'forecast', 'outlook', 'cuts forecast', 'raises guidance', 'lowers guidance'] },
+  { k: 'dividend', cls: 'nt-div', kws: ['dividend', 'payout'] },
+  { k: 'buyback', cls: 'nt-buy', kws: ['buyback', 'repurchase', 'repurchases'] },
+  { k: 'deal', cls: 'nt-deal', kws: ['acquisition', 'acquire', 'acquires', 'merger', 'takeover', ' stake', 'partnership'] },
+];
+function newsTopic(title) {
+  const s = ' ' + String(title).toLowerCase().replace(/[^a-z0-9]+/g, ' ') + ' ';
+  for (const tp of NEWS_TOPICS) if (tp.kws.some(k => s.includes(k))) return tp;
+  return null;
+}
+// Actualités récentes : sujets importants remontés et étiquetés. Rien si vide.
 function newsHtml(r) {
-  const n = (r.news || []).filter(x => x && x.title);
-  if (!n.length) return '';
-  const items = n.map(x => {
+  const raw = (r.news || []).filter(x => x && x.title);
+  if (!raw.length) return '';
+  const items = raw.map((x, i) => ({ x, i, tp: newsTopic(x.title) }));
+  items.sort((a, b) => ((a.tp ? NEWS_TOPICS.indexOf(a.tp) : 99) - (b.tp ? NEWS_TOPICS.indexOf(b.tp) : 99)) || (a.i - b.i));
+  const li = items.map(({ x, tp }) => {
     const dt = x.date ? `<span class="news-date">${esc(new Date(x.date + 'T00:00:00').toLocaleDateString(localeOf(), { day: 'numeric', month: 'short' }))}</span>` : '';
+    const tag = tp ? `<span class="news-tag ${tp.cls}">${t('nt_' + tp.k)}</span>` : '';
     const title = esc(x.title);
     const inner = x.link ? `<a href="${esc(x.link)}" target="_blank" rel="noopener">${title}</a>` : title;
-    return `<li>${dt}${inner}</li>`;
+    return `<li>${dt}${tag}${inner}</li>`;
   }).join('');
-  return `<div class="news"><div class="fund-hd">${t('newsTitle')}</div><ul class="news-list">${items}</ul><p class="news-note">${t('newsNote')}</p></div>`;
+  return `<div class="news"><div class="fund-hd">${t('newsTitle')}</div><ul class="news-list">${li}</ul><p class="news-note">${t('newsNote')}</p></div>`;
 }
 // Repères fondamentaux étendus + rappel honnête que le score reste technique.
 function fundHtml(r) {
