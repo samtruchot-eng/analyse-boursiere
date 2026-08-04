@@ -320,6 +320,13 @@
   .chart-legend i.sw { display: inline-block; width: 14px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
   .sw-price { background: var(--text); } .sw-50 { background: #d29a45; } .sw-200 { background: var(--accent); }
   .chart-note { font-size: 11.5px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+  #chart-sim:not(:empty) { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+  .sim-head { font-weight: 700; font-size: 13px; margin-bottom: 8px; }
+  .sim-row { font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .sim-row input { width: 96px; border: 1px solid var(--card-border); background: var(--input-bg); color: var(--text); border-radius: 8px; padding: 6px 9px; font-size: 13px; outline: none; }
+  .sim-row input:focus { border-color: var(--accent); }
+  #sim-out { font-size: 13px; color: var(--text); margin-top: 10px; line-height: 1.55; }
+  .sim-note { display: block; font-size: 11px; color: var(--faint); margin-top: 4px; }
 
   .headline { font-size: 14px; font-weight: 600; color: var(--text); margin: 6px 0 14px; line-height: 1.5; }
 
@@ -469,6 +476,7 @@
       <span><i class="sw sw-200"></i>Moyenne 200 j</span>
     </div>
     <div class="chart-note">Les moyennes mobiles lissent la tendance. Cours au-dessus de ses moyennes = tendance haussière ; en dessous = baissière. La moyenne 200 j apparaît si l'historique est suffisant.</div>
+    <div id="chart-sim"></div>
   </div>
 </div>
 
@@ -913,18 +921,46 @@ function bigChart(closes) {
     <polyline fill="none" stroke="var(--text)" stroke-width="2" stroke-linejoin="round" points="${pts(closes)}"/>
   </svg>`;
 }
+let chartCloses = null;
+// Simule un investissement programmé (montant fixe ~chaque mois) sur l'historique.
+function simulateDCA(closes, monthly) {
+  if (!closes || closes.length < 2 || !(monthly > 0)) return null;
+  const step = 21; // ~1 mois de bourse
+  let shares = 0, invested = 0, n = 0;
+  for (let i = 0; i < closes.length; i += step) {
+    const px = closes[i];
+    if (px > 0) { shares += monthly / px; invested += monthly; n++; }
+  }
+  const value = shares * closes[closes.length - 1];
+  return { invested, value, gain: value - invested, pct: invested > 0 ? (value - invested) / invested * 100 : 0, months: n };
+}
+function updateSim() {
+  const out = document.getElementById('sim-out'); if (!out) return;
+  const m = parseFloat(String(document.getElementById('sim-amount').value).replace(',', '.')) || 0;
+  const r = simulateDCA(chartCloses, m);
+  if (!r || !r.months) { out.innerHTML = ''; return; }
+  const cls = r.gain >= 0 ? 'pf-pos' : 'pf-neg';
+  out.innerHTML = `Sur ~${r.months} mois, vous auriez investi <b>${fmtNum(r.invested, 0)}</b> et cela vaudrait aujourd'hui <b>${fmtNum(r.value, 0)}</b> — <span class="${cls}">${r.gain >= 0 ? '+' : ''}${fmtNum(r.gain, 0)} (${r.gain >= 0 ? '+' : ''}${fmt(r.pct, 1)} %)</span>.
+    <span class="sim-note">Montants dans la devise du titre. Simulation sur la période affichée, à titre illustratif — les performances passées ne préjugent pas des performances futures.</span>`;
+}
 function openChart(ticker) {
   const r = lastRows.find(x => String(x.ticker).toUpperCase() === String(ticker).toUpperCase());
   if (!r || r.error) return;
   const closes = (r.chart && r.chart.length >= 30) ? r.chart : (r.spark || []);
   if (closes.length < 2) return;
+  chartCloses = closes;
   document.getElementById('chart-title').innerHTML = `${esc(r.ticker)} <small>${esc(companyName(r))} · ${fmt(r.price)} au ${esc(r.day)}</small>`;
   document.getElementById('chart-body').innerHTML = bigChart(closes);
+  document.getElementById('chart-sim').innerHTML = `<div class="sim-head">🧮 Simulateur — investissement programmé</div>
+    <label class="sim-row">J'investis <input id="sim-amount" type="number" min="0" step="any" value="100"> par mois sur cette période.</label>
+    <div id="sim-out"></div>`;
+  updateSim();
   document.getElementById('chart-modal').hidden = false;
 }
 function closeChart() { document.getElementById('chart-modal').hidden = true; }
 document.getElementById('chart-close').addEventListener('click', closeChart);
 document.getElementById('chart-modal').addEventListener('click', e => { if (e.target.id === 'chart-modal') closeChart(); });
+document.getElementById('chart-modal').addEventListener('input', e => { if (e.target.id === 'sim-amount') updateSim(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeChart(); });
 document.getElementById('favbar').addEventListener('click', e => {
   const del = e.target.closest('.fav-del'), load = e.target.closest('.fav-load'), all = e.target.closest('.fav-analyze');
