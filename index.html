@@ -188,6 +188,11 @@
   .bell.hit { filter: none; animation: bellpulse 1s ease infinite; }
   @keyframes bellpulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.22); } }
   @media (prefers-reduced-motion: reduce) { .bell.hit { animation: none; } }
+  .note-btn { border: none; background: none; cursor: pointer; font-size: 14px; line-height: 1; padding: 0; margin-left: 6px;
+    vertical-align: baseline; filter: grayscale(1) opacity(.45); transition: filter .12s, transform .08s; }
+  .note-btn:hover { filter: none; } .note-btn.on { filter: none; } .note-btn:active { transform: scale(1.2); }
+  .card-note { background: var(--chip-bg); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0;
+    padding: 8px 11px; margin: 0 0 12px; font-size: 12.5px; color: var(--text); font-style: italic; line-height: 1.45; }
   #alerts:not(:empty) { margin: 4px 0 18px; }
   .alerts-box { background: var(--card); border: 1px solid var(--card-border); border-left: 3px solid #eab308;
     border-radius: 12px; padding: 12px 16px; box-shadow: var(--shadow); }
@@ -614,7 +619,7 @@ function card(r) {
   return `<div class="card" id="card-${esc(r.ticker)}">
     <div class="card-head">
       <div>
-        <div class="ticker">${esc(r.ticker)}${coHtml(r)} <button class="star${isFav(r.ticker) ? ' on' : ''}" data-t="${esc(r.ticker)}" title="Ajouter/retirer des favoris" aria-label="Favori">${isFav(r.ticker) ? '★' : '☆'}</button><button class="bell${getAlerts()[String(r.ticker).toUpperCase()] ? ' on' : ''}${customAlert(r) ? ' hit' : ''}" data-t="${esc(r.ticker)}" title="Alerte de prix" aria-label="Alerte de prix">🔔</button></div>
+        <div class="ticker">${esc(r.ticker)}${coHtml(r)} <button class="star${isFav(r.ticker) ? ' on' : ''}" data-t="${esc(r.ticker)}" title="Ajouter/retirer des favoris" aria-label="Favori">${isFav(r.ticker) ? '★' : '☆'}</button><button class="bell${getAlerts()[String(r.ticker).toUpperCase()] ? ' on' : ''}${customAlert(r) ? ' hit' : ''}" data-t="${esc(r.ticker)}" title="Alerte de prix" aria-label="Alerte de prix">🔔</button><button class="note-btn${getNotes()[String(r.ticker).toUpperCase()] ? ' on' : ''}" data-t="${esc(r.ticker)}" title="Note personnelle" aria-label="Note">✏️</button></div>
         <div class="price"><strong>${fmt(r.price)}</strong> <span class="asof">au ${esc(r.day)}</span></div>
         <span class="reco-pill" style="color:${color};background:${color}1f">${recoText}</span>${scoreDeltaHtml(r)}
       </div>
@@ -622,6 +627,7 @@ function card(r) {
     </div>
     <button class="spark-btn" data-t="${esc(r.ticker)}" title="Agrandir · moyennes 50 et 200 jours">${spark(r.spark, esc(r.ticker))}<span class="spark-exp">⤢</span></button>
     <div class="headline">${esc(r.headline)}</div>
+    ${noteHtml(r)}
     ${riskChips(r.risk)}
     <ul class="points">${points}</ul>
     <div class="risk-summary">${esc(r.risk_summary||'')}</div>
@@ -851,6 +857,20 @@ document.getElementById('categories').addEventListener('click', e => {
   run();
 });
 
+// ── Notes personnelles par titre (dans le navigateur) ───────────────────────
+function getNotes() { try { return JSON.parse(localStorage.getItem('notes') || '{}'); } catch (e) { return {}; } }
+function noteHtml(r) { const n = getNotes()[String(r.ticker).toUpperCase()]; return n ? `<div class="card-note">✏️ ${esc(n)}</div>` : ''; }
+function editNote(t) {
+  t = String(t).toUpperCase();
+  const all = getNotes(), cur = all[t] || '';
+  const v = window.prompt('Note personnelle pour ' + t + ' (laissez vide pour supprimer) :', cur);
+  if (v === null) return;
+  const s = String(v).trim();
+  if (s) all[t] = s; else delete all[t];
+  localStorage.setItem('notes', JSON.stringify(all));
+  rerender();
+}
+
 // ── Historique des scores (mémorisé par jour, dans le navigateur) ────────────
 let scoreHist = null;
 function loadScoreHist() { if (scoreHist) return scoreHist; try { scoreHist = JSON.parse(localStorage.getItem('scoreHistory') || '{}'); } catch (e) { scoreHist = {}; } return scoreHist; }
@@ -907,6 +927,7 @@ function renderFavs() {
 document.getElementById('results').addEventListener('click', e => {
   const s = e.target.closest('.star'); if (s) { toggleFav(s.dataset.t); return; }
   const bl = e.target.closest('.bell'); if (bl) { editAlert(bl.dataset.t); return; }
+  const nt = e.target.closest('.note-btn'); if (nt) { editNote(nt.dataset.t); return; }
   const sp = e.target.closest('.spark-btn'); if (sp) openChart(sp.dataset.t);
 });
 
@@ -1246,7 +1267,7 @@ async function refreshPf() {
 }
 
 // Sauvegarde / restauration de toutes les données locales.
-const BACKUP_KEYS = ['favorites', 'portfolio', 'alerts', 'scoreHistory', 'tickers', 'catGroup'];
+const BACKUP_KEYS = ['favorites', 'portfolio', 'alerts', 'scoreHistory', 'notes', 'tickers', 'catGroup'];
 function exportData() {
   const data = {};
   BACKUP_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v != null) data[k] = v; });
