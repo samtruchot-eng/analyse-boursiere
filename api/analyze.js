@@ -298,38 +298,57 @@ function findLevels(barsArr, price) {
 }
 
 // ── Événements récents (≈ 7 dernières séances) ───────────────────────────────
-function detectEvents(barsArr) {
+const EVENT_TXT = {
+  fr: {
+    golden: 'Golden cross tout récent : la moyenne 50 j vient de repasser au-dessus de la 200 j.',
+    death: 'Death cross tout récent : la moyenne 50 j vient de repasser sous la 200 j.',
+    newHigh: 'Nouveau plus-haut de 52 semaines.', newLow: 'Nouveau plus-bas de 52 semaines.',
+    breakUp: 'Cassure à la hausse : le cours dépasse le sommet des 20 dernières séances.',
+    breakDown: 'Cassure à la baisse : le cours enfonce le creux des 20 dernières séances.',
+  },
+  en: {
+    golden: 'Fresh golden cross: the 50-day average has just crossed back above the 200-day.',
+    death: 'Fresh death cross: the 50-day average has just crossed back below the 200-day.',
+    newHigh: 'New 52-week high.', newLow: 'New 52-week low.',
+    breakUp: 'Upside breakout: price clears the high of the last 20 sessions.',
+    breakDown: 'Downside breakdown: price breaks the low of the last 20 sessions.',
+  },
+};
+function detectEvents(barsArr, lang = 'fr') {
+  const T = EVENT_TXT[lang] || EVENT_TXT.fr;
   const closes = barsArr.map(b => b.close), n = closes.length, price = closes[n - 1];
   const s50 = sma(closes, 50), s200 = sma(closes, 200), ev = [], seen = new Set();
   const add = (s, text) => { if (!seen.has(text)) { seen.add(text); ev.push({ s, text }); } };
   for (let i = Math.max(1, n - 7); i < n; i++) {
     if (s50[i] != null && s200[i] != null && s50[i - 1] != null && s200[i - 1] != null) {
-      if (s50[i - 1] <= s200[i - 1] && s50[i] > s200[i]) add('bull', 'Golden cross tout récent : la moyenne 50 j vient de repasser au-dessus de la 200 j.');
-      if (s50[i - 1] >= s200[i - 1] && s50[i] < s200[i]) add('bear', 'Death cross tout récent : la moyenne 50 j vient de repasser sous la 200 j.');
+      if (s50[i - 1] <= s200[i - 1] && s50[i] > s200[i]) add('bull', T.golden);
+      if (s50[i - 1] >= s200[i - 1] && s50[i] < s200[i]) add('bear', T.death);
     }
   }
   const win = closes.slice(-252);
-  if (price >= Math.max(...win) * 0.999) add('bull', 'Nouveau plus-haut de 52 semaines.');
-  if (price <= Math.min(...win) * 1.001) add('bear', 'Nouveau plus-bas de 52 semaines.');
+  if (price >= Math.max(...win) * 0.999) add('bull', T.newHigh);
+  if (price <= Math.min(...win) * 1.001) add('bear', T.newLow);
   const prev20 = closes.slice(-21, -1);
   if (prev20.length) {
-    if (price > Math.max(...prev20)) add('bull', 'Cassure à la hausse : le cours dépasse le sommet des 20 dernières séances.');
-    if (price < Math.min(...prev20)) add('bear', 'Cassure à la baisse : le cours enfonce le creux des 20 dernières séances.');
+    if (price > Math.max(...prev20)) add('bull', T.breakUp);
+    if (price < Math.min(...prev20)) add('bear', T.breakDown);
   }
   return ev;
 }
 
 // ── Indice de confiance : les facteurs sont-ils d'accord entre eux ? ──────────
-function signalConfidence(contribs, adxVal) {
+const CONF_LABEL = { fr: ['faible', 'moyenne', 'élevée'], en: ['low', 'medium', 'high'] };
+function signalConfidence(contribs, adxVal, lang = 'fr') {
+  const lab = CONF_LABEL[lang] || CONF_LABEL.fr;
   const vals = Object.values(contribs);
-  if (!vals.length) return { value: 0, label: 'faible' };
+  if (!vals.length) return { value: 0, label: lab[0] };
   const net = vals.reduce((a, b) => a + b, 0);
   const totAbs = vals.reduce((a, b) => a + Math.abs(b), 0) || 1;
   const agree = vals.filter(v => (net >= 0 ? v >= 0 : v < 0)).reduce((a, b) => a + Math.abs(b), 0);
   let conf = agree / totAbs;
   if (adxVal != null) conf = conf * 0.85 + clamp((adxVal - 15) / 30, 0, 1) * 0.15;
   const value = Math.round(conf * 100);
-  return { value, label: value >= 70 ? 'élevée' : (value >= 50 ? 'moyenne' : 'faible') };
+  return { value, label: value >= 70 ? lab[2] : (value >= 50 ? lab[1] : lab[0]) };
 }
 
 // ── Fourchette probable à 1 mois (± 1 écart-type, ≈ 2 chances sur 3) ──────────
@@ -452,7 +471,7 @@ const WEIGHTS = {
   mfi: 0.8, psar: 0.9,
 };
 
-function analyze(series) {
+function analyze(series, lang = 'fr') {
   const c = series.bars.map(b => b.close);
   const volumes = series.bars.map(b => b.volume);
   const hasVolume = volumes.some(v => v > 0);
@@ -469,7 +488,7 @@ function analyze(series) {
   const div = rsiDivergence(c, rsiArr, 40);
   const wk = weeklyTrend(series.bars);
   const levels = findLevels(series.bars, price);
-  const events = detectEvents(series.bars);
+  const events = detectEvents(series.bars, lang);
   const proj = projRange(c, price);
   const mfiV = mfi(series.bars, 14);
   const ps = psar(series.bars);
@@ -518,8 +537,8 @@ function analyze(series) {
   for (const [k, s] of Object.entries(signals)) { const w = WEIGHTS[k] || 1; tw += w; wsum += s * w; contrib[k] = s * w; }
   const avg = tw ? wsum / tw : 0;
   const value = Math.round((50 + avg * 50) * 10) / 10;
-  const { label, reco } = labelFor(value);
-  const confidence = signalConfidence(contrib, adxData ? adxData.adx : null);
+  const { label, reco } = labelFor(value, lang);
+  const confidence = signalConfidence(contrib, adxData ? adxData.adx : null, lang);
 
   const metrics = {
     price: round(price, 2), sma50: round(sma50, 2), sma200: round(sma200, 2),
@@ -542,126 +561,166 @@ function analyze(series) {
   return { signals, value, label, reco, metrics, contributions: contrib, price };
 }
 
-function labelFor(v) {
-  if (v >= 72) return { label: 'STRONG_BUY', reco: 'Achat marqué — signaux techniques largement haussiers' };
-  if (v >= 58) return { label: 'BUY', reco: 'Achat — tendance et momentum favorables' };
-  if (v >= 42) return { label: 'HOLD', reco: 'Neutre — pas de signal directionnel clair' };
-  if (v >= 28) return { label: 'SELL', reco: 'Prudence — signaux majoritairement baissiers' };
-  return { label: 'STRONG_SELL', reco: 'Vente marquée — configuration technique dégradée' };
+const RECO = {
+  fr: { STRONG_BUY: 'Achat marqué — signaux techniques largement haussiers', BUY: 'Achat — tendance et momentum favorables', HOLD: 'Neutre — pas de signal directionnel clair', SELL: 'Prudence — signaux majoritairement baissiers', STRONG_SELL: 'Vente marquée — configuration technique dégradée' },
+  en: { STRONG_BUY: 'Strong buy — technical signals broadly bullish', BUY: 'Buy — favourable trend and momentum', HOLD: 'Neutral — no clear directional signal', SELL: 'Caution — mostly bearish signals', STRONG_SELL: 'Strong sell — deteriorated technical setup' },
+};
+function labelFor(v, lang = 'fr') {
+  const label = v >= 72 ? 'STRONG_BUY' : v >= 58 ? 'BUY' : v >= 42 ? 'HOLD' : v >= 28 ? 'SELL' : 'STRONG_SELL';
+  return { label, reco: (RECO[lang] || RECO.fr)[label] };
 }
 
-// ── Explications en français ────────────────────────────────────────────────
+// ── Explications (français / anglais) ────────────────────────────────────────
 
-function explain(a, rk, ticker) {
+const EXP = {
+  fr: {
+    topics: { trend: 'Tendance', ma: 'Croisement MM', rsi: 'RSI', macd: 'MACD', mom: 'Momentum', adx: 'Force de tendance', vol: 'Volume', stoch: 'Stochastique', div: 'Divergence', mtf: 'Multi-horizon', ev: 'Événement', lvl: 'Niveau', mfi: 'Flux (MFI)', sar: 'SAR', rvol: 'Volume relatif', sqz: 'Compression' },
+    dir: { bull: 'haussière', bear: 'baissière', neutral: 'hésitante' },
+    intro: { STRONG_BUY: t => `${t} affiche une configuration technique nettement favorable`, BUY: t => `${t} présente une configuration technique plutôt favorable`, HOLD: t => `${t} est dans une zone neutre, sans signal directionnel clair`, SELL: t => `${t} montre une configuration technique plutôt défavorable`, STRONG_SELL: t => `${t} présente une configuration technique nettement dégradée` },
+    headline: (intro, v) => `${intro} (score ${v}/100).`,
+    trendUp: p => `Le cours (${p}) est au-dessus de ses moyennes 50 et 200 jours : tendance de fond haussière.`,
+    trendDown: p => `Le cours (${p}) est sous ses moyennes 50 et 200 jours : tendance de fond baissière, prudence.`,
+    trendMixed: `Le cours est entre ses moyennes 50 et 200 jours : tendance hésitante.`,
+    maGolden: 'Moyenne 50 j au-dessus de la 200 j (« golden cross ») : moyen terme favorable.',
+    maDeath: 'Moyenne 50 j sous la 200 j (« death cross ») : moyen terme défavorable.',
+    rsiOver: v => `RSI à ${v} : suracheté, une correction est possible.`, rsiOverVig: 'RSI en surachat (>70).',
+    rsiUnder: v => `RSI à ${v} : survendu, un rebond est possible.`, rsiNeutral: v => `RSI à ${v} : zone neutre.`,
+    macdPos: 'Histogramme MACD positif : momentum de court terme haussier.', macdNeg: 'Histogramme MACD négatif : momentum de court terme baissier.',
+    momUp: v => `Sur 60 séances, +${v} % : dynamique porteuse.`, momDown: v => `Sur 60 séances, ${v} % : dynamique négative.`, momFlat: v => `Sur 60 séances, ${v} % : quasi stable.`,
+    adxStrong: (d, v) => `Tendance ${d} nette et installée (ADX ${v}) : le mouvement est directionnel.`,
+    adxWeak: v => `Pas de tendance marquée (ADX ${v}) : le marché avance sans direction claire, les signaux de tendance sont à prendre avec prudence.`,
+    adxWeakVig: v => `Tendance faible (ADX ${v}) : signaux directionnels peu fiables.`, adxMod: v => `Tendance modérée (ADX ${v}).`,
+    volUp: 'Les volumes accompagnent la hausse (accumulation) : mouvement plus crédible.', volDown: 'Les volumes accompagnent la baisse (distribution) : pression vendeuse réelle.', volNeutral: 'Le volume ne confirme pas franchement le mouvement : mouvement peu soutenu, à surveiller.',
+    stochOver: v => `Stochastique à ${v} : haut de son couloir récent (suracheté à court terme).`, stochUnder: v => `Stochastique à ${v} : bas de son couloir récent (survendu à court terme, rebond possible).`,
+    divBear: `Divergence baissière : le cours fait un nouveau sommet mais l'élan (RSI) faiblit — essoufflement possible.`, divBearVig: 'Divergence baissière prix / RSI : la hausse s\'essouffle.', divBull: `Divergence haussière : le cours fait un nouveau creux mais l'élan (RSI) se redresse — rebond possible.`,
+    mtfAligned: d => `Court terme et tendance de fond (hebdomadaire) sont alignés en ${d} : configuration cohérente, signal plus fiable.`,
+    mtfDisagree: (d1, d2) => `Désaccord d'horizons : court terme ${d1} mais fond ${d2} (hebdomadaire) — signal à confirmer, prudence.`, mtfDisagreeVig: 'Court terme et tendance de fond ne vont pas dans le même sens.', mtfNeutral: d => `Tendance de fond (hebdomadaire) : ${d}.`,
+    resistance: (lvl, d) => `Résistance proche vers ${lvl} (+${d} %) : zone où le cours a déjà buté.`, support: (lvl, d) => `Support proche vers ${lvl} (${d} %) : zone qui a déjà soutenu le cours.`,
+    mfiOver: v => `MFI à ${v} : suracheté volumes inclus, prudence à court terme.`, mfiOverVig: 'MFI en surachat (>80) : afflux d\'achats déjà important.', mfiUnder: v => `MFI à ${v} : survendu volumes inclus, rebond possible.`, mfiNeutral: (v, b) => `MFI à ${v} : flux d'argent ${b ? 'plutôt acheteur' : 'équilibré'}.`,
+    sarUp: v => `Parabolic SAR sous le cours (${v}) : tendance haussière ; ce niveau sert de stop suiveur (bascule si le cours passe dessous).`, sarDown: v => `Parabolic SAR au-dessus du cours (${v}) : tendance baissière ; se retournerait si le cours repasse au-dessus.`,
+    rvol: v => `Volume ${v}× la moyenne : forte activité, le mouvement récent est appuyé par les échanges.`,
+    sqz: `Compression de volatilité (« squeeze ») : les bandes se resserrent, un mouvement ample peut suivre — sans en indiquer le sens.`, sqzVig: 'Compression de volatilité : un mouvement important peut se déclencher.',
+    volLow: v => `volatilité faible (${v} %/an)`, volMod: v => `volatilité modérée (${v} %/an)`, volHigh: v => `volatilité élevée (${v} %/an)`, volHighVig: v => `Volatilité élevée (${v} %/an).`,
+    ddPart: v => `pire baisse ${v} %`, ddVig: v => `Le titre a déjà perdu ${v} % depuis un sommet.`,
+    shSolid: v => `Sharpe solide (${v})`, shModest: v => `Sharpe modeste (${v})`, shNeg: v => `Sharpe négatif (${v})`,
+    atrPart: v => `mouvement quotidien typique ±${v} %`,
+    riskLead: p => `Profil de risque : ${p}.`, projLine: (lo, hi) => ` Fourchette probable à 1 mois (≈ 2 chances sur 3) : ${lo} – ${hi}.`,
+    confLine: (lab, v) => ` Confiance du signal : ${lab} (${v}/100 — accord entre les facteurs).`,
+  },
+  en: {
+    topics: { trend: 'Trend', ma: 'MA cross', rsi: 'RSI', macd: 'MACD', mom: 'Momentum', adx: 'Trend strength', vol: 'Volume', stoch: 'Stochastic', div: 'Divergence', mtf: 'Multi-timeframe', ev: 'Event', lvl: 'Level', mfi: 'Money flow (MFI)', sar: 'SAR', rvol: 'Relative volume', sqz: 'Squeeze' },
+    dir: { bull: 'bullish', bear: 'bearish', neutral: 'unclear' },
+    intro: { STRONG_BUY: t => `${t} shows a clearly favourable technical setup`, BUY: t => `${t} shows a fairly favourable technical setup`, HOLD: t => `${t} is in a neutral zone, with no clear directional signal`, SELL: t => `${t} shows a fairly unfavourable technical setup`, STRONG_SELL: t => `${t} shows a clearly deteriorated technical setup` },
+    headline: (intro, v) => `${intro} (score ${v}/100).`,
+    trendUp: p => `Price (${p}) is above its 50- and 200-day averages: bullish underlying trend.`,
+    trendDown: p => `Price (${p}) is below its 50- and 200-day averages: bearish underlying trend, caution.`,
+    trendMixed: `Price sits between its 50- and 200-day averages: hesitant trend.`,
+    maGolden: '50-day average above the 200-day ("golden cross"): favourable medium term.',
+    maDeath: '50-day average below the 200-day ("death cross"): unfavourable medium term.',
+    rsiOver: v => `RSI at ${v}: overbought, a pullback is possible.`, rsiOverVig: 'RSI overbought (>70).',
+    rsiUnder: v => `RSI at ${v}: oversold, a rebound is possible.`, rsiNeutral: v => `RSI at ${v}: neutral zone.`,
+    macdPos: 'Positive MACD histogram: bullish short-term momentum.', macdNeg: 'Negative MACD histogram: bearish short-term momentum.',
+    momUp: v => `Over 60 sessions, +${v}%: supportive dynamics.`, momDown: v => `Over 60 sessions, ${v}%: negative dynamics.`, momFlat: v => `Over 60 sessions, ${v}%: roughly flat.`,
+    adxStrong: (d, v) => `Clear, established ${d} trend (ADX ${v}): the move is directional.`,
+    adxWeak: v => `No marked trend (ADX ${v}): the market drifts without a clear direction, trend signals should be taken with caution.`,
+    adxWeakVig: v => `Weak trend (ADX ${v}): directional signals unreliable.`, adxMod: v => `Moderate trend (ADX ${v}).`,
+    volUp: 'Volume backs the rise (accumulation): a more credible move.', volDown: 'Volume backs the fall (distribution): real selling pressure.', volNeutral: 'Volume does not really confirm the move: weakly supported, worth watching.',
+    stochOver: v => `Stochastic at ${v}: top of its recent range (short-term overbought).`, stochUnder: v => `Stochastic at ${v}: bottom of its recent range (short-term oversold, rebound possible).`,
+    divBear: `Bearish divergence: price makes a new high but momentum (RSI) weakens — possible loss of steam.`, divBearVig: 'Bearish price/RSI divergence: the rise is losing steam.', divBull: `Bullish divergence: price makes a new low but momentum (RSI) turns up — rebound possible.`,
+    mtfAligned: d => `Short term and underlying (weekly) trend are aligned ${d}: a consistent setup, more reliable signal.`,
+    mtfDisagree: (d1, d2) => `Timeframe disagreement: short term ${d1} but underlying ${d2} (weekly) — signal to confirm, caution.`, mtfDisagreeVig: 'Short term and underlying trend point different ways.', mtfNeutral: d => `Underlying (weekly) trend: ${d}.`,
+    resistance: (lvl, d) => `Nearby resistance around ${lvl} (+${d}%): a zone where price has stalled before.`, support: (lvl, d) => `Nearby support around ${lvl} (${d}%): a zone that has held price before.`,
+    mfiOver: v => `MFI at ${v}: overbought (volume included), short-term caution.`, mfiOverVig: 'MFI overbought (>80): buying inflow already large.', mfiUnder: v => `MFI at ${v}: oversold (volume included), rebound possible.`, mfiNeutral: (v, b) => `MFI at ${v}: money flow ${b ? 'leaning buy' : 'balanced'}.`,
+    sarUp: v => `Parabolic SAR below price (${v}): bullish trend; this level acts as a trailing stop (flips if price drops below).`, sarDown: v => `Parabolic SAR above price (${v}): bearish trend; would flip if price moves back above.`,
+    rvol: v => `Volume ${v}× the average: strong activity, the recent move is backed by trading.`,
+    sqz: `Volatility squeeze: the bands are tightening, a wide move may follow — without indicating the direction.`, sqzVig: 'Volatility squeeze: a large move may be building.',
+    volLow: v => `low volatility (${v}%/yr)`, volMod: v => `moderate volatility (${v}%/yr)`, volHigh: v => `high volatility (${v}%/yr)`, volHighVig: v => `High volatility (${v}%/yr).`,
+    ddPart: v => `worst drop ${v}%`, ddVig: v => `The stock has already lost ${v}% from a peak.`,
+    shSolid: v => `solid Sharpe (${v})`, shModest: v => `modest Sharpe (${v})`, shNeg: v => `negative Sharpe (${v})`,
+    atrPart: v => `typical daily move ±${v}%`,
+    riskLead: p => `Risk profile: ${p}.`, projLine: (lo, hi) => ` Likely 1-month range (≈ 2 chances in 3): ${lo} – ${hi}.`,
+    confLine: (lab, v) => ` Signal confidence: ${lab} (${v}/100 — agreement between factors).`,
+  },
+};
+
+function explain(a, rk, ticker, lang = 'fr') {
+  const P = EXP[lang] || EXP.fr, T = P.topics;
   const m = a.metrics, price = a.price, pts = [], vig = [];
-  const intro = {
-    STRONG_BUY: `${ticker} affiche une configuration technique nettement favorable`,
-    BUY: `${ticker} présente une configuration technique plutôt favorable`,
-    HOLD: `${ticker} est dans une zone neutre, sans signal directionnel clair`,
-    SELL: `${ticker} montre une configuration technique plutôt défavorable`,
-    STRONG_SELL: `${ticker} présente une configuration technique nettement dégradée`,
-  }[a.label];
-  const headline = `${intro} (score ${Math.round(a.value)}/100).`;
+  const headline = P.headline(P.intro[a.label](ticker), Math.round(a.value));
 
   if (m.sma50 && m.sma200) {
-    if (price > m.sma50 && price > m.sma200)
-      pts.push({ s: 'bull', topic: 'Tendance', text: `Le cours (${m.price}) est au-dessus de ses moyennes 50 et 200 jours : tendance de fond haussière.` });
-    else if (price < m.sma50 && price < m.sma200)
-      pts.push({ s: 'bear', topic: 'Tendance', text: `Le cours (${m.price}) est sous ses moyennes 50 et 200 jours : tendance de fond baissière, prudence.` });
-    else
-      pts.push({ s: 'neutral', topic: 'Tendance', text: `Le cours est entre ses moyennes 50 et 200 jours : tendance hésitante.` });
-    pts.push(m.sma50 > m.sma200
-      ? { s: 'bull', topic: 'Croisement MM', text: 'Moyenne 50 j au-dessus de la 200 j (« golden cross ») : moyen terme favorable.' }
-      : { s: 'bear', topic: 'Croisement MM', text: 'Moyenne 50 j sous la 200 j (« death cross ») : moyen terme défavorable.' });
+    if (price > m.sma50 && price > m.sma200) pts.push({ s: 'bull', topic: T.trend, text: P.trendUp(m.price) });
+    else if (price < m.sma50 && price < m.sma200) pts.push({ s: 'bear', topic: T.trend, text: P.trendDown(m.price) });
+    else pts.push({ s: 'neutral', topic: T.trend, text: P.trendMixed });
+    pts.push(m.sma50 > m.sma200 ? { s: 'bull', topic: T.ma, text: P.maGolden } : { s: 'bear', topic: T.ma, text: P.maDeath });
   }
   if (m.rsi14 != null) {
-    if (m.rsi14 >= 70) { pts.push({ s: 'warn', topic: 'RSI', text: `RSI à ${m.rsi14} : suracheté, une correction est possible.` }); vig.push('RSI en surachat (>70).'); }
-    else if (m.rsi14 <= 30) pts.push({ s: 'bull', topic: 'RSI', text: `RSI à ${m.rsi14} : survendu, un rebond est possible.` });
-    else pts.push({ s: m.rsi14 >= 50 ? 'bull' : 'neutral', topic: 'RSI', text: `RSI à ${m.rsi14} : zone neutre.` });
+    if (m.rsi14 >= 70) { pts.push({ s: 'warn', topic: T.rsi, text: P.rsiOver(m.rsi14) }); vig.push(P.rsiOverVig); }
+    else if (m.rsi14 <= 30) pts.push({ s: 'bull', topic: T.rsi, text: P.rsiUnder(m.rsi14) });
+    else pts.push({ s: m.rsi14 >= 50 ? 'bull' : 'neutral', topic: T.rsi, text: P.rsiNeutral(m.rsi14) });
   }
   if (m.macd_hist != null)
-    pts.push(m.macd_hist > 0
-      ? { s: 'bull', topic: 'MACD', text: 'Histogramme MACD positif : momentum de court terme haussier.' }
-      : { s: 'bear', topic: 'MACD', text: 'Histogramme MACD négatif : momentum de court terme baissier.' });
+    pts.push(m.macd_hist > 0 ? { s: 'bull', topic: T.macd, text: P.macdPos } : { s: 'bear', topic: T.macd, text: P.macdNeg });
   if (m.momentum_60 != null) {
-    if (m.momentum_60 > 8) pts.push({ s: 'bull', topic: 'Momentum', text: `Sur 60 séances, +${m.momentum_60} % : dynamique porteuse.` });
-    else if (m.momentum_60 < -8) pts.push({ s: 'bear', topic: 'Momentum', text: `Sur 60 séances, ${m.momentum_60} % : dynamique négative.` });
-    else pts.push({ s: 'neutral', topic: 'Momentum', text: `Sur 60 séances, ${m.momentum_60} % : quasi stable.` });
+    if (m.momentum_60 > 8) pts.push({ s: 'bull', topic: T.mom, text: P.momUp(m.momentum_60) });
+    else if (m.momentum_60 < -8) pts.push({ s: 'bear', topic: T.mom, text: P.momDown(m.momentum_60) });
+    else pts.push({ s: 'neutral', topic: T.mom, text: P.momFlat(m.momentum_60) });
   }
-  // Force de tendance (ADX) : dit si les signaux de tendance sont fiables ou non.
   if (m.adx != null) {
-    const haussier = m.plus_di != null && m.minus_di != null && m.plus_di >= m.minus_di;
-    if (m.adx >= 25)
-      pts.push({ s: haussier ? 'bull' : 'bear', topic: 'Force de tendance', text: `Tendance ${haussier ? 'haussière' : 'baissière'} nette et installée (ADX ${m.adx}) : le mouvement est directionnel.` });
-    else if (m.adx < 18) {
-      pts.push({ s: 'neutral', topic: 'Force de tendance', text: `Pas de tendance marquée (ADX ${m.adx}) : le marché avance sans direction claire, les signaux de tendance sont à prendre avec prudence.` });
-      vig.push(`Tendance faible (ADX ${m.adx}) : signaux directionnels peu fiables.`);
-    } else
-      pts.push({ s: 'neutral', topic: 'Force de tendance', text: `Tendance modérée (ADX ${m.adx}).` });
+    const up = m.plus_di != null && m.minus_di != null && m.plus_di >= m.minus_di;
+    if (m.adx >= 25) pts.push({ s: up ? 'bull' : 'bear', topic: T.adx, text: P.adxStrong(P.dir[up ? 'bull' : 'bear'], m.adx) });
+    else if (m.adx < 18) { pts.push({ s: 'neutral', topic: T.adx, text: P.adxWeak(m.adx) }); vig.push(P.adxWeakVig(m.adx)); }
+    else pts.push({ s: 'neutral', topic: T.adx, text: P.adxMod(m.adx) });
   }
-  // Volume : le mouvement est-il « soutenu » par les échanges ?
   if (m.obv_trend != null) {
-    if (m.obv_trend > 0.3) pts.push({ s: 'bull', topic: 'Volume', text: `Les volumes accompagnent la hausse (accumulation) : mouvement plus crédible.` });
-    else if (m.obv_trend < -0.3) { pts.push({ s: 'bear', topic: 'Volume', text: `Les volumes accompagnent la baisse (distribution) : pression vendeuse réelle.` }); }
-    else pts.push({ s: 'neutral', topic: 'Volume', text: `Le volume ne confirme pas franchement le mouvement : mouvement peu soutenu, à surveiller.` });
+    if (m.obv_trend > 0.3) pts.push({ s: 'bull', topic: T.vol, text: P.volUp });
+    else if (m.obv_trend < -0.3) pts.push({ s: 'bear', topic: T.vol, text: P.volDown });
+    else pts.push({ s: 'neutral', topic: T.vol, text: P.volNeutral });
   }
-  // Stochastique : signalé surtout aux extrêmes, en appui du RSI.
   if (m.stoch != null) {
-    if (m.stoch >= 80) { pts.push({ s: 'warn', topic: 'Stochastique', text: `Stochastique à ${m.stoch} : haut de son couloir récent (suracheté à court terme).` }); }
-    else if (m.stoch <= 20) pts.push({ s: 'bull', topic: 'Stochastique', text: `Stochastique à ${m.stoch} : bas de son couloir récent (survendu à court terme, rebond possible).` });
+    if (m.stoch >= 80) pts.push({ s: 'warn', topic: T.stoch, text: P.stochOver(m.stoch) });
+    else if (m.stoch <= 20) pts.push({ s: 'bull', topic: T.stoch, text: P.stochUnder(m.stoch) });
   }
-  // Divergence prix / RSI : signal d'essoufflement ou de retournement souvent négligé.
-  if (m.divergence === 'bear') { pts.push({ s: 'warn', topic: 'Divergence', text: `Divergence baissière : le cours fait un nouveau sommet mais l'élan (RSI) faiblit — essoufflement possible.` }); vig.push('Divergence baissière prix / RSI : la hausse s\'essouffle.'); }
-  else if (m.divergence === 'bull') pts.push({ s: 'bull', topic: 'Divergence', text: `Divergence haussière : le cours fait un nouveau creux mais l'élan (RSI) se redresse — rebond possible.` });
+  if (m.divergence === 'bear') { pts.push({ s: 'warn', topic: T.div, text: P.divBear }); vig.push(P.divBearVig); }
+  else if (m.divergence === 'bull') pts.push({ s: 'bull', topic: T.div, text: P.divBull });
 
-  // Multi-horizon : accord ou désaccord entre le court terme (quotidien) et le fond (hebdo).
   if (m.weekly_trend) {
     const st = (price > m.sma50 && price > m.sma200) ? 'bull' : ((price < m.sma50 && price < m.sma200) ? 'bear' : 'neutral');
-    const frDir = { bull: 'haussière', bear: 'baissière', neutral: 'hésitante' };
-    if (m.weekly_trend === st && st !== 'neutral')
-      pts.push({ s: st, topic: 'Multi-horizon', text: `Court terme et tendance de fond (hebdomadaire) sont alignés en ${frDir[st]} : configuration cohérente, signal plus fiable.` });
+    if (m.weekly_trend === st && st !== 'neutral') pts.push({ s: st, topic: T.mtf, text: P.mtfAligned(P.dir[st]) });
     else if (st !== 'neutral' && m.weekly_trend !== 'neutral' && m.weekly_trend !== st) {
-      pts.push({ s: 'warn', topic: 'Multi-horizon', text: `Désaccord d'horizons : court terme ${frDir[st]} mais fond ${frDir[m.weekly_trend]} (hebdomadaire) — signal à confirmer, prudence.` });
-      vig.push('Court terme et tendance de fond ne vont pas dans le même sens.');
-    } else
-      pts.push({ s: 'neutral', topic: 'Multi-horizon', text: `Tendance de fond (hebdomadaire) : ${frDir[m.weekly_trend]}.` });
+      pts.push({ s: 'warn', topic: T.mtf, text: P.mtfDisagree(P.dir[st], P.dir[m.weekly_trend]) });
+      vig.push(P.mtfDisagreeVig);
+    } else pts.push({ s: 'neutral', topic: T.mtf, text: P.mtfNeutral(P.dir[m.weekly_trend]) });
   }
-  // Événements récents (croisements, cassures, nouveaux extrêmes).
-  (m.events || []).forEach(e => pts.push({ s: e.s, topic: 'Événement', text: e.text }));
-  // Niveaux clés : support / résistance les plus proches.
+  (m.events || []).forEach(e => pts.push({ s: e.s, topic: T.ev, text: e.text }));
   if (m.resistance != null && m.resistance_dist_pct != null && m.resistance_dist_pct <= 4)
-    pts.push({ s: 'warn', topic: 'Niveau', text: `Résistance proche vers ${m.resistance} (+${m.resistance_dist_pct} %) : zone où le cours a déjà buté.` });
+    pts.push({ s: 'warn', topic: T.lvl, text: P.resistance(m.resistance, m.resistance_dist_pct) });
   if (m.support != null && m.support_dist_pct != null && m.support_dist_pct >= -4)
-    pts.push({ s: 'bull', topic: 'Niveau', text: `Support proche vers ${m.support} (${m.support_dist_pct} %) : zone qui a déjà soutenu le cours.` });
-  // MFI : surachat/survente pondéré par les volumes.
+    pts.push({ s: 'bull', topic: T.lvl, text: P.support(m.support, m.support_dist_pct) });
   if (m.mfi != null) {
-    if (m.mfi >= 80) { pts.push({ s: 'warn', topic: 'Flux (MFI)', text: `MFI à ${m.mfi} : suracheté volumes inclus, prudence à court terme.` }); vig.push('MFI en surachat (>80) : afflux d\'achats déjà important.'); }
-    else if (m.mfi <= 20) pts.push({ s: 'bull', topic: 'Flux (MFI)', text: `MFI à ${m.mfi} : survendu volumes inclus, rebond possible.` });
-    else pts.push({ s: m.mfi >= 50 ? 'bull' : 'neutral', topic: 'Flux (MFI)', text: `MFI à ${m.mfi} : flux d'argent ${m.mfi >= 50 ? 'plutôt acheteur' : 'équilibré'}.` });
+    if (m.mfi >= 80) { pts.push({ s: 'warn', topic: T.mfi, text: P.mfiOver(m.mfi) }); vig.push(P.mfiOverVig); }
+    else if (m.mfi <= 20) pts.push({ s: 'bull', topic: T.mfi, text: P.mfiUnder(m.mfi) });
+    else pts.push({ s: m.mfi >= 50 ? 'bull' : 'neutral', topic: T.mfi, text: P.mfiNeutral(m.mfi, m.mfi >= 50) });
   }
-  // Parabolic SAR : sens + niveau de stop suiveur.
   if (m.psar != null && m.psar_dir) {
-    if (m.psar_dir === 'up') pts.push({ s: 'bull', topic: 'SAR', text: `Parabolic SAR sous le cours (${m.psar}) : tendance haussière ; ce niveau sert de stop suiveur (bascule si le cours passe dessous).` });
-    else pts.push({ s: 'bear', topic: 'SAR', text: `Parabolic SAR au-dessus du cours (${m.psar}) : tendance baissière ; se retournerait si le cours repasse au-dessus.` });
+    if (m.psar_dir === 'up') pts.push({ s: 'bull', topic: T.sar, text: P.sarUp(m.psar) });
+    else pts.push({ s: 'bear', topic: T.sar, text: P.sarDown(m.psar) });
   }
-  // Volume relatif : conviction derrière le mouvement du jour.
-  if (m.rel_volume != null && m.rel_volume >= 1.5)
-    pts.push({ s: 'warn', topic: 'Volume relatif', text: `Volume ${m.rel_volume}× la moyenne : forte activité, le mouvement récent est appuyé par les échanges.` });
-  // Squeeze : compression de volatilité (mouvement important possible, sens inconnu).
-  if (m.squeeze) { pts.push({ s: 'warn', topic: 'Compression', text: `Compression de volatilité (« squeeze ») : les bandes se resserrent, un mouvement ample peut suivre — sans en indiquer le sens.` }); vig.push('Compression de volatilité : un mouvement important peut se déclencher.'); }
+  if (m.rel_volume != null && m.rel_volume >= 1.5) pts.push({ s: 'warn', topic: T.rvol, text: P.rvol(m.rel_volume) });
+  if (m.squeeze) { pts.push({ s: 'warn', topic: T.sqz, text: P.sqz }); vig.push(P.sqzVig); }
 
   const parts = [];
   if (rk.annual_vol_pct != null) {
-    if (rk.annual_vol_pct < 15) parts.push(`volatilité faible (${rk.annual_vol_pct} %/an)`);
-    else if (rk.annual_vol_pct < 30) parts.push(`volatilité modérée (${rk.annual_vol_pct} %/an)`);
-    else { parts.push(`volatilité élevée (${rk.annual_vol_pct} %/an)`); vig.push(`Volatilité élevée (${rk.annual_vol_pct} %/an).`); }
+    if (rk.annual_vol_pct < 15) parts.push(P.volLow(rk.annual_vol_pct));
+    else if (rk.annual_vol_pct < 30) parts.push(P.volMod(rk.annual_vol_pct));
+    else { parts.push(P.volHigh(rk.annual_vol_pct)); vig.push(P.volHighVig(rk.annual_vol_pct)); }
   }
-  if (rk.max_drawdown_pct != null) { parts.push(`pire baisse ${rk.max_drawdown_pct} %`); if (rk.max_drawdown_pct < -35) vig.push(`Le titre a déjà perdu ${Math.abs(rk.max_drawdown_pct)} % depuis un sommet.`); }
-  if (rk.sharpe != null) parts.push(rk.sharpe >= 1 ? `Sharpe solide (${rk.sharpe})` : (rk.sharpe >= 0 ? `Sharpe modeste (${rk.sharpe})` : `Sharpe négatif (${rk.sharpe})`));
-  if (m.atr_pct != null) parts.push(`mouvement quotidien typique ±${m.atr_pct} %`);
-  let risk_summary = parts.length ? 'Profil de risque : ' + parts.join(', ') + '.' : '';
-  if (m.proj_low_1m != null) risk_summary += ` Fourchette probable à 1 mois (≈ 2 chances sur 3) : ${m.proj_low_1m} – ${m.proj_high_1m}.`;
-  if (m.confidence != null) risk_summary += ` Confiance du signal : ${m.confidence_label} (${m.confidence}/100 — accord entre les facteurs).`;
+  if (rk.max_drawdown_pct != null) { parts.push(P.ddPart(rk.max_drawdown_pct)); if (rk.max_drawdown_pct < -35) vig.push(P.ddVig(Math.abs(rk.max_drawdown_pct))); }
+  if (rk.sharpe != null) parts.push(rk.sharpe >= 1 ? P.shSolid(rk.sharpe) : (rk.sharpe >= 0 ? P.shModest(rk.sharpe) : P.shNeg(rk.sharpe)));
+  if (m.atr_pct != null) parts.push(P.atrPart(m.atr_pct));
+  let risk_summary = parts.length ? P.riskLead(parts.join(', ')) : '';
+  if (m.proj_low_1m != null) risk_summary += P.projLine(m.proj_low_1m, m.proj_high_1m);
+  if (m.confidence != null) risk_summary += P.confLine(m.confidence_label, m.confidence);
 
   return { headline, points: pts, risk_summary, vigilance: vig };
 }
@@ -672,6 +731,7 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   const url = new URL(req.url, `http://${req.headers.host}`);
   const raw = (url.searchParams.get('tickers') || 'AAPL,MSFT,NVDA').trim();
+  const lang = url.searchParams.get('lang') === 'en' ? 'en' : 'fr';
   const tickers = raw.split(',').map(t => t.trim()).filter(Boolean).slice(0, 12);
 
   // Indice de marché (S&P 500) récupéré une seule fois, pour le bêta / la corrélation.
@@ -685,17 +745,21 @@ module.exports = async (req, res) => {
     try {
       const series = await fetchSeries(ticker);
       const closes = series.bars.map(b => b.close);
-      const a = analyze(series);
+      const a = analyze(series, lang);
       const rk = riskMetrics(closes);
-      const ex = explain(a, rk, series.ticker);
+      const ex = explain(a, rk, series.ticker, lang);
       let bc = null;
       if (market && series.ticker !== MARKET) {
         bc = betaCorr(series.bars, market.bars);
         if (bc && bc.beta != null) {
           a.metrics.beta = bc.beta; a.metrics.market_corr = bc.corr;
-          const amp = bc.beta >= 1.15 ? `amplifie les mouvements du marché (×${bc.beta})`
-            : (bc.beta <= 0.85 ? `plus calme que le marché (×${bc.beta})` : `bouge à peu près comme le marché (×${bc.beta})`);
-          ex.points.push({ s: 'neutral', topic: 'Marché', text: `Bêta ${bc.beta} : le titre ${amp}. Corrélation ${bc.corr} au S&P 500.` });
+          const en = lang === 'en';
+          const amp = bc.beta >= 1.15 ? (en ? `amplifies market moves (×${bc.beta})` : `amplifie les mouvements du marché (×${bc.beta})`)
+            : (bc.beta <= 0.85 ? (en ? `calmer than the market (×${bc.beta})` : `plus calme que le marché (×${bc.beta})`)
+              : (en ? `moves roughly like the market (×${bc.beta})` : `bouge à peu près comme le marché (×${bc.beta})`));
+          const txt = en ? `Beta ${bc.beta}: the stock ${amp}. Correlation ${bc.corr} to the S&P 500.`
+            : `Bêta ${bc.beta} : le titre ${amp}. Corrélation ${bc.corr} au S&P 500.`;
+          ex.points.push({ s: 'neutral', topic: en ? 'Market' : 'Marché', text: txt });
         }
       }
       results.push({
