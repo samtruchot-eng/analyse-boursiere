@@ -277,6 +277,14 @@
     display: inline-block; margin-top: 9px; padding: 4px 11px; border-radius: 999px;
     font-size: 11.5px; font-weight: 700; letter-spacing: .03em;
   }
+  .delta { display: inline-flex; align-items: center; gap: 5px; margin: 9px 0 0 6px; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+  .delta small { font-weight: 500; opacity: .8; font-size: 10px; }
+  .delta.up { color: var(--pos); background: color-mix(in srgb, var(--pos) 15%, transparent); }
+  .delta.down { color: var(--neg); background: color-mix(in srgb, var(--neg) 15%, transparent); }
+  .delta.flat { color: var(--muted); background: var(--chip-bg); }
+  .score-hist { margin-top: 10px; }
+  .score-hist .sh-lab { font-size: 11px; color: var(--faint); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 4px; }
+  .score-hist svg { width: 100%; height: 40px; display: block; }
 
   /* ── Jauge circulaire ───────────────────────────────── */
   .ring { flex: 0 0 auto; }
@@ -567,7 +575,7 @@ function card(r) {
       <div>
         <div class="ticker">${esc(r.ticker)}${coHtml(r)} <button class="star${isFav(r.ticker) ? ' on' : ''}" data-t="${esc(r.ticker)}" title="Ajouter/retirer des favoris" aria-label="Favori">${isFav(r.ticker) ? '★' : '☆'}</button><button class="bell${getAlerts()[String(r.ticker).toUpperCase()] ? ' on' : ''}${customAlert(r) ? ' hit' : ''}" data-t="${esc(r.ticker)}" title="Alerte de prix" aria-label="Alerte de prix">🔔</button></div>
         <div class="price"><strong>${fmt(r.price)}</strong> <span class="asof">au ${esc(r.day)}</span></div>
-        <span class="reco-pill" style="color:${color};background:${color}1f">${recoText}</span>
+        <span class="reco-pill" style="color:${color};background:${color}1f">${recoText}</span>${scoreDeltaHtml(r)}
       </div>
       ${scoreRing(r.score, color)}
     </div>
@@ -577,7 +585,7 @@ function card(r) {
     <ul class="points">${points}</ul>
     <div class="risk-summary">${esc(r.risk_summary||'')}</div>
     ${vigilance}
-    <details><summary>Détails chiffrés</summary><table class="metrics">${metricsRows}<tr><td colspan="2" style="padding-top:10px;color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:.03em">Contributions au score</td></tr>${contribs}</table></details>
+    <details><summary>Détails chiffrés</summary><table class="metrics">${metricsRows}<tr><td colspan="2" style="padding-top:10px;color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:.03em">Contributions au score</td></tr>${contribs}</table>${scoreMini(r)}</details>
   </div>`;
 }
 
@@ -718,6 +726,8 @@ async function run() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     lastRows = (data.results||[]).slice().sort((a,b)=>(b.score??-1)-(a.score??-1));
+    lastRows.forEach(r => { if (!r.error && r.score != null) recordScore(r.ticker, r.score); });
+    saveScoreHist();
     out.innerHTML = lastRows.map(card).join('');
     renderAlerts(lastRows);
     renderCompare(lastRows);
@@ -766,6 +776,33 @@ document.getElementById('categories').addEventListener('click', e => {
   document.getElementById('tickers').value = c.syms;
   run();
 });
+
+// ── Historique des scores (mémorisé par jour, dans le navigateur) ────────────
+let scoreHist = null;
+function loadScoreHist() { if (scoreHist) return scoreHist; try { scoreHist = JSON.parse(localStorage.getItem('scoreHistory') || '{}'); } catch (e) { scoreHist = {}; } return scoreHist; }
+function getScoreHistory(t) { return loadScoreHist()[String(t).toUpperCase()] || []; }
+function recordScore(t, s) {
+  t = String(t).toUpperCase();
+  const h = loadScoreHist(), arr = h[t] || [], today = new Date().toISOString().slice(0, 10);
+  if (arr.length && arr[arr.length - 1].d === today) arr[arr.length - 1].s = Math.round(s);
+  else arr.push({ d: today, s: Math.round(s) });
+  while (arr.length > 40) arr.shift();
+  h[t] = arr;
+}
+function saveScoreHist() { if (scoreHist) localStorage.setItem('scoreHistory', JSON.stringify(scoreHist)); }
+function frDate(iso) { const p = String(iso).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }); }
+function scoreDeltaHtml(r) {
+  const h = getScoreHistory(r.ticker); if (h.length < 2) return '';
+  const d = h[h.length - 1].s - h[h.length - 2].s, cls = d > 0 ? 'up' : (d < 0 ? 'down' : 'flat'), arrow = d > 0 ? '▲' : (d < 0 ? '▼' : '=');
+  return `<span class="delta ${cls}" title="Score précédent : ${h[h.length - 2].s} le ${esc(frDate(h[h.length - 2].d))}">${arrow} ${d > 0 ? '+' : ''}${d} <small>vs ${esc(frDate(h[h.length - 2].d))}</small></span>`;
+}
+function scoreMini(r) {
+  const h = getScoreHistory(r.ticker); if (h.length < 2) return '';
+  const vals = h.map(x => x.s), w = 260, ht = 40;
+  const pts = vals.map((v, i) => `${(i / (vals.length - 1) * w).toFixed(1)},${(ht - v / 100 * ht).toFixed(1)}`).join(' ');
+  const up = vals[vals.length - 1] >= vals[0];
+  return `<div class="score-hist"><div class="sh-lab">Évolution du score · ${h.length} relevés</div><svg viewBox="0 0 ${w} ${ht}" preserveAspectRatio="none"><polyline fill="none" stroke="${up ? 'var(--pos)' : 'var(--neg)'}" stroke-width="2" points="${pts}"/></svg></div>`;
+}
 
 // ── Favoris (mémorisés dans le navigateur, aucune donnée envoyée) ─────────────
 function getFavs() { try { return JSON.parse(localStorage.getItem('favorites') || '[]'); } catch (e) { return []; } }
