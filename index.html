@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>butterfly</title>
 <meta name="description" content="butterfly — cours réels et analyse technique expliquée en français : score sur 100, indicateurs (RSI, MACD…), profil de risque, favoris et alertes.">
-<meta name="theme-color" content="#14213d">
+<meta name="theme-color" content="#d98bb0">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -19,45 +19,45 @@
 <style>
   :root {
     color-scheme: light dark;
-    --bg: #eef1f6;
-    --bg-grad-1: #f6f8fc;
-    --bg-grad-2: #e7ebf3;
+    --bg: #fbf1f5;
+    --bg-grad-1: #fdf5f9;
+    --bg-grad-2: #f3e7f0;
     --card: #ffffff;
-    --card-border: #e7e9ef;
-    --text: #16181d;
-    --muted: #6b7280;
-    --faint: #9aa0a6;
-    --border: #edeef2;
+    --card-border: #f2e2ea;
+    --text: #4d3644;
+    --muted: #a58a98;
+    --faint: #c4abb7;
+    --border: #f4e8ef;
     --input-bg: #ffffff;
-    --chip-bg: #f4f6fa;
-    --ring-track: #e9ebf1;
-    --pos: #16a34a;
-    --neg: #dc2626;
-    --warn: #ea8a00;
-    --neutral: #9aa0a6;
-    --accent: #2c4a8c;
-    --shadow: 0 2px 14px rgba(18,28,53,.07);
+    --chip-bg: #faecf1;
+    --ring-track: #f0e2ea;
+    --pos: #4fa587;
+    --neg: #e07f8c;
+    --warn: #d29a45;
+    --neutral: #bfa9b6;
+    --accent: #a86aa8;
+    --shadow: 0 2px 14px rgba(120,60,100,.10);
     --radius: 16px;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #0d0f14;
-      --bg-grad-1: #12151c;
-      --bg-grad-2: #0b0d12;
-      --card: #171a21;
-      --card-border: #262a33;
-      --text: #e8eaee;
-      --muted: #9aa1ac;
-      --faint: #767c88;
-      --border: #23262e;
-      --input-bg: #1b1f27;
-      --chip-bg: #20242d;
-      --ring-track: #2a2f39;
-      --pos: #34d17f;
-      --neg: #f26d6d;
-      --warn: #f5a623;
-      --neutral: #8a909b;
-      --accent: #8fa8e6;
+      --bg: #17121a;
+      --bg-grad-1: #1e1622;
+      --bg-grad-2: #130f17;
+      --card: #211a25;
+      --card-border: #352b3a;
+      --text: #ecdfe7;
+      --muted: #b39fac;
+      --faint: #8a7583;
+      --border: #2e2532;
+      --input-bg: #271f2b;
+      --chip-bg: #2b2230;
+      --ring-track: #3a2f40;
+      --pos: #6ec6a2;
+      --neg: #ef9aa4;
+      --warn: #e6bd72;
+      --neutral: #9a8a95;
+      --accent: #d0a3d6;
       --shadow: none;
     }
   }
@@ -72,9 +72,9 @@
 
   /* ── Header ─────────────────────────────────────────── */
   header {
-    background: linear-gradient(135deg, #14213d 0%, #223a63 55%, #2c4a8c 100%);
+    background: linear-gradient(135deg, #e08bb0 0%, #c98fc0 52%, #ad9fe6 100%);
     color: #fff; padding: 26px 18px 24px;
-    box-shadow: 0 4px 24px rgba(20,33,61,.28);
+    box-shadow: 0 4px 24px rgba(150,90,140,.30);
   }
   .header-inner { max-width: 1180px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -.01em; display: flex; align-items: center; gap: 9px; }
@@ -102,10 +102,10 @@
     background: var(--input-bg); color: var(--text); outline: none;
     transition: border-color .15s, box-shadow .15s;
   }
-  .controls input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(44,74,140,.16); }
+  .controls input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(168,106,168,.16); }
   .controls button {
     padding: 14px 24px; font-size: 15.5px; font-weight: 650; border: none;
-    border-radius: 12px; background: linear-gradient(135deg, #223a63, #2c4a8c);
+    border-radius: 12px; background: linear-gradient(135deg, #c479a6, #9f8ede);
     color: #fff; cursor: pointer; transition: transform .08s, opacity .15s;
   }
   .controls button:hover { opacity: .93; }
@@ -126,15 +126,15 @@
 
   /* ── Assistant intégré ──────────────────────────────── */
   .ask-launch { position: fixed; right: 16px; bottom: 16px; z-index: 60; border: none; cursor: pointer;
-    background: linear-gradient(135deg, #223a63, #2c4a8c); color: #fff; border-radius: 999px; padding: 12px 18px;
-    font-size: 14px; font-weight: 650; box-shadow: 0 6px 22px rgba(20,33,61,.35); display: inline-flex; align-items: center; gap: 8px; }
+    background: linear-gradient(135deg, #c479a6, #9f8ede); color: #fff; border-radius: 999px; padding: 12px 18px;
+    font-size: 14px; font-weight: 650; box-shadow: 0 6px 22px rgba(150,90,140,.35); display: inline-flex; align-items: center; gap: 8px; }
   .ask-launch:hover { filter: brightness(1.07); }
   .ask-panel { position: fixed; right: 16px; bottom: 74px; z-index: 60; width: min(360px, calc(100vw - 32px));
     max-height: min(72vh, 560px); background: var(--card); border: 1px solid var(--card-border); border-radius: 16px;
-    box-shadow: 0 14px 44px rgba(20,33,61,.3); display: flex; flex-direction: column; overflow: hidden; }
+    box-shadow: 0 14px 44px rgba(150,90,140,.3); display: flex; flex-direction: column; overflow: hidden; }
   .ask-panel[hidden] { display: none; }
   .ask-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px;
-    background: linear-gradient(135deg, #14213d, #2c4a8c); color: #fff; font-weight: 650; font-size: 14px; }
+    background: linear-gradient(135deg, #c479a6, #9f8ede); color: #fff; font-weight: 650; font-size: 14px; }
   .ask-head button { background: none; border: none; color: #fff; cursor: pointer; font-size: 15px; opacity: .85; }
   .ask-head button:hover { opacity: 1; }
   .ask-msgs { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
@@ -165,7 +165,7 @@
   .fav-chip .fav-del { border: none; background: none; cursor: pointer; color: var(--faint); font-size: 12px; padding: 5px 9px 5px 5px; line-height: 1; }
   .fav-chip .fav-del:hover { color: var(--neg); }
   .fav-analyze { border: none; cursor: pointer; font-size: 12.5px; font-weight: 700; border-radius: 999px;
-    padding: 7px 15px; color: #3a2c05; background: linear-gradient(135deg, #d9af3a, #e7c256); }
+    padding: 7px 15px; color: #fff; background: linear-gradient(135deg, #caa0d6, #b39be6); }
   .fav-analyze:hover { filter: brightness(1.05); }
   .star { border: none; background: none; cursor: pointer; font-size: 19px; line-height: 1; color: var(--faint);
     padding: 0; margin-left: 3px; vertical-align: baseline; transition: color .12s, transform .08s; }
@@ -195,7 +195,7 @@
 
   .banner { padding: 11px 15px; border-radius: 10px; font-size: 13px; margin: 12px 0; }
   .banner.err { background: rgba(220,38,38,.1); color: #b3261b; border: 1px solid rgba(220,38,38,.28); }
-  .banner.info { background: rgba(44,74,140,.1); color: var(--accent); border: 1px solid rgba(44,74,140,.24); }
+  .banner.info { background: rgba(168,106,168,.1); color: var(--accent); border: 1px solid rgba(168,106,168,.24); }
 
   /* ── Grille de cartes ───────────────────────────────── */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; }
@@ -274,7 +274,7 @@
   footer { color: var(--faint); font-size: 12px; margin-top: 34px; line-height: 1.55; }
 
   .spinner {
-    display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(44,74,140,.3);
+    display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(168,106,168,.3);
     border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -347,7 +347,7 @@
 </div>
 
 <script>
-const LABEL_COLOR = { STRONG_BUY:'#16a34a', BUY:'#3fae52', HOLD:'#c79a00', SELL:'#ef6c00', STRONG_SELL:'#dc2626' };
+const LABEL_COLOR = { STRONG_BUY:'#4fa587', BUY:'#6cb492', HOLD:'#c9a24e', SELL:'#e0965c', STRONG_SELL:'#e07f8c' };
 const LABEL_TEXT  = { STRONG_BUY:'ACHAT MARQUÉ', BUY:'ACHAT', HOLD:'NEUTRE', SELL:'VENTE', STRONG_SELL:'VENTE MARQUÉE' };
 const SIGNAL_LABEL = { trend_lt:'Tendance long terme', trend_mt:'Tendance moyen terme',
   ma_cross:'Croisement MM 50/200', rsi:'RSI', macd:'MACD', bollinger:'Bollinger', momentum:'Momentum' };

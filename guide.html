@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Guide de l'investisseur — butterfly</title>
 <meta name="description" content="Guide clair et complet : bien utiliser l'appli, comprendre les indicateurs et le risque, lire les marchés dans leur contexte, et bâtir un plan d'investissement.">
-<meta name="theme-color" content="#14213d">
+<meta name="theme-color" content="#d98bb0">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -17,45 +17,45 @@
 <style>
   :root {
     color-scheme: light dark;
-    --paper: #eef1f8;
+    --paper: #fbf1f5;
     --surface: #ffffff;
-    --surface-2: #f6f8fc;
-    --ink: #141922;
-    --ink-soft: #444d5e;
-    --muted: #79818f;
-    --line: #e2e7f0;
-    --navy: #14213d;
-    --indigo: #2c4a8c;
-    --gold: #a9791f;
-    --gold-soft: #f4ecd8;
-    --pos: #1a8a55;
-    --neg: #c62828;
-    --warn: #c9760f;
-    --oblig: #4f6d8c;
-    --cash: #9aa2b1;
-    --shadow: 0 1px 2px rgba(20,33,61,.04), 0 8px 30px rgba(20,33,61,.06);
+    --surface-2: #faecf1;
+    --ink: #4d3644;
+    --ink-soft: #6e5566;
+    --muted: #a58a98;
+    --line: #f2e2ea;
+    --navy: #5e3a52;
+    --indigo: #a86aa8;
+    --gold: #b98a2e;
+    --gold-soft: #f7ecd6;
+    --pos: #4fa587;
+    --neg: #d16f7c;
+    --warn: #c98f3f;
+    --oblig: #8f6f9c;
+    --cash: #b3a0ac;
+    --shadow: 0 1px 2px rgba(120,60,100,.04), 0 8px 30px rgba(120,60,100,.06);
     --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
     --font-body: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --paper: #0c0f16;
-      --surface: #141922;
-      --surface-2: #10151d;
-      --ink: #e7ebf2;
-      --ink-soft: #aeb6c4;
-      --muted: #7c8595;
-      --line: #232b38;
-      --navy: #0f1830;
-      --indigo: #7f9be0;
+      --paper: #17121a;
+      --surface: #211a25;
+      --surface-2: #1a141e;
+      --ink: #ecdfe7;
+      --ink-soft: #c3b2bd;
+      --muted: #b39fac;
+      --line: #2e2532;
+      --navy: #3a2b38;
+      --indigo: #d0a3d6;
       --gold: #d7b25c;
-      --gold-soft: #241f12;
-      --pos: #46c47f;
-      --neg: #ef6d6d;
-      --warn: #e39a44;
-      --oblig: #7f9ab8;
-      --cash: #6d7686;
+      --gold-soft: #2a2016;
+      --pos: #6ec6a2;
+      --neg: #ef9aa4;
+      --warn: #e6bd72;
+      --oblig: #a98cc0;
+      --cash: #7d6f7a;
       --shadow: none;
     }
   }
@@ -93,7 +93,7 @@
 
   /* ── Masthead ─────────────────────────────────── */
   header.mast {
-    background: linear-gradient(150deg, #14213d 0%, #1d3563 55%, #294a8c 100%);
+    background: linear-gradient(150deg, #e08bb0 0%, #c98fc0 55%, #ad9fe6 100%);
     color: #fff; padding: 46px 0 40px; border-bottom: 3px solid var(--gold);
   }
   header.mast .eyebrow { color: #e9c877; }
@@ -171,7 +171,7 @@
   .watch .wl-go {
     flex: 0 0 auto; border: none; cursor: pointer; white-space: nowrap;
     font-family: var(--font-body); font-size: .84rem; font-weight: 650; color: #fff;
-    background: linear-gradient(135deg, #223a63, #2c4a8c); border-radius: 999px; padding: 9px 16px;
+    background: linear-gradient(135deg, #c479a6, #9f8ede); border-radius: 999px; padding: 9px 16px;
     text-decoration: none; transition: opacity .15s, transform .08s;
   }
   .watch .wl-go:hover { opacity: .92; }
@@ -219,7 +219,7 @@
   .toplink {
     position: fixed; right: 16px; bottom: 16px; z-index: 40; display: inline-flex; align-items: center; gap: 6px;
     background: var(--navy); color: #fff; border: 1px solid rgba(255,255,255,.14); border-radius: 999px;
-    padding: 10px 15px; font-size: .82rem; font-weight: 650; box-shadow: 0 6px 20px rgba(20,33,61,.32);
+    padding: 10px 15px; font-size: .82rem; font-weight: 650; box-shadow: 0 6px 20px rgba(150,90,140,.32);
     cursor: pointer; text-decoration: none; opacity: 0; transform: translateY(10px); pointer-events: none;
     transition: opacity .2s, transform .2s;
   }
