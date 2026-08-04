@@ -259,6 +259,8 @@
   .pf-leg i { width: 10px; height: 10px; border-radius: 3px; flex: 0 0 auto; }
   .pf-leg .lg-t { font-weight: 650; color: var(--text); }
   .pf-leg .lg-p { color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+  .pf-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; }
+  .pf-block-t { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 650; margin-bottom: 10px; }
 
   .banner { padding: 11px 15px; border-radius: 10px; font-size: 13px; margin: 12px 0; }
   .banner.err { background: rgba(220,38,38,.1); color: #b3261b; border: 1px solid rgba(220,38,38,.28); }
@@ -1083,7 +1085,31 @@ function pfDonut(items) {
   }).join('');
   return `<svg viewBox="0 0 120 120" width="120" height="120" class="pf-donut" aria-hidden="true">${rings}
     <text x="60" y="58" text-anchor="middle" class="pf-donut-n">${items.length}</text>
-    <text x="60" y="72" text-anchor="middle" class="pf-donut-l">position${items.length > 1 ? 's' : ''}</text></svg>`;
+    <text x="60" y="72" text-anchor="middle" class="pf-donut-l">${items.length > 1 ? 'parts' : 'part'}</text></svg>`;
+}
+
+// Secteur d'un symbole (pour la répartition sectorielle du portefeuille).
+const SECTORS = {
+  AAPL:'Technologie', MSFT:'Technologie', GOOGL:'Technologie', GOOG:'Technologie', META:'Technologie', NVDA:'Technologie', AMD:'Technologie', AVGO:'Technologie', TSM:'Technologie', INTC:'Technologie', CRM:'Technologie', NOW:'Technologie', ADBE:'Technologie', ORCL:'Technologie', SNOW:'Technologie', 'SAP.DE':'Technologie', PLTR:'Technologie', SMCI:'Technologie', 'SIE.DE':'Technologie', '6758.T':'Technologie', '6861.T':'Technologie', INFY:'Technologie', WIT:'Technologie', BIDU:'Technologie', BABA:'Technologie', PDD:'Technologie', JD:'Technologie', TCEHY:'Technologie',
+  LLY:'Santé', JNJ:'Santé', PFE:'Santé', MRK:'Santé', ABBV:'Santé', NVO:'Santé', 'SAN.PA':'Santé', 'NOVN.SW':'Santé', 'ROG.SW':'Santé', 'AZN.L':'Santé', 'GSK.L':'Santé', UNH:'Santé', 'EL.PA':'Santé',
+  XOM:'Énergie', CVX:'Énergie', 'TTE.PA':'Énergie', SHEL:'Énergie', 'SHEL.L':'Énergie', 'BP.L':'Énergie', USO:'Énergie',
+  JPM:'Finance', BAC:'Finance', GS:'Finance', MS:'Finance', 'BNP.PA':'Finance', 'ACA.PA':'Finance', V:'Finance', 'ALV.DE':'Finance', 'HSBA.L':'Finance', 'UBSG.SW':'Finance', 'ZURN.SW':'Finance', '8306.T':'Finance', HDB:'Finance', IBN:'Finance', COIN:'Finance', MSTR:'Finance',
+  PG:'Consommation', KO:'Consommation', COST:'Consommation', WMT:'Consommation', 'MC.PA':'Consommation', 'OR.PA':'Consommation', 'RMS.PA':'Consommation', 'KER.PA':'Consommation', 'CFR.SW':'Consommation', 'ULVR.L':'Consommation', 'BATS.L':'Consommation', AMZN:'Consommation', '9983.T':'Consommation',
+  'DTE.DE':'Télécoms',
+  LMT:'Industrie & défense', RTX:'Industrie & défense', 'RHM.DE':'Industrie & défense', 'AIR.PA':'Industrie & défense', 'SAF.PA':'Industrie & défense', 'HO.PA':'Industrie & défense', 'BAS.DE':'Industrie & défense',
+  TSLA:'Automobile', F:'Automobile', GM:'Automobile', 'STLAP.PA':'Automobile', 'VOW3.DE':'Automobile', 'BMW.DE':'Automobile', 'MBG.DE':'Automobile', RACE:'Automobile', '7203.T':'Automobile', NIO:'Automobile', LI:'Automobile',
+  NEM:'Matériaux & or', GOLD:'Matériaux & or', AEM:'Matériaux & or', GDX:'Matériaux & or', 'RIO.L':'Matériaux & or', GLD:'Matériaux & or', IAU:'Matériaux & or', SLV:'Matériaux & or', DBC:'Matières premières',
+  'BTC-USD':'Crypto', 'ETH-USD':'Crypto', 'SOL-USD':'Crypto', 'XRP-USD':'Crypto', 'ADA-USD':'Crypto', 'DOGE-USD':'Crypto', 'BNB-USD':'Crypto', 'AVAX-USD':'Crypto', 'LINK-USD':'Crypto', 'LTC-USD':'Crypto', MARA:'Crypto', RIOT:'Crypto', CLSK:'Crypto', HUT:'Crypto', IBIT:'Crypto', FBTC:'Crypto', BITB:'Crypto', ETHA:'Crypto', ARKB:'Crypto',
+  AGG:'Obligations', BND:'Obligations', TLT:'Obligations', IEF:'Obligations', LQD:'Obligations', HYG:'Obligations',
+  SPY:'Indices & ETF', QQQ:'Indices & ETF', DIA:'Indices & ETF', '^GSPC':'Indices & ETF', '^FCHI':'Indices & ETF', '^GDAXI':'Indices & ETF', VT:'Indices & ETF', 'VWCE.DE':'Indices & ETF', 'CW8.PA':'Indices & ETF', 'IWDA.AS':'Indices & ETF', URTH:'Indices & ETF', VOO:'Indices & ETF', VTI:'Indices & ETF', IVV:'Indices & ETF', VGK:'Indices & ETF', EZU:'Indices & ETF', EWJ:'Indices & ETF', VWO:'Indices & ETF', MCHI:'Indices & ETF', INDA:'Indices & ETF', EWU:'Indices & ETF', XLK:'Indices & ETF', XLE:'Indices & ETF', XLF:'Indices & ETF', XLV:'Indices & ETF', XLU:'Indices & ETF', XLI:'Indices & ETF', SMH:'Indices & ETF', ITA:'Indices & ETF', ARKK:'Indices & ETF', BOTZ:'Indices & ETF', ICLN:'Indices & ETF', LIT:'Indices & ETF', SOXX:'Indices & ETF', CIBR:'Indices & ETF', SKYY:'Indices & ETF',
+};
+function sectorOf(sym) { return SECTORS[String(sym).toUpperCase()] || 'Autre'; }
+
+function pfChartBlock(title, items) {
+  if (!items.length) return '';
+  const t = items.reduce((s, x) => s + x.value, 0) || 1;
+  const leg = items.map(it => `<div class="it"><i style="background:${it.color}"></i><span class="lg-t">${esc(it.label)}</span><span class="lg-p">${fmt(it.value / t * 100, 1)}%</span></div>`).join('');
+  return `<div class="pf-block"><div class="pf-block-t">${esc(title)}</div><div class="pf-chart">${pfDonut(items)}<div class="pf-leg">${leg}</div></div></div>`;
 }
 
 function renderPf() {
@@ -1161,18 +1187,26 @@ function renderPf() {
     <thead><tr><th class="left">Titre</th><th>Qté</th><th>PRU</th><th>Cours</th><th>Valeur</th><th>+/−</th><th>%</th><th></th></tr></thead>
     <tbody>${rows}</tbody><tfoot class="pf-tot">${foot}</tfoot></table></div>`;
 
-  // Camembert de répartition (valeur en € si convertible, sinon valeur brute).
-  const items = pf.map((p, i) => {
+  // Camemberts : par position et par secteur (valeur en € si convertible, sinon brute).
+  const posItems = pf.map(p => {
     const info = pfPrices[String(p.sym).toUpperCase()] || {};
     if (info.price == null) return null;
     const val = info.price * p.qty, ev = toEur(val, info.currency || '?');
-    return { label: String(p.sym).toUpperCase(), value: ev != null ? ev : val, color: PF_COLORS[i % PF_COLORS.length] };
-  }).filter(Boolean).sort((a, b) => b.value - a.value);
-  if (items.length) {
-    const t2 = items.reduce((s, x) => s + x.value, 0) || 1;
-    const leg = items.map(it => `<div class="it"><i style="background:${it.color}"></i><span class="lg-t">${esc(it.label)}</span><span class="lg-p">${fmt(it.value / t2 * 100, 1)}%</span></div>`).join('');
-    chartEl.innerHTML = `<div class="pf-chart">${pfDonut(items)}<div class="pf-leg">${leg}</div></div>`;
-  } else { chartEl.innerHTML = ''; }
+    return { label: String(p.sym).toUpperCase(), value: ev != null ? ev : val };
+  }).filter(Boolean).sort((a, b) => b.value - a.value).map((it, i) => ({ ...it, color: PF_COLORS[i % PF_COLORS.length] }));
+  const secMap = {};
+  pf.forEach(p => {
+    const info = pfPrices[String(p.sym).toUpperCase()] || {};
+    if (info.price == null) return;
+    const val = info.price * p.qty, ev = toEur(val, info.currency || '?');
+    const sec = sectorOf(p.sym);
+    secMap[sec] = (secMap[sec] || 0) + (ev != null ? ev : val);
+  });
+  const secItems = Object.entries(secMap).map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value).map((it, i) => ({ ...it, color: PF_COLORS[i % PF_COLORS.length] }));
+  chartEl.innerHTML = posItems.length
+    ? `<div class="pf-charts">${pfChartBlock('Par position', posItems)}${pfChartBlock('Par secteur', secItems)}</div>`
+    : '';
 }
 
 async function refreshPf() {
