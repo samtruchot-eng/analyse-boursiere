@@ -125,6 +125,12 @@
   .cat:active { transform: translateY(1px); }
   .cat .ico { font-size: 15px; line-height: 1; }
   .cat:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .cat-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 2px 0 10px; }
+  .cat-tab { border: 1px solid var(--card-border); background: var(--card); color: var(--muted); border-radius: 999px;
+    padding: 7px 15px; font-size: 12.5px; font-weight: 650; cursor: pointer; transition: border-color .15s, color .15s; }
+  .cat-tab:hover { border-color: var(--accent); color: var(--text); }
+  .cat-tab.on { background: linear-gradient(135deg, #c479a6, #9f8ede); color: #fff; border-color: transparent; }
+  .cat-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   /* ── Assistant intégré ──────────────────────────────── */
   .ask-launch { position: fixed; right: 16px; bottom: 16px; z-index: 60; border: none; cursor: pointer;
@@ -431,6 +437,7 @@
     NVDA (Nvidia), SPY (indice S&amp;P 500), air.fr (Airbus Paris).</div>
 
   <div class="cats-label">Explorer par catégorie</div>
+  <div id="cat-tabs" class="cat-tabs"></div>
   <div id="categories" class="cats"></div>
 
   <div id="favbar" class="favbar"></div>
@@ -787,10 +794,22 @@ const CATEGORIES = [
   { ico: '💰', label: 'ETF or & matières', syms: 'GLD, IAU, SLV, GDX, DBC, USO' },
   { ico: '₿', label: 'ETF crypto', syms: 'IBIT, FBTC, BITB, ETHA, ARKB' },
 ];
+const CAT_GROUPS = [{ key: 'actions', label: 'Actions' }, { key: 'etf', label: 'ETF' }, { key: 'crypto', label: 'Crypto' }];
+function catGroup(c) { if (/^ETF/.test(c.label)) return 'etf'; if (/crypto/i.test(c.label)) return 'crypto'; return 'actions'; }
+let catActive = localStorage.getItem('catGroup') || 'actions';
 function renderCategories() {
-  document.getElementById('categories').innerHTML = CATEGORIES.map((c, i) =>
-    `<button class="cat" data-i="${i}" title="Analyser : ${esc(c.syms)}"><span class="ico">${c.ico}</span>${esc(c.label)}</button>`).join('');
+  document.getElementById('cat-tabs').innerHTML = CAT_GROUPS.map(g =>
+    `<button class="cat-tab${g.key === catActive ? ' on' : ''}" data-g="${g.key}">${esc(g.label)}</button>`).join('');
+  document.getElementById('categories').innerHTML = CATEGORIES.map((c, i) => {
+    if (catGroup(c) !== catActive) return '';
+    const lbl = catActive === 'etf' ? c.label.replace(/^ETF\s+/, '') : c.label;
+    return `<button class="cat" data-i="${i}" title="Analyser : ${esc(c.syms)}"><span class="ico">${c.ico}</span>${esc(lbl)}</button>`;
+  }).join('');
 }
+document.getElementById('cat-tabs').addEventListener('click', e => {
+  const t = e.target.closest('.cat-tab'); if (!t) return;
+  catActive = t.dataset.g; localStorage.setItem('catGroup', catActive); renderCategories();
+});
 document.getElementById('categories').addEventListener('click', e => {
   const b = e.target.closest('.cat'); if (!b) return;
   const c = CATEGORIES[+b.dataset.i]; if (!c) return;
