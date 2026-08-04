@@ -335,6 +335,7 @@
   </div>
   <div class="cards">
     <div class="cardlet"><h4>La jauge de score <span class="lab">0–100</span></h4><p>Un résumé chiffré de la configuration technique. Plus l'anneau est rempli et vert, plus les signaux sont favorables ; rouge = dégradé. C'est une synthèse, pas une prédiction.</p></div>
+    <div class="cardlet"><h4>Pourquoi ce score ? <span class="lab">cliquable</span></h4><p><strong>Cliquez (ou survolez) l'anneau de score</strong> : une fenêtre détaille chaque facteur avec une barre (vert = pousse vers le haut, rouge = vers le bas), du plus influent au moins influent, et le calcul « 50 (neutre) + facteurs = score ».</p></div>
     <div class="cardlet"><h4>La pastille de reco</h4><p>Traduit le score en mot simple : <strong>ACHAT MARQUÉ, ACHAT, NEUTRE, VENTE, VENTE MARQUÉE</strong>. La couleur reprend celle de la jauge.</p></div>
     <div class="cardlet"><h4>Le mini-graphe</h4><p>L'évolution récente du cours (≈ 90 séances). Vert si le titre finit plus haut qu'au début de la période, rouge sinon.</p></div>
     <div class="cardlet"><h4>Les chips de risque</h4><p>Quatre repères d'un coup d'œil : performance sur 1 an, volatilité, pire baisse (drawdown), ratio de Sharpe — colorés vert/orange/rouge.</p></div>
@@ -377,9 +378,22 @@
     <div class="cardlet"><h4>Bandes de Bollinger</h4><p>Un « couloir » autour du cours. Proche du haut = tendu/cher à court terme ; proche du bas = déprimé, rebond possible.</p></div>
     <div class="cardlet"><h4>Momentum</h4><p>La vitesse de variation sur ~60 séances. Positif et fort = dynamique porteuse ; négatif = essoufflement.</p></div>
   </div>
+
+  <h3 style="margin-top:32px">Les facteurs avancés</h3>
+  <div class="prose"><p>Quatre indicateurs supplémentaires affinent l'analyse — dont certains que peu
+    d'outils grand public utilisent. Ils répondent à la question : ce mouvement est-il <strong>vraiment
+    sérieux</strong> ?</p></div>
+  <div class="cards">
+    <div class="cardlet"><h4>Volume <span class="lab">OBV</span></h4><p>Le nerf de la guerre : une hausse <strong>sur gros volume</strong> est bien plus crédible qu'une hausse sur volume faible (souvent un faux signal). L'indicateur OBV cumule les volumes selon le sens des séances pour dire si les échanges <strong>confirment</strong> le mouvement du cours… ou le contredisent.</p></div>
+    <div class="cardlet"><h4>Force de tendance <span class="lab">ADX</span></h4><p>Mesure si une tendance est <strong>forte et installée</strong> ou si le marché part dans tous les sens. Au-dessus de 25 : tendance nette. En dessous de 18 : pas de direction claire — et là, les signaux de tendance sont <strong>peu fiables</strong>, l'appli vous prévient.</p></div>
+    <div class="cardlet"><h4>Stochastique</h4><p>Un second détecteur de <strong>surachat / survente</strong> qui complète le RSI : il situe le cours dans son couloir haut/bas récent. Proche de 100 = haut du couloir ; proche de 0 = bas (rebond possible).</p></div>
+    <div class="cardlet"><h4>Divergence prix / RSI</h4><p>Le signal « caché » : quand le cours fait un nouveau sommet mais que l'élan (RSI) <strong>faiblit</strong> en coulisses → essoufflement possible. Et l'inverse (nouveau creux, élan qui remonte) annonce parfois un <strong>rebond</strong>.</p></div>
+  </div>
+
   <div class="prose">
-    <div class="callout">Aucun indicateur n'a raison tout seul. Votre <strong>score</strong> les combine et
-      les pondère justement pour éviter de sur-réagir à un seul signal.</div>
+    <div class="callout">Aucun indicateur n'a raison tout seul. Votre <strong>score</strong> combine <strong>onze
+      facteurs</strong> et les pondère pour éviter de sur-réagir à un seul signal. Pour voir le poids exact de
+      chacun sur un titre donné, <strong>cliquez son score</strong> dans l'appli.</div>
     <a class="to-toc" href="#sommaire">↑ Retour au sommaire</a>
   </div>
 </section>
@@ -388,9 +402,10 @@
   <p class="eyebrow">Mesurer le risque</p>
   <h2>Comprendre le risque</h2>
   <div class="prose"><p>Le rendement attire l'œil, mais c'est le <strong>risque</strong> qui décide si vous
-    tiendrez la position. Les quatre repères de vos cartes :</p></div>
+    tiendrez la position. Les repères de vos cartes :</p></div>
   <div class="cards">
     <div class="cardlet"><h4>Volatilité</h4><p>L'amplitude des variations, en % par an. Faible (&lt; 15 %) = tranquille ; élevée (&gt; 30 %) = ça secoue. Elle aide à <strong>dimensionner</strong> une position.</p></div>
+    <div class="cardlet"><h4>Mouvement quotidien <span class="lab">ATR</span></h4><p>« De combien ça bouge un jour normal », en %. Concret pour anticiper les secousses au jour le jour et placer un seuil (stop) qui ne saute pas au moindre soubresaut.</p></div>
     <div class="cardlet"><h4>Ratio de Sharpe</h4><p>Le rendement rapporté au risque pris. <strong>&gt; 1</strong> = bon ; autour de 0 = médiocre ; négatif = le risque n'a pas payé.</p></div>
     <div class="cardlet"><h4>Max drawdown</h4><p>La pire baisse subie, d'un sommet jusqu'au creux suivant. Un chiffre pour se demander : « aurais-je tenu ? »</p></div>
     <div class="cardlet"><h4>Performances</h4><p>Les variations sur 1 mois, 6 mois, 1 an. Utile pour situer un titre, sans oublier que le passé ne garantit rien.</p></div>
@@ -456,6 +471,8 @@
         <tr><td>Actif nerveux (semi, pétrole)</td><td>Volatilité + Max drawdown</td><td>Mesure les secousses ; on <strong>dimensionne</strong> la position en conséquence.</td></tr>
         <tr><td>Rotation défensive</td><td>Sharpe + volatilité faible</td><td>Rendement plus régulier pour le risque pris.</td></tr>
         <tr><td>Possible retournement</td><td>MACD + Croisement MM 50/200</td><td><em>Death cross</em> = prudence ; <em>golden cross</em> = amélioration.</td></tr>
+        <tr><td>Hausse à confirmer</td><td>Volume (OBV) + Force de tendance (ADX)</td><td>Hausse <strong>sur volume</strong> et ADX élevé = mouvement crédible ; volume faible ou ADX bas = à prendre avec des pincettes.</td></tr>
+        <tr><td>Rallye qui s'essouffle</td><td>Divergence prix / RSI</td><td>Divergence <strong>baissière</strong> = la hausse fatigue malgré de nouveaux sommets ; souvent un signal d'alerte précoce.</td></tr>
       </tbody>
     </table>
   </div>
@@ -641,11 +658,16 @@
   <p class="eyebrow">Pour mémoire</p>
   <h2>Glossaire express</h2>
   <dl class="gloss">
-    <dt>Score (0–100)</dt><dd>72+ achat marqué · 58–71 achat · 42–57 neutre · 28–41 vente · &lt; 28 vente marquée.</dd>
+    <dt>Score (0–100)</dt><dd>72+ achat marqué · 58–71 achat · 42–57 neutre · 28–41 vente · &lt; 28 vente marquée. Cliquez-le dans l'appli pour voir le détail de ses onze facteurs.</dd>
     <dt>RSI</dt><dd>Force relative. &gt; 70 = suracheté, &lt; 30 = survendu.</dd>
     <dt>MACD</dt><dd>Écart entre deux moyennes mobiles ; histogramme positif = momentum haussier.</dd>
     <dt>Golden / death cross</dt><dd>Croisement de la moyenne 50 j au-dessus (haussier) ou au-dessous (baissier) de la 200 j.</dd>
+    <dt>Volume / OBV</dt><dd>Cumule les volumes selon le sens des séances : dit si les échanges confirment le mouvement du cours ou le contredisent.</dd>
+    <dt>ADX</dt><dd>Force de la tendance (peu importe le sens). &gt; 25 = tendance nette ; &lt; 18 = marché sans direction, signaux peu fiables.</dd>
+    <dt>Stochastique</dt><dd>Position du cours dans son couloir haut/bas récent. Complète le RSI pour le surachat/survente.</dd>
+    <dt>Divergence</dt><dd>Écart entre le cours et l'élan (RSI) : nouveau sommet mais élan plus faible = essoufflement ; nouveau creux mais élan qui remonte = rebond possible.</dd>
     <dt>Volatilité</dt><dd>Amplitude des variations en % par an. Plus elle est élevée, plus le titre bouge fort.</dd>
+    <dt>ATR</dt><dd>« Average True Range » : le mouvement quotidien typique, en %. Utile pour dimensionner un seuil (stop).</dd>
     <dt>Ratio de Sharpe</dt><dd>Rendement par unité de risque. &gt; 1 = bon, &lt; 0 = le risque n'a pas payé.</dd>
     <dt>Max drawdown</dt><dd>Pire perte subie depuis un sommet jusqu'au creux suivant.</dd>
     <dt>DCA</dt><dd>« Dollar Cost Averaging » : investir un montant fixe à intervalle régulier.</dd>
