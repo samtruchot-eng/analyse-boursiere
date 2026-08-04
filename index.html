@@ -335,6 +335,15 @@
   .pf-leg .lg-p { color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
   .pf-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; }
   .pf-block-t { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 650; margin-bottom: 10px; }
+  .pf-div { background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(130,80,120,.06); }
+  .pf-div-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 2px 0; }
+  .pf-div-score { font-size: 27px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+  .pf-div-score small { font-size: 13px; color: var(--faint); font-weight: 600; }
+  .pf-div-lvl { font-weight: 750; font-size: 14px; }
+  .pf-div-sub { font-size: 12.5px; color: var(--muted); }
+  .pf-div-warn { margin: 10px 0 0; padding-left: 20px; font-size: 12.8px; color: var(--warn); line-height: 1.5; }
+  .pf-div-warn li { margin-bottom: 3px; }
+  .pf-div-ok { font-size: 12.8px; color: var(--pos); margin-top: 8px; font-weight: 600; }
   .pf-backup { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .pf-backup-note { flex-basis: 100%; font-size: 11px; color: var(--faint); line-height: 1.5; margin-top: 2px; }
   .pf-hist { margin-bottom: 20px; }
@@ -685,6 +694,13 @@ const I18N = {
     pfTotal: cur => `Total ${cur}`, pfTotalEur: partial => `Total en euros${partial ? ' (partiel)' : ''}`,
     pfHistTitle: 'Valeur du portefeuille dans le temps', pfSince: d => `depuis le ${d}`, pfHistNote: n => `${n} relevés · un point par jour où vous ouvrez le portefeuille.`,
     pfByPos: 'Par position', pfBySector: 'Par secteur', pfPartsPl: 'parts', pfPartsSg: 'part', pfUpdated: h => `Mis à jour à ${h}`,
+    divTitle: '🧭 Diversification', divGood: 'Bonne', divMid: 'Moyenne', divLow: 'Faible',
+    divSub: (n, s, pct, lab) => `${n} position${n > 1 ? 's' : ''} · ${s} secteur${s > 1 ? 's' : ''} · plus grosse ligne ${lab} (${pct} %)`,
+    divWarnPos: (lab, pct) => `La position ${lab} pèse ${pct} % du portefeuille — concentration élevée.`,
+    divWarnSec: (lab, pct) => `Le secteur « ${lab} » représente ${pct} % du portefeuille.`,
+    divWarnFew: 'Peu de positions : diversifiez davantage (idéalement 8 à 15 lignes).',
+    divWarnSec1: 'Un seul secteur représenté : pensez à en ajouter d\'autres.',
+    divOk: 'Bonne répartition — aucune alerte de concentration.',
     confirmRestore: 'Restaurer cette sauvegarde ? Vos favoris, positions, alertes et historique actuels seront remplacés.', invalidBackup: 'Fichier de sauvegarde invalide.',
     backToGuide: '← Retour au guide',
     // Groupes de catégories
@@ -743,6 +759,13 @@ const I18N = {
     pfTotal: cur => `Total ${cur}`, pfTotalEur: partial => `Total in euros${partial ? ' (partial)' : ''}`,
     pfHistTitle: 'Portfolio value over time', pfSince: d => `since ${d}`, pfHistNote: n => `${n} readings · one point per day you open the portfolio.`,
     pfByPos: 'By position', pfBySector: 'By sector', pfPartsPl: 'holdings', pfPartsSg: 'holding', pfUpdated: h => `Updated at ${h}`,
+    divTitle: '🧭 Diversification', divGood: 'Good', divMid: 'Fair', divLow: 'Low',
+    divSub: (n, s, pct, lab) => `${n} position${n > 1 ? 's' : ''} · ${s} sector${s > 1 ? 's' : ''} · largest holding ${lab} (${pct}%)`,
+    divWarnPos: (lab, pct) => `${lab} is ${pct}% of the portfolio — high concentration.`,
+    divWarnSec: (lab, pct) => `The "${lab}" sector is ${pct}% of the portfolio.`,
+    divWarnFew: 'Few positions: diversify further (ideally 8 to 15 holdings).',
+    divWarnSec1: 'Only one sector represented: consider adding others.',
+    divOk: 'Well spread — no concentration warning.',
     confirmRestore: 'Restore this backup? Your current favourites, positions, alerts and history will be replaced.', invalidBackup: 'Invalid backup file.',
     backToGuide: '← Back to the guide',
     gActions: 'Stocks', gRegions: 'Regions', gEtf: 'ETFs', gCrypto: 'Crypto',
@@ -1811,6 +1834,34 @@ const SECTORS = {
 const SECTOR_EN = { 'Technologie':'Technology','Santé':'Health','Énergie':'Energy','Finance':'Finance','Consommation':'Consumer','Télécoms':'Telecom','Industrie & défense':'Industry & defence','Automobile':'Autos','Matériaux & or':'Materials & gold','Matières premières':'Commodities','Crypto':'Crypto','Obligations':'Bonds','Indices & ETF':'Indices & ETFs','Autre':'Other' };
 function sectorOf(sym) { const fr = SECTORS[String(sym).toUpperCase()] || 'Autre'; return currentLang() === 'en' ? (SECTOR_EN[fr] || fr) : fr; }
 
+// Analyse de diversification : concentration par position et par secteur.
+function pfDiversBlock(posItems, secItems) {
+  const total = posItems.reduce((s, x) => s + x.value, 0);
+  if (posItems.length < 1 || total <= 0) return '';
+  const hhi = a => a.reduce((s, x) => s + (x.value / total) ** 2, 0);
+  const top = a => a.reduce((m, x) => x.value > m.value ? x : m, a[0]);
+  const topP = top(posItems), topS = top(secItems);
+  const topPpct = topP.value / total * 100, topSpct = topS.value / total * 100;
+  const effPos = 1 / Math.max(hhi(posItems), 1e-9), effSec = 1 / Math.max(hhi(secItems), 1e-9);
+  const score = Math.round(Math.max(0, Math.min(100, (Math.min(effPos, 8) / 8) * 50 + (Math.min(effSec, 5) / 5) * 50)));
+  const lvl = score >= 70 ? 'good' : (score >= 45 ? 'mid' : 'low');
+  const col = lvl === 'good' ? 'var(--pos)' : (lvl === 'mid' ? 'var(--warn)' : 'var(--neg)');
+  const lvlTxt = t(lvl === 'good' ? 'divGood' : (lvl === 'mid' ? 'divMid' : 'divLow'));
+  const warns = [];
+  if (topPpct > 30) warns.push(t('divWarnPos', topP.label, Math.round(topPpct)));
+  if (topSpct > 45 && secItems.length > 1) warns.push(t('divWarnSec', topS.label, Math.round(topSpct)));
+  if (posItems.length < 3) warns.push(t('divWarnFew'));
+  if (secItems.length < 2) warns.push(t('divWarnSec1'));
+  const body = warns.length
+    ? `<ul class="pf-div-warn">${warns.map(w => `<li>${esc(w)}</li>`).join('')}</ul>`
+    : `<div class="pf-div-ok">✓ ${esc(t('divOk'))}</div>`;
+  return `<div class="pf-block pf-div"><div class="pf-block-t">${t('divTitle')}</div>
+    <div class="pf-div-head"><span class="pf-div-score" style="color:${col}">${score}<small>/100</small></span>
+      <span class="pf-div-lvl" style="color:${col}">${esc(lvlTxt)}</span>
+      <span class="pf-div-sub">${esc(t('divSub', posItems.length, secItems.length, Math.round(topPpct), topP.label))}</span></div>
+    ${body}</div>`;
+}
+
 function pfChartBlock(title, items) {
   if (!items.length) return '';
   const t = items.reduce((s, x) => s + x.value, 0) || 1;
@@ -1913,7 +1964,7 @@ function renderPf() {
   const charts = posItems.length
     ? `<div class="pf-charts">${pfChartBlock(t('pfByPos'), posItems)}${pfChartBlock(t('pfBySector'), secItems)}</div>`
     : '';
-  chartEl.innerHTML = pfHistBlock() + charts;
+  chartEl.innerHTML = pfDiversBlock(posItems, secItems) + pfHistBlock() + charts;
 }
 
 async function refreshPf() {
