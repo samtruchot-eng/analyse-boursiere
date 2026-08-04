@@ -60,18 +60,46 @@ async function fetchStooq(ticker) {
   return { ticker: ticker.toUpperCase(), bars: bars.slice(-400), source: 'stooq', name: null, currency: null };
 }
 
+// Depuis 2023, Yahoo protège l'endpoint « quote » par un cookie de consentement
+// + un jeton « crumb ». On reproduit ce que fait un navigateur : on récupère le
+// cookie, puis le crumb, puis on rejoue la requête. Tout est défensif.
+const YF_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36';
+
+async function yahooCreds() {
+  const r1 = await fetch('https://fc.yahoo.com/', { headers: { 'User-Agent': YF_UA } });
+  let cookie = '';
+  const sc = r1.headers.getSetCookie ? r1.headers.getSetCookie()
+    : (r1.headers.get('set-cookie') ? [r1.headers.get('set-cookie')] : []);
+  if (sc && sc.length) cookie = sc.map(c => String(c).split(';')[0]).join('; ');
+  const r2 = await fetch('https://query1.finance.yahoo.com/v1/test/getcrumb', { headers: { 'User-Agent': YF_UA, cookie } });
+  const crumb = (await r2.text()).trim();
+  return { cookie, crumb };
+}
+
+async function yahooQuote(syms, creds) {
+  const c = (creds && creds.crumb) ? `&crumb=${encodeURIComponent(creds.crumb)}` : '';
+  const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(syms)}${c}`;
+  const headers = { 'User-Agent': YF_UA };
+  if (creds && creds.cookie) headers.cookie = creds.cookie;
+  const res = await fetch(url, { headers });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return (data && data.quoteResponse && data.quoteResponse.result) || null;
+}
+
 // Fondamentaux légers via Yahoo (PER, dividende, capitalisation, prochaine date
 // de résultats). Purement optionnel et défensif : si l'appel échoue on renvoie
 // {} et l'analyse technique reste complète et inchangée. Un seul appel pour tous
-// les symboles.
+// les symboles (avec repli cookie + crumb si Yahoo l'exige).
 async function fetchFundamentals(tickers) {
   try {
     const syms = tickers.map(t => t.toUpperCase()).join(',');
-    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(syms)}`;
-    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-    if (!res.ok) return {};
-    const data = await res.json();
-    const arr = (data && data.quoteResponse && data.quoteResponse.result) || [];
+    let arr = await yahooQuote(syms, null);        // tentative directe
+    if (!arr || !arr.length) {                     // sinon : cookie + crumb
+      const creds = await yahooCreds();
+      arr = await yahooQuote(syms, creds);
+    }
+    if (!arr) return {};
     const num = (x) => (typeof x === 'number' && isFinite(x)) ? x : null;
     const out = {};
     for (const q of arr) {

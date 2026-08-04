@@ -292,8 +292,25 @@ function ramp(a, b, n) {
   ok('fund earningsInDays ≈ 3', f && f.earningsInDays >= 2 && f.earningsInDays <= 3);
   ok('fund earningsDate au format ISO', f && /^\d{4}-\d{2}-\d{2}$/.test(f.earningsDate));
 
-  // Réponse HTTP en échec → objet vide, jamais d'exception.
-  global.fetch = async () => ({ ok: false, status: 401, json: async () => ({}) });
+  // Repli cookie + crumb : 1er quote refusé (401) → cookie → crumb → 2e quote OK.
+  {
+    const calls = [];
+    global.fetch = async (u, opt) => {
+      const url = String(u); calls.push(url);
+      if (url.includes('/finance/quote') && !/crumb=/.test(url)) return { ok: false, status: 401, json: async () => ({}) };
+      if (url.includes('fc.yahoo.com')) return { headers: { getSetCookie: () => ['A1=tok; Path=/; Secure'] }, text: async () => '' };
+      if (url.includes('getcrumb')) return { text: async () => 'CRUMB123' };
+      if (url.includes('/finance/quote') && /crumb=CRUMB123/.test(url) && (opt.headers.cookie || '').includes('A1=tok'))
+        return { ok: true, json: async () => ({ quoteResponse: { result: [{ symbol: 'MSFT', trailingPE: 35, marketCap: 3e12 }] } }) };
+      return { ok: false, json: async () => ({}) };
+    };
+    const g = (await fetchFundamentals(['MSFT'])).MSFT;
+    ok('fund repli crumb : donnée récupérée', g && g.pe === 35);
+    ok('fund repli crumb : cookie et crumb réutilisés', calls.some(u => u.includes('getcrumb')) && calls.some(u => /crumb=CRUMB123/.test(u)));
+  }
+
+  // Réponse HTTP en échec (même après crumb) → objet vide, jamais d'exception.
+  global.fetch = async () => ({ ok: false, status: 401, headers: { getSetCookie: () => [] }, json: async () => ({}), text: async () => '' });
   ok('fund repli {} si HTTP KO', Object.keys(await fetchFundamentals(['AAPL'])).length === 0);
   // fetch qui rejette → objet vide.
   global.fetch = async () => { throw new Error('offline'); };
