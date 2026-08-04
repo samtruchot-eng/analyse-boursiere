@@ -106,9 +106,12 @@
   nav.topbar a.back { font-size: .9rem; font-weight: 600; color: var(--ink); border: none; display: inline-flex; align-items: center; gap: 7px; }
   nav.topbar a.back:hover { color: var(--indigo); }
   nav.topbar .brand { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-  nav.topbar .tb-right { display: flex; align-items: center; gap: 10px; }
-  nav.topbar .tb-theme { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 5px 10px; font-size: 14px; line-height: 1; cursor: pointer; }
-  nav.topbar .tb-theme:hover { border-color: var(--indigo); }
+  nav.topbar .tb-right { display: flex; align-items: center; gap: 9px; }
+  nav.topbar .tb-theme { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600; letter-spacing: .012em; line-height: 1; cursor: pointer; box-shadow: var(--shadow); transition: border-color .18s, box-shadow .18s, transform .1s; }
+  nav.topbar .tb-theme:hover { border-color: var(--indigo); box-shadow: 0 4px 14px rgba(120,60,100,.14); transform: translateY(-1px); }
+  nav.topbar .tb-theme:active { transform: translateY(0); }
+  nav.topbar .tb-theme:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
+  nav.topbar #theme-btn { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; }
 
   /* ── Masthead ─────────────────────────────────── */
   header.mast {

@@ -107,13 +107,19 @@
   header h1 { margin: 0; font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", "Hoefler Text", Georgia, serif; font-size: 27px; font-weight: 700; letter-spacing: .005em; display: flex; align-items: center; gap: 10px; }
   header h1 .logo { flex: 0 0 auto; display: block; }
   header .slogan { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", "Hoefler Text", Georgia, serif; font-size: 15.5px; font-style: italic; font-weight: 500; margin-top: 7px; opacity: .96; letter-spacing: .015em; }
-  .guide-link { color: #fff; text-decoration: none; font-size: 13.5px; font-weight: 600;
-    border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: 8px 15px;
-    white-space: nowrap; transition: background .15s, border-color .15s; }
-  .guide-link:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.55); }
-  button.guide-link { background: transparent; font-family: inherit; cursor: pointer; }
-  .header-links { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  .theme-btn { padding: 8px 12px; font-size: 15px; line-height: 1; }
+  .guide-link { color: #fff; text-decoration: none; font-size: 13px; font-weight: 600; letter-spacing: .012em;
+    background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.34); border-radius: 999px; padding: 8px 16px;
+    white-space: nowrap; -webkit-backdrop-filter: blur(9px) saturate(1.15); backdrop-filter: blur(9px) saturate(1.15);
+    box-shadow: 0 2px 10px rgba(80,40,80,.14), inset 0 1px 0 rgba(255,255,255,.4);
+    transition: background .18s, border-color .18s, box-shadow .18s, transform .1s; }
+  .guide-link:hover { background: rgba(255,255,255,.28); border-color: rgba(255,255,255,.6);
+    box-shadow: 0 5px 16px rgba(80,40,80,.2), inset 0 1px 0 rgba(255,255,255,.5); transform: translateY(-1px); }
+  .guide-link:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(80,40,80,.16), inset 0 1px 0 rgba(255,255,255,.4); }
+  .guide-link:focus-visible { outline: 2px solid rgba(255,255,255,.85); outline-offset: 2px; }
+  button.guide-link { font-family: inherit; cursor: pointer; }
+  .header-links { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; }
+  .theme-btn { width: 38px; height: 38px; padding: 0; font-size: 16px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+  #lang-btn { font-weight: 700; }
 
   main { max-width: 1180px; margin: 0 auto; padding: 20px 14px 64px; }
 
