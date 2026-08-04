@@ -93,7 +93,8 @@
   .header-inner { max-width: 1180px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -.01em; display: flex; align-items: center; gap: 9px; }
   header h1 .logo { flex: 0 0 auto; display: block; }
-  header .sub { opacity: .8; font-size: 13px; margin-top: 5px; }
+  header .slogan { font-size: 14px; font-style: italic; font-weight: 600; margin-top: 6px; opacity: .95; letter-spacing: .01em; }
+  header .sub { opacity: .8; font-size: 13px; margin-top: 3px; }
   .guide-link { color: #fff; text-decoration: none; font-size: 13.5px; font-weight: 600;
     border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: 8px 15px;
     white-space: nowrap; transition: background .15s, border-color .15s; }
@@ -457,6 +458,7 @@
         <circle cx="25.9" cy="12.8" r="1.5" fill="#e7c256"/>
         <circle cx="38.1" cy="12.8" r="1.5" fill="#e7c256"/>
       </svg> butterfly</h1>
+      <div class="slogan" data-i18n="slogan">La bourse, en toute clarté.</div>
       <div class="sub" data-i18n="sub">Cours réels · analyse technique expliquée simplement</div>
     </div>
     <div class="header-links">
@@ -572,6 +574,7 @@ const I18N = {
     pfNote: '⚠ Suivi indicatif. Cours du dernier point de marché, réactualisé à chaque rafraîchissement (toutes les minutes si « Auto » est coché) — pas du temps réel à la seconde. Vos positions sont mémorisées dans ce navigateur uniquement. Les totaux sont regroupés par devise ; le total en euros convertit les autres devises avec un taux de change récupéré en direct (à titre indicatif).',
     backup: '💾 Sauvegarde :', exportBtn: 'Exporter', importBtn: 'Importer',
     backupNote: 'Enregistre (ou restaure) vos favoris, positions, alertes et historique dans un fichier — pour les sauvegarder ou les transférer sur un autre appareil.',
+    slogan: 'La bourse, en toute clarté.',
     phTickers: 'Ex. AAPL, MSFT, NVDA', analyze: 'Analyser',
     hint: 'Séparez les symboles par des virgules. Ex. AAPL (Apple), MSFT (Microsoft), NVDA (Nvidia), SPY (indice S&P 500), air.fr (Airbus Paris).',
     catsLabel: 'Explorer par catégorie', howToScore: 'Comment lire le score',
@@ -637,6 +640,7 @@ const I18N = {
     pfNote: '⚠ Indicative tracking. Latest market close, refreshed on each update (every minute if "Auto" is on) — not real time to the second. Your positions are stored in this browser only. Totals are grouped by currency; the euro total converts other currencies using a live exchange rate (indicative).',
     backup: '💾 Backup:', exportBtn: 'Export', importBtn: 'Import',
     backupNote: 'Saves (or restores) your favourites, positions, alerts and history to a file — to back them up or move them to another device.',
+    slogan: 'The market, made clear.',
     phTickers: 'e.g. AAPL, MSFT, NVDA', analyze: 'Analyse',
     hint: 'Separate symbols with commas. e.g. AAPL (Apple), MSFT (Microsoft), NVDA (Nvidia), SPY (S&P 500 index), air.fr (Airbus Paris).',
     catsLabel: 'Explore by category', howToScore: 'How to read the score',
