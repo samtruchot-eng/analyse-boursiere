@@ -510,6 +510,13 @@ const NAMES = {
   F:'Ford', GM:'General Motors', 'STLAP.PA':'Stellantis', 'VOW3.DE':'Volkswagen', 'BMW.DE':'BMW', RACE:'Ferrari',
   CRM:'Salesforce', NOW:'ServiceNow', ADBE:'Adobe', ORCL:'Oracle', SNOW:'Snowflake', 'SAP.DE':'SAP',
   JPM:'JPMorgan', BAC:'Bank of America', GS:'Goldman Sachs', MS:'Morgan Stanley', 'ACA.PA':'Crédit Agricole',
+  V:'Visa', UNH:'UnitedHealth',
+  'SIE.DE':'Siemens', 'ALV.DE':'Allianz', 'MBG.DE':'Mercedes-Benz', 'BAS.DE':'BASF', 'DTE.DE':'Deutsche Telekom',
+  'AZN.L':'AstraZeneca', 'HSBA.L':'HSBC', 'SHEL.L':'Shell', 'ULVR.L':'Unilever', 'BP.L':'BP', 'GSK.L':'GSK', 'RIO.L':'Rio Tinto', 'BATS.L':'British American Tobacco',
+  'NESN.SW':'Nestlé', 'ROG.SW':'Roche', 'UBSG.SW':'UBS', 'ZURN.SW':'Zurich Insurance',
+  '7203.T':'Toyota', '6758.T':'Sony', '9984.T':'SoftBank', '6861.T':'Keyence', '8306.T':'MUFG', '9983.T':'Fast Retailing',
+  BABA:'Alibaba', PDD:'PDD (Pinduoduo)', JD:'JD.com', BIDU:'Baidu', NIO:'NIO', LI:'Li Auto', TCEHY:'Tencent',
+  INFY:'Infosys', WIT:'Wipro', HDB:'HDFC Bank', IBN:'ICICI Bank',
 };
 function companyName(r) {
   let n = (r && r.name) ? r.name : (NAMES[String(r && r.ticker).toUpperCase()] || '');
@@ -771,7 +778,7 @@ document.getElementById('glossary').innerHTML =
 const CATEGORIES = [
   { ico: '🌍', label: 'Grands indices', syms: 'SPY, QQQ, DIA, ^GSPC, ^FCHI, ^GDAXI' },
   { ico: '💻', label: 'Tech US', syms: 'AAPL, MSFT, GOOGL, AMZN, META, NVDA' },
-  { ico: '🇫🇷', label: 'Actions françaises', syms: 'MC.PA, OR.PA, TTE.PA, AIR.PA, SAN.PA, BNP.PA' },
+  { ico: '🇫🇷', label: 'France', group: 'regions', syms: 'MC.PA, OR.PA, TTE.PA, AIR.PA, SAN.PA, BNP.PA' },
   { ico: '⚡', label: 'Énergie', syms: 'XOM, CVX, TTE.PA, SHEL' },
   { ico: '🛡️', label: 'Défense', syms: 'RHM.DE, AIR.PA, SAF.PA, HO.PA, LMT, RTX' },
   { ico: '🥇', label: 'Or & mines', syms: 'NEM, GOLD, GDX, AEM' },
@@ -793,9 +800,16 @@ const CATEGORIES = [
   { ico: '💵', label: 'ETF obligations', syms: 'AGG, BND, TLT, IEF, LQD, HYG' },
   { ico: '💰', label: 'ETF or & matières', syms: 'GLD, IAU, SLV, GDX, DBC, USO' },
   { ico: '₿', label: 'ETF crypto', syms: 'IBIT, FBTC, BITB, ETHA, ARKB' },
+  { ico: '🇺🇸', label: 'États-Unis', group: 'regions', syms: 'AAPL, MSFT, AMZN, GOOGL, META, NVDA, JPM, V, UNH, XOM' },
+  { ico: '🇩🇪', label: 'Allemagne', group: 'regions', syms: 'SAP.DE, SIE.DE, ALV.DE, RHM.DE, MBG.DE, BMW.DE, BAS.DE, DTE.DE' },
+  { ico: '🇬🇧', label: 'Royaume-Uni', group: 'regions', syms: 'AZN.L, HSBA.L, SHEL.L, ULVR.L, BP.L, GSK.L, RIO.L, BATS.L' },
+  { ico: '🇨🇭', label: 'Suisse', group: 'regions', syms: 'NESN.SW, NOVN.SW, ROG.SW, UBSG.SW, ZURN.SW, CFR.SW' },
+  { ico: '🇯🇵', label: 'Japon', group: 'regions', syms: '7203.T, 6758.T, 9984.T, 6861.T, 8306.T, 9983.T' },
+  { ico: '🇨🇳', label: 'Chine', group: 'regions', syms: 'BABA, PDD, JD, BIDU, NIO, LI, TCEHY' },
+  { ico: '🇮🇳', label: 'Inde', group: 'regions', syms: 'INFY, WIT, HDB, IBN' },
 ];
-const CAT_GROUPS = [{ key: 'actions', label: 'Actions' }, { key: 'etf', label: 'ETF' }, { key: 'crypto', label: 'Crypto' }];
-function catGroup(c) { if (/^ETF/.test(c.label)) return 'etf'; if (/crypto/i.test(c.label)) return 'crypto'; return 'actions'; }
+const CAT_GROUPS = [{ key: 'actions', label: 'Actions' }, { key: 'regions', label: 'Régions' }, { key: 'etf', label: 'ETF' }, { key: 'crypto', label: 'Crypto' }];
+function catGroup(c) { if (c.group) return c.group; if (/^ETF/.test(c.label)) return 'etf'; if (/crypto/i.test(c.label)) return 'crypto'; return 'actions'; }
 let catActive = localStorage.getItem('catGroup') || 'actions';
 function renderCategories() {
   document.getElementById('cat-tabs').innerHTML = CAT_GROUPS.map(g =>
