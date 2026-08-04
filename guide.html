@@ -293,6 +293,7 @@
       <li><a href="#demarrer">Bien démarrer avec l'appli</a></li>
       <li><a href="#bases">Les bases de l'investissement</a></li>
       <li><a href="#technique">Comprendre l'analyse technique</a></li>
+      <li><a href="#approfondi">L'analyse approfondie</a></li>
       <li><a href="#risque">Comprendre le risque</a></li>
       <li><a href="#contexte">Le contexte de marché (2026)</a></li>
       <li><a href="#lecture">Lire vos scores selon le contexte</a></li>
@@ -398,6 +399,26 @@
   </div>
 </section>
 
+<section id="approfondi">
+  <p class="eyebrow">Aller plus loin</p>
+  <h2>L'analyse approfondie</h2>
+  <div class="prose"><p>Au-delà des indicateurs pris un par un, l'appli croise plusieurs <strong>angles</strong>
+    pour répondre à des questions plus fines : ce mouvement est-il cohérent sur la durée ? Où sont les
+    <em>zones clés</em> ? Peut-on faire confiance au signal ? Comment ce titre se comporte-t-il face au marché ?</p></div>
+  <div class="cards">
+    <div class="cardlet"><h4>Multi-horizon <span class="lab">court + fond</span></h4><p>Les indicateurs sont lus à la fois sur le <strong>quotidien</strong> (court terme) et sur l'<strong>hebdomadaire</strong> (tendance de fond). Quand les deux sont <strong>alignés</strong>, le signal est plus fiable ; en <strong>désaccord</strong> (court terme haussier mais fond baissier), l'appli invite à la prudence.</p></div>
+    <div class="cardlet"><h4>Niveaux clés &amp; événements</h4><p>L'appli repère les <strong>supports</strong> (planchers) et <strong>résistances</strong> (plafonds) les plus proches, et signale les <strong>événements récents</strong> : cassure d'un range, nouveau plus-haut ou plus-bas de 52 semaines, golden/death cross tout frais.</p></div>
+    <div class="cardlet"><h4>Confiance &amp; fourchette</h4><p>La <strong>confiance du signal</strong> (0–100) mesure si les facteurs sont <strong>d'accord entre eux</strong> : un score élevé <em>et</em> une confiance élevée, c'est plus solide qu'un score obtenu sur des signaux contradictoires. L'appli donne aussi une <strong>fourchette de prix probable à 1 mois</strong>, calculée sur la volatilité — une plage honnête, pas une prédiction.</p></div>
+    <div class="cardlet"><h4>Lien avec le marché <span class="lab">bêta</span></h4><p>Le <strong>bêta</strong> dit si le titre <strong>amplifie</strong> les mouvements du marché (×1,5 = plus nerveux) ou s'il est plus <strong>calme</strong> (×0,7). La <strong>corrélation</strong> au S&amp;P 500 mesure à quel point il suit le marché. Utile pour ne pas empiler que des titres qui montent et descendent ensemble.</p></div>
+  </div>
+  <div class="prose">
+    <div class="callout">La <strong>confiance du signal</strong> apparaît en haut de la fenêtre qui s'ouvre
+      quand vous <strong>cliquez un score</strong>. Le reste (niveaux, événements, multi-horizon, bêta) se
+      lit dans les <strong>points d'analyse</strong> et les <strong>détails chiffrés</strong> de chaque carte.</div>
+    <a class="to-toc" href="#sommaire">↑ Retour au sommaire</a>
+  </div>
+</section>
+
 <section id="risque">
   <p class="eyebrow">Mesurer le risque</p>
   <h2>Comprendre le risque</h2>
@@ -473,6 +494,7 @@
         <tr><td>Possible retournement</td><td>MACD + Croisement MM 50/200</td><td><em>Death cross</em> = prudence ; <em>golden cross</em> = amélioration.</td></tr>
         <tr><td>Hausse à confirmer</td><td>Volume (OBV) + Force de tendance (ADX)</td><td>Hausse <strong>sur volume</strong> et ADX élevé = mouvement crédible ; volume faible ou ADX bas = à prendre avec des pincettes.</td></tr>
         <tr><td>Rallye qui s'essouffle</td><td>Divergence prix / RSI</td><td>Divergence <strong>baissière</strong> = la hausse fatigue malgré de nouveaux sommets ; souvent un signal d'alerte précoce.</td></tr>
+        <tr><td>Signal à fiabiliser</td><td>Multi-horizon + Confiance du signal</td><td>Court terme et fond <strong>alignés</strong> et confiance <strong>élevée</strong> = signal plus robuste ; désaccord ou confiance faible = on attend une confirmation.</td></tr>
       </tbody>
     </table>
   </div>
@@ -666,6 +688,11 @@
     <dt>ADX</dt><dd>Force de la tendance (peu importe le sens). &gt; 25 = tendance nette ; &lt; 18 = marché sans direction, signaux peu fiables.</dd>
     <dt>Stochastique</dt><dd>Position du cours dans son couloir haut/bas récent. Complète le RSI pour le surachat/survente.</dd>
     <dt>Divergence</dt><dd>Écart entre le cours et l'élan (RSI) : nouveau sommet mais élan plus faible = essoufflement ; nouveau creux mais élan qui remonte = rebond possible.</dd>
+    <dt>Multi-horizon</dt><dd>Lecture croisée du court terme (quotidien) et de la tendance de fond (hebdomadaire). Alignés = signal plus fiable ; en désaccord = prudence.</dd>
+    <dt>Support / résistance</dt><dd>Niveaux où le cours a déjà rebondi (plancher) ou buté (plafond). Des repères pour situer une entrée ou une sortie.</dd>
+    <dt>Confiance du signal</dt><dd>Mesure (0–100) de l'accord entre les facteurs du score. Élevée = ils vont dans le même sens ; faible = signaux contradictoires.</dd>
+    <dt>Fourchette probable</dt><dd>Plage de prix estimée à 1 mois à partir de la volatilité (≈ 2 chances sur 3). Un ordre de grandeur, pas une prévision.</dd>
+    <dt>Bêta</dt><dd>Sensibilité au marché. &gt; 1 = amplifie les mouvements (plus nerveux) ; &lt; 1 = plus calme. Mesuré vs S&amp;P 500.</dd>
     <dt>Volatilité</dt><dd>Amplitude des variations en % par an. Plus elle est élevée, plus le titre bouge fort.</dd>
     <dt>ATR</dt><dd>« Average True Range » : le mouvement quotidien typique, en %. Utile pour dimensionner un seuil (stop).</dd>
     <dt>Ratio de Sharpe</dt><dd>Rendement par unité de risque. &gt; 1 = bon, &lt; 0 = le risque n'a pas payé.</dd>
