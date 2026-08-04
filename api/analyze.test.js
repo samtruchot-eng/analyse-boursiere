@@ -8,7 +8,7 @@
 const { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown,
   obv, trendCorr, atr, adx, stochastic, rsiDivergence,
   toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr,
-  mfi, psar, squeeze, relVolume } =
+  mfi, psar, squeeze, relVolume, fetchFundamentals } =
   require('./analyze.js')._internal;
 
 let pass = 0, fail = 0;
@@ -271,11 +271,41 @@ function ramp(a, b, n) {
   ok('explain vigilance est un tableau', Array.isArray(ex.vigilance));
 }
 
-// ── Bilan ────────────────────────────────────────────────────────────────────
-console.log(`\n${pass} test(s) réussi(s), ${fail} échec(s).`);
-if (fail) {
-  console.log('\nÉchecs :');
-  fails.forEach((f) => console.log('  ✗ ' + f));
-  process.exit(1);
-}
-console.log('✓ Tous les tests passent.');
+// ── Fondamentaux (fetch simulé) + bilan ──────────────────────────────────────
+// Enveloppé dans une IIFE asynchrone : fetchFundamentals est asynchrone et
+// CommonJS n'autorise pas `await` au niveau racine.
+(async () => {
+  const realFetch = global.fetch;
+  // Cas nominal : parsing correct + rendement en %, date de résultats.
+  const ets = Math.round(Date.now() / 1000) + 3 * 86400; // dans 3 jours
+  global.fetch = async () => ({
+    ok: true,
+    json: async () => ({ quoteResponse: { result: [{
+      symbol: 'AAPL', trailingPE: 30, forwardPE: 28, epsTrailingTwelveMonths: 6,
+      trailingAnnualDividendYield: 0.005, marketCap: 3.5e12, currency: 'USD', earningsTimestamp: ets,
+    }] } }),
+  });
+  const f = (await fetchFundamentals(['AAPL'])).AAPL;
+  ok('fund AAPL présent', !!f);
+  ok('fund PER lu', f && f.pe === 30);
+  approx('fund dividende en %', f && f.divYield, 0.5, 0.001);
+  ok('fund earningsInDays ≈ 3', f && f.earningsInDays >= 2 && f.earningsInDays <= 3);
+  ok('fund earningsDate au format ISO', f && /^\d{4}-\d{2}-\d{2}$/.test(f.earningsDate));
+
+  // Réponse HTTP en échec → objet vide, jamais d'exception.
+  global.fetch = async () => ({ ok: false, status: 401, json: async () => ({}) });
+  ok('fund repli {} si HTTP KO', Object.keys(await fetchFundamentals(['AAPL'])).length === 0);
+  // fetch qui rejette → objet vide.
+  global.fetch = async () => { throw new Error('offline'); };
+  ok('fund repli {} si réseau KO', Object.keys(await fetchFundamentals(['AAPL'])).length === 0);
+  global.fetch = realFetch;
+
+  // ── Bilan ──────────────────────────────────────────────────────────────────
+  console.log(`\n${pass} test(s) réussi(s), ${fail} échec(s).`);
+  if (fail) {
+    console.log('\nÉchecs :');
+    fails.forEach((f) => console.log('  ✗ ' + f));
+    process.exit(1);
+  }
+  console.log('✓ Tous les tests passent.');
+})();

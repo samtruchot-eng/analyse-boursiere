@@ -60,6 +60,42 @@ async function fetchStooq(ticker) {
   return { ticker: ticker.toUpperCase(), bars: bars.slice(-400), source: 'stooq', name: null, currency: null };
 }
 
+// Fondamentaux légers via Yahoo (PER, dividende, capitalisation, prochaine date
+// de résultats). Purement optionnel et défensif : si l'appel échoue on renvoie
+// {} et l'analyse technique reste complète et inchangée. Un seul appel pour tous
+// les symboles.
+async function fetchFundamentals(tickers) {
+  try {
+    const syms = tickers.map(t => t.toUpperCase()).join(',');
+    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(syms)}`;
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    if (!res.ok) return {};
+    const data = await res.json();
+    const arr = (data && data.quoteResponse && data.quoteResponse.result) || [];
+    const num = (x) => (typeof x === 'number' && isFinite(x)) ? x : null;
+    const out = {};
+    for (const q of arr) {
+      const sym = String(q.symbol || '').toUpperCase();
+      if (!sym) continue;
+      let earningsDate = null, earningsInDays = null;
+      const et = q.earningsTimestampStart || q.earningsTimestamp;
+      if (typeof et === 'number' && isFinite(et)) {
+        earningsDate = new Date(et * 1000).toISOString().slice(0, 10);
+        earningsInDays = Math.round((et * 1000 - Date.now()) / 86400000);
+      }
+      const dy = num(q.trailingAnnualDividendYield);
+      out[sym] = {
+        pe: num(q.trailingPE), forwardPE: num(q.forwardPE),
+        eps: num(q.epsTrailingTwelveMonths),
+        divYield: dy != null ? round(dy * 100, 2) : null,
+        marketCap: num(q.marketCap), currency: q.currency || null,
+        earningsDate, earningsInDays,
+      };
+    }
+    return out;
+  } catch (e) { return {}; }
+}
+
 // Essaie Yahoo (fiable côté serveur), puis Stooq en secours.
 async function fetchSeries(ticker) {
   const errors = [];
@@ -740,6 +776,10 @@ module.exports = async (req, res) => {
   let market = null;
   if (needMarket) { try { market = await fetchSeries(MARKET); } catch (e) { market = null; } }
 
+  // Repères fondamentaux (optionnels) — un seul appel pour tous les symboles.
+  let funds = {};
+  try { funds = await fetchFundamentals(tickers); } catch (e) { funds = {}; }
+
   const results = [];
   for (const ticker of tickers) {
     try {
@@ -762,10 +802,22 @@ module.exports = async (req, res) => {
           ex.points.push({ s: 'neutral', topic: en ? 'Market' : 'Marché', text: txt });
         }
       }
+      // Fondamentaux : rappel « résultats proches » (le point faible de l'analyse
+      // purement technique — un résultat surprise pèse plus que tout signal).
+      const fund = funds[series.ticker.toUpperCase()] || null;
+      if (fund && fund.earningsInDays != null && fund.earningsInDays >= 0 && fund.earningsInDays <= 7) {
+        const en = lang === 'en';
+        const d = fund.earningsInDays;
+        const whenFr = d === 0 ? "aujourd'hui" : `dans ${d} jour${d > 1 ? 's' : ''}`;
+        const whenEn = d === 0 ? 'today' : `in ${d} day${d > 1 ? 's' : ''}`;
+        ex.vigilance.push(en
+          ? `Earnings due ${whenEn} (${fund.earningsDate}): a surprise can move the price far more than any technical signal — stay cautious before that date.`
+          : `Résultats attendus ${whenFr} (le ${fund.earningsDate}) : une surprise peut faire bouger le cours bien plus que n'importe quel signal technique — prudence avant cette date.`);
+      }
       results.push({
         ticker: series.ticker, name: series.name || null, currency: series.currency || null, source: series.source, day: series.bars[series.bars.length - 1].day,
         price: a.metrics.price, score: a.value, label: a.label, reco: a.reco,
-        metrics: a.metrics, risk: rk, contributions: a.contributions,
+        metrics: a.metrics, risk: rk, contributions: a.contributions, fund,
         spark: closes.slice(-90), chart: closes.slice(-260), ...ex,
       });
     } catch (e) {
@@ -778,4 +830,4 @@ module.exports = async (req, res) => {
 };
 
 // Exposé pour les tests (n'affecte pas le handler par défaut utilisé par Vercel).
-module.exports._internal = { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown, obv, trendCorr, atr, adx, stochastic, rsiDivergence, toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr, mfi, psar, squeeze, relVolume };
+module.exports._internal = { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown, obv, trendCorr, atr, adx, stochastic, rsiDivergence, toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr, mfi, psar, squeeze, relVolume, fetchFundamentals };
