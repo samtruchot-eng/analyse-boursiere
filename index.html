@@ -360,6 +360,26 @@
   .cp-btn:hover { border-color: var(--accent); color: var(--text); }
   .cp-btn.on { background: var(--accent); color: #fff; border-color: transparent; }
 
+  /* ── Explication du score ───────────────────────────── */
+  .score-btn { border: none; background: none; padding: 0; margin: 0; cursor: pointer; border-radius: 50%; line-height: 0; }
+  .score-btn:hover { filter: brightness(1.06); }
+  .score-btn:hover .ring circle:nth-child(2) { stroke-width: 8; }
+  .sx-lead { font-size: 15px; font-weight: 750; color: var(--text); margin-bottom: 4px; }
+  .sx-lead .sx-pill { font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; margin-left: 6px; vertical-align: 2px; }
+  .sx-intro { font-size: 12.8px; color: var(--muted); line-height: 1.55; margin: 6px 0 14px; }
+  .sx-row { display: grid; grid-template-columns: minmax(0,1fr) 96px 46px; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .sx-name { font-size: 12.5px; font-weight: 650; color: var(--text); display: flex; flex-direction: column; min-width: 0; }
+  .sx-desc { font-weight: 400; font-size: 10.8px; color: var(--faint); margin-top: 2px; line-height: 1.35; }
+  .sx-bar { position: relative; height: 15px; background: var(--chip-bg); border-radius: 8px; }
+  .sx-mid { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--border); }
+  .sx-fill { position: absolute; top: 2px; bottom: 2px; border-radius: 5px; min-width: 2px; }
+  .sx-fill.pos { background: var(--pos); } .sx-fill.neg { background: var(--neg); }
+  .sx-val { text-align: right; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .sx-val.pos { color: var(--pos); } .sx-val.neg { color: var(--neg); }
+  .sx-total { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 13.5px; color: var(--text); line-height: 1.6; }
+  .sx-total strong { font-weight: 800; }
+  .sx-note { font-size: 11.5px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
+
   .headline { font-size: 14px; font-weight: 600; color: var(--text); margin: 6px 0 14px; line-height: 1.5; }
 
   /* ── Chips de risque ────────────────────────────────── */
@@ -523,6 +543,14 @@
   </div>
 </div>
 
+<!-- Explication du score -->
+<div id="score-modal" class="modal" hidden>
+  <div class="modal-card">
+    <div class="modal-head"><span id="score-title"></span><button id="score-close" aria-label="Fermer">✕</button></div>
+    <div id="score-body"></div>
+  </div>
+</div>
+
 <!-- Assistant intégré (aide locale, sans IA) -->
 <button id="ask-launch" class="ask-launch" aria-label="Ouvrir l'assistant" aria-expanded="false">💬 Aide</button>
 <div id="ask-panel" class="ask-panel" hidden>
@@ -541,6 +569,22 @@ const LABEL_TEXT  = { STRONG_BUY:'ACHAT MARQUÉ', BUY:'ACHAT', HOLD:'NEUTRE', SE
 const SIGNAL_LABEL = { trend_lt:'Tendance long terme', trend_mt:'Tendance moyen terme',
   ma_cross:'Croisement MM 50/200', rsi:'RSI', macd:'MACD', bollinger:'Bollinger', momentum:'Momentum',
   trend_strength:'Force de tendance (ADX)', volume:'Volume (OBV)', stoch:'Stochastique', divergence:'Divergence RSI' };
+// Poids de chaque facteur (identiques au moteur d'analyse) — sert à reconstituer
+// la part exacte de chaque facteur dans le score, pour l'explication détaillée.
+const SIGNAL_WEIGHT = { trend_lt:1.5, trend_mt:1.2, ma_cross:1.3, rsi:1.0, macd:1.2, bollinger:0.8, momentum:1.0,
+  trend_strength:1.1, volume:0.9, stoch:0.7, divergence:0.8 };
+const SIGNAL_DESC = {
+  trend_lt:'Position du cours vs sa moyenne 200 jours (tendance de fond)',
+  trend_mt:'Position du cours vs sa moyenne 50 jours (moyen terme)',
+  ma_cross:'Moyenne 50 j au-dessus (haussier) ou en dessous (baissier) de la 200 j',
+  rsi:'Surachat (>70) ou survente (<30) : mesure l\'élan',
+  macd:'Élan de court terme (croisement des moyennes exponentielles)',
+  bollinger:'Position dans les bandes de volatilité (haut/bas du couloir)',
+  momentum:'Performance sur les 60 dernières séances',
+  trend_strength:'Force et sens de la tendance (ADX + DI)',
+  volume:'Les volumes confirment-ils le mouvement du cours ?',
+  stoch:'Position du cours dans son couloir haut/bas récent',
+  divergence:'Cohérence entre le cours et l\'élan (RSI)' };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt = (v, n=2) => (v==null ? '—' : Number(v).toFixed(n));
 
@@ -591,6 +635,54 @@ function scoreRing(score, color) {
     <text x="36" y="52" text-anchor="middle" class="ring-cap">/ 100</text>
   </svg>`;
 }
+
+// Décompose le score : part exacte (en points) de chaque facteur.
+// value = 50 + Σ [ 50 · contribution_facteur / (somme des poids présents) ].
+function scorePoints(r) {
+  const contribs = r.contributions || {};
+  const keys = Object.keys(contribs);
+  if (!keys.length) return [];
+  const tw = keys.reduce((a, k) => a + (SIGNAL_WEIGHT[k] || 1), 0) || 1;
+  return keys.map(k => ({ k, pts: 50 * contribs[k] / tw }))
+    .sort((a, b) => Math.abs(b.pts) - Math.abs(a.pts));
+}
+
+// Résumé court pour l'infobulle au survol (desktop).
+function scoreTitle(r) {
+  if (r.error) return '';
+  const rows = scorePoints(r);
+  if (!rows.length) return `Score ${Math.round(r.score)}/100`;
+  const top = rows.slice(0, 3).map(x => `${SIGNAL_LABEL[x.k] || x.k} ${x.pts >= 0 ? '+' : ''}${x.pts.toFixed(1)}`).join(', ');
+  return `Pourquoi ${Math.round(r.score)}/100 ? Principaux moteurs : ${top}… — cliquez pour le détail`;
+}
+
+// Fenêtre détaillée : décomposition visuelle du score facteur par facteur.
+function openScore(ticker) {
+  const r = lastRows.find(x => String(x.ticker).toUpperCase() === String(ticker).toUpperCase());
+  if (!r || r.error) return;
+  const rows = scorePoints(r);
+  const color = LABEL_COLOR[r.label] || '#666';
+  const recoText = LABEL_TEXT[r.label] || String(r.label).replace('_', ' ');
+  document.getElementById('score-title').innerHTML = `${esc(r.ticker)} <small>${esc(companyName(r))}</small>`;
+  const maxAbs = Math.max(0.001, ...rows.map(x => Math.abs(x.pts)));
+  const body = rows.map(x => {
+    const pos = x.pts >= 0, w = Math.min(50, Math.abs(x.pts) / maxAbs * 50);
+    return `<div class="sx-row">
+      <div class="sx-name">${esc(SIGNAL_LABEL[x.k] || x.k)}<span class="sx-desc">${esc(SIGNAL_DESC[x.k] || '')}</span></div>
+      <div class="sx-bar"><div class="sx-mid"></div><div class="sx-fill ${pos ? 'pos' : 'neg'}" style="width:${w.toFixed(1)}%;${pos ? 'left:50%' : 'right:50%'}"></div></div>
+      <div class="sx-val ${pos ? 'pos' : 'neg'}">${pos ? '+' : ''}${x.pts.toFixed(1)}</div>
+    </div>`;
+  }).join('');
+  const total = rows.reduce((a, x) => a + x.pts, 0);
+  document.getElementById('score-body').innerHTML = `
+    <div class="sx-lead">Score ${Math.round(r.score)}/100<span class="sx-pill" style="color:${color};background:${color}1f">${esc(recoText)}</span></div>
+    <div class="sx-intro">Le score part de <strong>50 (neutre)</strong>. Chaque facteur technique le pousse vers le <span style="color:var(--pos)">haut (vert)</span> ou le <span style="color:var(--neg)">bas (rouge)</span>. Plus la barre est longue, plus le facteur pèse. Les facteurs sont classés du plus influent au moins influent.</div>
+    ${body}
+    <div class="sx-total"><strong>50</strong> (neutre) ${total >= 0 ? '+' : '−'} <strong>${Math.abs(total).toFixed(1)}</strong> (somme des facteurs) = <strong style="color:${color}">${Math.round(r.score)}/100</strong>.</div>
+    <div class="sx-note">💡 Analyse purement technique (basée sur les cours passés), à but informatif — ce n'est pas un conseil en investissement. Définitions de chaque indicateur dans le <a href="/guide" style="color:var(--accent)">guide</a>.</div>`;
+  document.getElementById('score-modal').hidden = false;
+}
+function closeScore() { document.getElementById('score-modal').hidden = true; }
 
 // Mini-graphe avec léger dégradé sous la courbe.
 function spark(vals, id) {
@@ -675,7 +767,7 @@ function card(r) {
         <div class="price"><strong>${fmt(r.price)}</strong> <span class="asof">au ${esc(r.day)}</span></div>
         <span class="reco-pill" style="color:${color};background:${color}1f">${recoText}</span>${scoreDeltaHtml(r)}
       </div>
-      ${scoreRing(r.score, color)}
+      <button class="score-btn" data-t="${esc(r.ticker)}" title="${esc(scoreTitle(r))}" aria-label="Pourquoi ce score ? Voir le détail">${scoreRing(r.score, color)}</button>
     </div>
     <button class="spark-btn" data-t="${esc(r.ticker)}" title="Agrandir · moyennes 50 et 200 jours">${spark(r.spark, esc(r.ticker))}<span class="spark-exp">⤢</span></button>
     <div class="headline">${esc(r.headline)}</div>
@@ -984,6 +1076,7 @@ document.getElementById('results').addEventListener('click', e => {
   const s = e.target.closest('.star'); if (s) { toggleFav(s.dataset.t); return; }
   const bl = e.target.closest('.bell'); if (bl) { editAlert(bl.dataset.t); return; }
   const nt = e.target.closest('.note-btn'); if (nt) { editNote(nt.dataset.t); return; }
+  const sc = e.target.closest('.score-btn'); if (sc) { openScore(sc.dataset.t); return; }
   const sp = e.target.closest('.spark-btn'); if (sp) openChart(sp.dataset.t);
 });
 
@@ -1060,7 +1153,9 @@ document.getElementById('chart-modal').addEventListener('click', e => {
   if (e.target.id === 'chart-modal') closeChart();
 });
 document.getElementById('chart-modal').addEventListener('input', e => { if (e.target.id === 'sim-amount') updateSim(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeChart(); });
+document.getElementById('score-close').addEventListener('click', closeScore);
+document.getElementById('score-modal').addEventListener('click', e => { if (e.target.id === 'score-modal') closeScore(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeChart(); closeScore(); } });
 document.getElementById('favbar').addEventListener('click', e => {
   const del = e.target.closest('.fav-del'), load = e.target.closest('.fav-load'), all = e.target.closest('.fav-analyze');
   if (del) { toggleFav(del.dataset.t); return; }
