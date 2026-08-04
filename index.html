@@ -93,6 +93,20 @@
   }
   .header-inner { max-width: 1180px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; position: relative; z-index: 1; }
 
+  /* ── Bandeau marché ─────────────────────────────────── */
+  .mk-lbl { font-size: 12px; color: var(--muted); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 2px 2px 8px; }
+  .mk-lbl[hidden] { display: none; }
+  .market { display: flex; gap: 10px; overflow-x: auto; padding: 1px 1px 8px; margin: 0 0 14px; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+  .market:empty { display: none; margin: 0; }
+  .mk-tile { flex: 0 0 auto; min-width: 138px; background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 9px 12px; cursor: pointer; box-shadow: 0 2px 8px rgba(130,80,120,.07); transition: border-color .15s, transform .08s, box-shadow .15s; }
+  .mk-tile:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 5px 14px rgba(130,80,120,.12); }
+  .mk-name { font-size: 11.5px; color: var(--muted); font-weight: 650; letter-spacing: .01em; white-space: nowrap; }
+  .mk-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-top: 2px; }
+  .mk-price { font-size: 14.5px; font-weight: 750; font-variant-numeric: tabular-nums; color: var(--text); }
+  .mk-chg { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .mk-chg.up { color: var(--pos); } .mk-chg.down { color: var(--neg); }
+  .mk-spark { margin-top: 5px; height: 24px; display: block; width: 100%; }
+
   /* ── Papillons décoratifs (incrustations animées) ────── */
   .flutter { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
   .page-flutter { position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: -1; color: var(--accent); }
@@ -500,6 +514,8 @@
 </header>
 <main>
   <div id="backbar"></div>
+  <div id="market-lbl" class="mk-lbl" hidden></div>
+  <div id="market" class="market"></div>
 
   <section id="portfolio" hidden>
     <div class="pf-head">
@@ -604,6 +620,7 @@ const I18N = {
     backup: '💾 Sauvegarde :', exportBtn: 'Exporter', importBtn: 'Importer',
     backupNote: 'Enregistre (ou restaure) vos favoris, positions, alertes et historique dans un fichier — pour les sauvegarder ou les transférer sur un autre appareil.',
     slogan: 'La bourse, en toute clarté.',
+    marketToday: 'Le marché aujourd\'hui', mkGold: 'Or', mkOil: 'Pétrole',
     phTickers: 'Ex. AAPL, MSFT, NVDA', analyze: 'Analyser',
     hint: 'Séparez les symboles par des virgules. Ex. AAPL (Apple), MSFT (Microsoft), NVDA (Nvidia), SPY (indice S&P 500), air.fr (Airbus Paris).',
     catsLabel: 'Explorer par catégorie', howToScore: 'Comment lire le score',
@@ -670,6 +687,7 @@ const I18N = {
     backup: '💾 Backup:', exportBtn: 'Export', importBtn: 'Import',
     backupNote: 'Saves (or restores) your favourites, positions, alerts and history to a file — to back them up or move them to another device.',
     slogan: 'The market, made clear.',
+    marketToday: 'Markets today', mkGold: 'Gold', mkOil: 'Oil',
     phTickers: 'e.g. AAPL, MSFT, NVDA', analyze: 'Analyse',
     hint: 'Separate symbols with commas. e.g. AAPL (Apple), MSFT (Microsoft), NVDA (Nvidia), SPY (S&P 500 index), air.fr (Airbus Paris).',
     catsLabel: 'Explore by category', howToScore: 'How to read the score',
@@ -1412,7 +1430,7 @@ function updateLangBtn() { const b = document.getElementById('lang-btn'); if (b)
 function applyLang() {
   document.documentElement.lang = currentLang();
   applyStaticI18n(); updateLangBtn(); updateThemeBtn(); updatePfBadge();
-  renderGlossary(); renderCategories(); renderFavs(); renderPf();
+  renderGlossary(); renderCategories(); renderFavs(); renderPf(); renderMarket();
   if (lastRows.length) rerender();
 }
 function toggleLang() {
@@ -1467,6 +1485,46 @@ function initPageButterflies() {
   }).join('');
   document.body.appendChild(layer);
 }
+
+// ── Bandeau marché : grands indices & matières premières en un coup d'œil ─────
+const MARKET_SYMS = [
+  { s: '^GSPC', n: 'S&P 500' }, { s: '^FCHI', n: 'CAC 40' }, { s: '^IXIC', n: 'Nasdaq' },
+  { s: 'GC=F', k: 'mkGold' }, { s: 'CL=F', k: 'mkOil' }, { s: 'BTC-USD', n: 'Bitcoin' },
+];
+let marketData = null;
+async function initMarket() {
+  try {
+    const res = await fetch('/api/analyze?tickers=' + encodeURIComponent(MARKET_SYMS.map(x => x.s).join(',')) + '&lang=' + currentLang());
+    const d = await res.json();
+    marketData = d.results || [];
+  } catch (e) { marketData = []; }
+  renderMarket();
+}
+function renderMarket() {
+  const el = document.getElementById('market'), lbl = document.getElementById('market-lbl');
+  if (!el || !marketData) return;
+  const tiles = MARKET_SYMS.map((m, i) => {
+    const r = marketData.find(x => String(x.ticker).toUpperCase() === m.s.toUpperCase());
+    if (!r || r.error || r.price == null) return '';
+    const name = m.k ? t(m.k) : m.n;
+    const sp = r.spark || [];
+    const chg = (sp.length >= 2 && sp[sp.length - 2]) ? (sp[sp.length - 1] / sp[sp.length - 2] - 1) * 100 : null;
+    const cls = chg == null ? '' : (chg >= 0 ? 'up' : 'down');
+    const chgTxt = chg == null ? '—' : (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+    return `<div class="mk-tile" data-sym="${esc(m.s)}" title="${esc(name)}">
+      <div class="mk-name">${esc(name)}</div>
+      <div class="mk-row"><span class="mk-price">${fmt(r.price)}</span><span class="mk-chg ${cls}">${chgTxt}</span></div>
+      ${spark(sp.slice(-26), 'mk' + i).replace('class="spark"', 'class="mk-spark"')}
+    </div>`;
+  }).join('');
+  el.innerHTML = tiles;
+  const has = tiles.trim().length > 0;
+  lbl.hidden = !has; lbl.textContent = t('marketToday');
+}
+document.getElementById('market').addEventListener('click', e => {
+  const tile = e.target.closest('.mk-tile'); if (!tile) return;
+  document.getElementById('tickers').value = tile.dataset.sym; run();
+});
 
 // ── Envolée de papillons à la transition entre les pages ─────────────────────
 (function () {
@@ -1908,6 +1966,7 @@ initPortfolio();
 initButterflies();
 initPageButterflies();
 applyLang();
+initMarket();
 run();
 </script>
 </body>
