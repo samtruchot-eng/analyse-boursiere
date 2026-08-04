@@ -354,6 +354,8 @@
   .chip .v { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
   .chip.pos .v { color: var(--pos); } .chip.neg .v { color: var(--neg); }
   .chip.warn .v { color: var(--warn); } .chip.flat .v { color: var(--text); }
+  .relperf { font-size: 12px; color: var(--muted); margin: -2px 0 12px; }
+  .relperf .pf-pos { color: var(--pos); font-weight: 650; } .relperf .pf-neg { color: var(--neg); font-weight: 650; }
 
   /* ── Points d'analyse ───────────────────────────────── */
   ul.points { list-style: none; margin: 0 0 14px; padding: 0; }
@@ -589,6 +591,24 @@ function spark(vals, id) {
   </svg>`;
 }
 
+// Performance de référence du marché (S&P 500), récupérée une fois par session.
+let benchPerf = null;
+async function fetchBenchmark() {
+  if (benchPerf != null) return;
+  try {
+    const res = await fetch('/api/analyze?tickers=SPY');
+    const d = await res.json();
+    const r = (d.results || []).find(x => String(x.ticker).toUpperCase() === 'SPY');
+    if (r && !r.error && r.risk && r.risk.ret_1y_pct != null) benchPerf = r.risk.ret_1y_pct;
+  } catch (e) { /* pas de référence : on n'affiche rien */ }
+  if (benchPerf != null && lastRows.length) rerender();
+}
+function relPerfHtml(r) {
+  if (benchPerf == null || !r.risk || r.risk.ret_1y_pct == null || String(r.ticker).toUpperCase() === 'SPY') return '';
+  const diff = r.risk.ret_1y_pct - benchPerf, cls = diff >= 0 ? 'pf-pos' : 'pf-neg';
+  return `<div class="relperf">vs S&amp;P 500 (1 an) : <span class="${cls}">${diff >= 0 ? '+' : ''}${fmt(diff, 1)} pts</span> ${diff >= 0 ? '(fait mieux que le marché)' : '(fait moins bien)'}</div>`;
+}
+
 // Petites étiquettes de risque colorées.
 function riskChips(risk) {
   if (!risk) return '';
@@ -634,6 +654,7 @@ function card(r) {
     <div class="headline">${esc(r.headline)}</div>
     ${noteHtml(r)}
     ${riskChips(r.risk)}
+    ${relPerfHtml(r)}
     <ul class="points">${points}</ul>
     <div class="risk-summary">${esc(r.risk_summary||'')}</div>
     ${vigilance}
@@ -783,6 +804,7 @@ async function run() {
     out.innerHTML = lastRows.map(card).join('');
     renderAlerts(lastRows);
     renderCompare(lastRows);
+    fetchBenchmark();
     const okCount = lastRows.filter(r=>!r.error).length;
     status.innerHTML = okCount ? '' : `<div class="banner err">Aucun titre n'a pu être récupéré. Vérifiez les symboles ou réessayez dans un instant.</div>`;
   } catch (e) {
