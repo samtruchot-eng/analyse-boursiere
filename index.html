@@ -495,7 +495,14 @@ const NAMES = {
   TSM:'TSMC', AMD:'AMD', AVGO:'Broadcom', INTC:'Intel',
   PG:'Procter & Gamble', KO:'Coca-Cola', COST:'Costco', WMT:'Walmart',
   LLY:'Eli Lilly', JNJ:'Johnson & Johnson', PFE:'Pfizer', MRK:'Merck', ABBV:'AbbVie', NVO:'Novo Nordisk', 'NOVN.SW':'Novartis',
-  'BTC-USD':'Bitcoin', 'ETH-USD':'Ethereum', 'SOL-USD':'Solana',
+  'BTC-USD':'Bitcoin', 'ETH-USD':'Ethereum', 'SOL-USD':'Solana', 'XRP-USD':'XRP', 'ADA-USD':'Cardano',
+  'DOGE-USD':'Dogecoin', 'BNB-USD':'BNB', 'AVAX-USD':'Avalanche', 'LINK-USD':'Chainlink', 'LTC-USD':'Litecoin',
+  COIN:'Coinbase', MSTR:'MicroStrategy', MARA:'Marathon Digital', RIOT:'Riot Platforms', CLSK:'CleanSpark', HUT:'Hut 8',
+  PLTR:'Palantir', SMCI:'Super Micro',
+  'RMS.PA':'Hermès', 'KER.PA':'Kering', 'CFR.SW':'Richemont', 'EL.PA':'EssilorLuxottica',
+  F:'Ford', GM:'General Motors', 'STLAP.PA':'Stellantis', 'VOW3.DE':'Volkswagen', 'BMW.DE':'BMW', RACE:'Ferrari',
+  CRM:'Salesforce', NOW:'ServiceNow', ADBE:'Adobe', ORCL:'Oracle', SNOW:'Snowflake', 'SAP.DE':'SAP',
+  JPM:'JPMorgan', BAC:'Bank of America', GS:'Goldman Sachs', MS:'Morgan Stanley', 'ACA.PA':'Crédit Agricole',
 };
 function companyName(r) {
   let n = (r && r.name) ? r.name : (NAMES[String(r && r.ticker).toUpperCase()] || '');
@@ -764,7 +771,13 @@ const CATEGORIES = [
   { ico: '🔌', label: 'Semi-conducteurs', syms: 'NVDA, TSM, AMD, AVGO' },
   { ico: '🛒', label: 'Défensives', syms: 'PG, KO, COST, WMT' },
   { ico: '💊', label: 'Santé & pharma', syms: 'LLY, JNJ, PFE, MRK, ABBV, NVO, SAN.PA, NOVN.SW' },
-  { ico: '🪙', label: 'Cryptos', syms: 'BTC-USD, ETH-USD, SOL-USD' },
+  { ico: '🤖', label: 'Intelligence artificielle', syms: 'NVDA, MSFT, GOOGL, AMD, AVGO, PLTR, SMCI, TSM' },
+  { ico: '☁️', label: 'Cloud & logiciels', syms: 'CRM, NOW, ADBE, ORCL, SNOW, SAP.DE' },
+  { ico: '👜', label: 'Luxe', syms: 'MC.PA, RMS.PA, KER.PA, CFR.SW, OR.PA, EL.PA' },
+  { ico: '🚗', label: 'Automobile & VE', syms: 'TSLA, F, GM, STLAP.PA, VOW3.DE, BMW.DE, RACE' },
+  { ico: '🏦', label: 'Banques', syms: 'JPM, BAC, GS, MS, BNP.PA, ACA.PA' },
+  { ico: '🪙', label: 'Cryptos', syms: 'BTC-USD, ETH-USD, SOL-USD, XRP-USD, ADA-USD, DOGE-USD, BNB-USD, AVAX-USD, LINK-USD, LTC-USD' },
+  { ico: '⛏️', label: 'Crypto & minage', syms: 'COIN, MSTR, MARA, RIOT, CLSK, HUT' },
 ];
 function renderCategories() {
   document.getElementById('categories').innerHTML = CATEGORIES.map((c, i) =>
