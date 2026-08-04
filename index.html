@@ -1476,16 +1476,16 @@ function initPageButterflies() {
   function burst(mode, done) {
     if (reduce) { if (done) done(); return; }
     const ov = document.createElement('div'); ov.className = 'bfly-burst';
-    const n = mode === 'leave' ? 18 : 14; let html = '';
+    const n = mode === 'leave' ? 34 : 26; let html = '';
     for (let i = 0; i < n; i++) {
-      const L = rnd(4, 96), T = mode === 'leave' ? rnd(80, 108) : rnd(22, 78);
-      const dx = rnd(-38, 38), dy = mode === 'leave' ? rnd(-150, -95) : rnd(-110, -55), r = rnd(-70, 70);
-      const s = rnd(20, 52), dur = rnd(.62, 1.05), del = rnd(0, mode === 'leave' ? .18 : .3);
-      html += `<div class="bfly-f" style="left:${L.toFixed(1)}vw;top:${T.toFixed(1)}vh;width:${s.toFixed(0)}px;height:${s.toFixed(0)}px;--dx:${dx.toFixed(1)}vw;--dy:${dy.toFixed(1)}vh;--r:${r.toFixed(0)}deg;--f:${rnd(.28, .5).toFixed(2)}s;--o:${rnd(.8, .98).toFixed(2)};animation-duration:${dur.toFixed(2)}s;animation-delay:${del.toFixed(2)}s">${SVG}</div>`;
+      const L = rnd(2, 98), T = mode === 'leave' ? rnd(78, 112) : rnd(18, 82);
+      const dx = rnd(-42, 42), dy = mode === 'leave' ? rnd(-155, -100) : rnd(-115, -60), r = rnd(-70, 70);
+      const s = rnd(42, 94), dur = rnd(1.15, 2), del = rnd(0, mode === 'leave' ? .4 : .5);
+      html += `<div class="bfly-f" style="left:${L.toFixed(1)}vw;top:${T.toFixed(1)}vh;width:${s.toFixed(0)}px;height:${s.toFixed(0)}px;--dx:${dx.toFixed(1)}vw;--dy:${dy.toFixed(1)}vh;--r:${r.toFixed(0)}deg;--f:${rnd(.34, .58).toFixed(2)}s;--o:${rnd(.82, .98).toFixed(2)};animation-duration:${dur.toFixed(2)}s;animation-delay:${del.toFixed(2)}s">${SVG}</div>`;
     }
     ov.innerHTML = html; document.body.appendChild(ov);
-    if (done) setTimeout(done, 560);
-    setTimeout(() => { if (ov.parentNode) ov.parentNode.removeChild(ov); }, 1400);
+    if (done) setTimeout(done, 920);
+    setTimeout(() => { if (ov.parentNode) ov.parentNode.removeChild(ov); }, 2600);
   }
   try { if (sessionStorage.getItem('bflyTransit')) { sessionStorage.removeItem('bflyTransit'); burst('arrive'); } } catch (e) { }
   document.addEventListener('click', function (e) {
