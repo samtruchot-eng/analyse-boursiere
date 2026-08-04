@@ -284,6 +284,12 @@
   .cmp-box { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow); }
   .cmp-title { font-weight: 700; font-size: 13.5px; margin-bottom: 10px; }
   .cmp-scroll { overflow-x: auto; }
+  .cmp-perf { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .cmp-perf-t { font-size: 12px; color: var(--muted); font-weight: 650; margin-bottom: 8px; }
+  .cmp-perf-svg { width: 100%; height: auto; display: block; background: var(--chip-bg); border-radius: 10px; }
+  .cmp-leg { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .cmp-lg { display: inline-flex; align-items: center; gap: 6px; }
+  .cmp-lg i { width: 10px; height: 10px; border-radius: 3px; flex: 0 0 auto; }
   table.cmp { width: 100%; border-collapse: collapse; font-size: 12.8px; min-width: 520px; }
   table.cmp th { text-align: right; padding: 8px 10px; font-size: 10.5px; text-transform: uppercase; letter-spacing: .03em;
     color: var(--muted); border-bottom: 1px solid var(--border); cursor: pointer; white-space: nowrap; user-select: none; }
@@ -678,6 +684,7 @@ const I18N = {
     notifEnable: 'Activer les notifications', notifOn: '🔔 notifications activées',
     // Comparateur
     cmpTitle: (n) => `📊 Comparateur (${n}) · triez en cliquant une colonne`, colTicker: 'Titre', colScore: 'Score', colReco: 'Reco', colRet: 'Perf 1 an', colVol: 'Volatilité', colSharpe: 'Sharpe',
+    cmpPerf: 'Performance comparée · base 100 (même point de départ)',
     // Invites
     alPromptCur: (t, op, p) => `Alerte prix pour ${t} — actuelle : ${op} ${p}.\nNouveau prix seuil (laissez vide pour supprimer l'alerte) :`,
     alPromptNew: (t, px) => `Alerte prix pour ${t}${px != null ? ' (cours actuel : ' + px + ')' : ''}.\nJe vous préviendrai quand le cours franchit ce seuil.\nPrix seuil :`,
@@ -750,6 +757,7 @@ const I18N = {
     alHit: (op, p, c) => `threshold ${op} ${p} reached (price ${c})`, alertsTitle: 'Alerts',
     notifEnable: 'Enable notifications', notifOn: '🔔 notifications on',
     cmpTitle: (n) => `📊 Comparison (${n}) · sort by clicking a column`, colTicker: 'Symbol', colScore: 'Score', colReco: 'Reco', colRet: '1y return', colVol: 'Volatility', colSharpe: 'Sharpe',
+    cmpPerf: 'Relative performance · base 100 (same starting point)',
     alPromptCur: (t, op, p) => `Price alert for ${t} — current: ${op} ${p}.\nNew threshold price (leave empty to remove the alert):`,
     alPromptNew: (t, px) => `Price alert for ${t}${px != null ? ' (current price: ' + px + ')' : ''}.\nI'll warn you when the price crosses this threshold.\nThreshold price:`,
     notePrompt: t => `Personal note for ${t} (leave empty to delete):`,
@@ -1160,7 +1168,30 @@ function renderCompare(rows) {
     </tr>`;
   }).join('');
   el.innerHTML = `<div class="cmp-box"><div class="cmp-title">${t('cmpTitle', data.length)}</div>
-    <div class="cmp-scroll"><table class="cmp"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div></div>`;
+    <div class="cmp-scroll"><table class="cmp"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>
+    ${comparePerfChart(data)}</div>`;
+}
+
+// Courbes de performance superposées, rebasées à 100 sur une fenêtre commune.
+function comparePerfChart(data) {
+  const series = data.filter(r => r.chart && r.chart.length >= 2).map(r => ({ t: r.ticker, c: r.chart }));
+  if (series.length < 2) return '';
+  const L = Math.max(2, Math.min(...series.map(s => s.c.length)));
+  const norm = series.map(s => { const w = s.c.slice(-L); const base = w[0] || 1; return { t: s.t, v: w.map(x => x / base * 100) }; });
+  const all = norm.reduce((a, s) => a.concat(s.v), []);
+  const lo = Math.min(...all), hi = Math.max(...all), rng = (hi - lo) || 1;
+  const W = 680, H = 220, pT = 10, pB = 4;
+  const X = i => i / (L - 1) * W;
+  const Y = v => pT + (1 - (v - lo) / rng) * (H - pT - pB);
+  const base100 = (lo <= 100 && hi >= 100) ? `<line x1="0" x2="${W}" y1="${Y(100).toFixed(1)}" y2="${Y(100).toFixed(1)}" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 4"/>` : '';
+  const lines = norm.map((s, i) => `<polyline fill="none" stroke="${PF_COLORS[i % PF_COLORS.length]}" stroke-width="1.8" stroke-linejoin="round" points="${s.v.map((v, j) => `${X(j).toFixed(1)},${Y(v).toFixed(1)}`).join(' ')}"/>`).join('');
+  const legend = norm.map((s, i) => {
+    const chg = s.v[s.v.length - 1] - 100;
+    return `<span class="cmp-lg"><i style="background:${PF_COLORS[i % PF_COLORS.length]}"></i>${esc(s.t)} <b style="color:${chg >= 0 ? 'var(--pos)' : 'var(--neg)'}">${chg >= 0 ? '+' : ''}${chg.toFixed(1)}%</b></span>`;
+  }).join('');
+  return `<div class="cmp-perf"><div class="cmp-perf-t">${t('cmpPerf')}</div>
+    <svg class="cmp-perf-svg" viewBox="0 0 ${W} ${H}" role="img">${base100}${lines}</svg>
+    <div class="cmp-leg">${legend}</div></div>`;
 }
 document.getElementById('compare').addEventListener('click', e => {
   const th = e.target.closest('th');
