@@ -111,7 +111,8 @@
   nav.topbar .tb-theme:hover { border-color: var(--indigo); box-shadow: 0 4px 14px rgba(120,60,100,.14); transform: translateY(-1px); }
   nav.topbar .tb-theme:active { transform: translateY(0); }
   nav.topbar .tb-theme:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
-  nav.topbar #theme-btn { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; }
+  nav.topbar #theme-btn { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+  .btn-ico { width: 17px; height: 17px; display: block; }
 
   /* ── Masthead ─────────────────────────────────── */
   header.mast {
@@ -1214,7 +1215,9 @@
     if (s === 'light' || s === 'dark') document.documentElement.setAttribute('data-theme', s);
     else document.documentElement.removeAttribute('data-theme');
     const btn = document.getElementById('theme-btn'), en = currentLang() === 'en';
-    if (btn) { const dark = currentTheme() === 'dark'; btn.textContent = dark ? '☀️' : '🌙'; btn.title = dark ? (en ? 'Switch to light' : 'Passer en clair') : (en ? 'Switch to dark' : 'Passer en sombre'); }
+    var iMoon = '<svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.9A8.5 8.5 0 1 1 11.1 3a6.6 6.6 0 0 0 9.9 9.9Z"/></svg>';
+    var iSun = '<svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.1"/><path d="M12 2.6v2.1M12 19.3v2.1M4.5 4.5l1.5 1.5M18 18l1.5 1.5M2.6 12h2.1M19.3 12h2.1M4.5 19.5l1.5-1.5M18 6l1.5-1.5"/></svg>';
+    if (btn) { const dark = currentTheme() === 'dark'; btn.innerHTML = dark ? iSun : iMoon; btn.title = dark ? (en ? 'Switch to light' : 'Passer en clair') : (en ? 'Switch to dark' : 'Passer en sombre'); }
   }
   document.getElementById('theme-btn').addEventListener('click', function () {
     localStorage.setItem('theme', currentTheme() === 'dark' ? 'light' : 'dark'); applyTheme();

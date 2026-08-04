@@ -108,6 +108,7 @@
   header h1 .logo { flex: 0 0 auto; display: block; }
   header .slogan { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", "Hoefler Text", Georgia, serif; font-size: 15.5px; font-style: italic; font-weight: 500; margin-top: 7px; opacity: .96; letter-spacing: .015em; }
   .guide-link { color: #fff; text-decoration: none; font-size: 13px; font-weight: 600; letter-spacing: .012em;
+    display: inline-flex; align-items: center; gap: 7px;
     background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.34); border-radius: 999px; padding: 8px 16px;
     white-space: nowrap; -webkit-backdrop-filter: blur(9px) saturate(1.15); backdrop-filter: blur(9px) saturate(1.15);
     box-shadow: 0 2px 10px rgba(80,40,80,.14), inset 0 1px 0 rgba(255,255,255,.4);
@@ -120,6 +121,8 @@
   .header-links { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; }
   .theme-btn { width: 38px; height: 38px; padding: 0; font-size: 16px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
   #lang-btn { font-weight: 700; }
+  .btn-ico { width: 16px; height: 16px; flex: 0 0 auto; display: block; }
+  .theme-btn .btn-ico { width: 18px; height: 18px; }
 
   main { max-width: 1180px; margin: 0 auto; padding: 20px 14px 64px; }
 
@@ -480,9 +483,9 @@
     </div>
     <div class="header-links">
       <button class="guide-link" id="lang-btn" type="button">English</button>
-      <button class="guide-link theme-btn" id="theme-btn" type="button" aria-label="Basculer clair/sombre">🌙</button>
-      <button class="guide-link" id="pf-open" type="button">💼 Portefeuille</button>
-      <a class="guide-link" href="/guide" data-i18n="guide">📘 Guide →</a>
+      <button class="guide-link theme-btn" id="theme-btn" type="button" aria-label="Basculer clair/sombre"></button>
+      <button class="guide-link" id="pf-open" type="button"><svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7.5" width="18" height="12.5" rx="2.2"/><path d="M8.2 7.5V6A2 2 0 0 1 10.2 4h3.6A2 2 0 0 1 15.8 6v1.5"/><path d="M3 12.6h18"/></svg><span id="pf-label">Portefeuille</span></button>
+      <a class="guide-link" href="/guide"><svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.6C10.5 5.3 8.3 4.7 5.6 4.7c-.8 0-1.5.1-2 .2v12.9c.5-.1 1.2-.2 2-.2 2.7 0 4.9.6 6.4 1.9"/><path d="M12 6.6c1.5-1.3 3.7-1.9 6.4-1.9.8 0 1.5.1 2 .2v12.9c-.5-.1-1.2-.2-2-.2-2.7 0-4.9.6-6.4 1.9"/><path d="M12 6.6v12.9"/></svg><span data-i18n="guide">Guide →</span></a>
     </div>
   </div>
 </header>
@@ -585,7 +588,7 @@ function localeOf() { return currentLang() === 'en' ? 'en-US' : 'fr-FR'; }
 const I18N = {
   fr: {
     sub: 'Cours réels · analyse technique expliquée simplement',
-    pf: '💼 Portefeuille', guide: '📘 Guide →',
+    pf: 'Portefeuille', guide: 'Guide →',
     pfTitle: '💼 Mon portefeuille', pfAuto: 'Auto (1 min)', pfRefresh: '↻ Rafraîchir', pfAdd: 'Ajouter',
     phSym: 'Symbole (ex. AAPL, AIR.PA)', phQty: 'Quantité', phBuy: "Prix d'achat (opt.)",
     pfNote: '⚠ Suivi indicatif. Cours du dernier point de marché, réactualisé à chaque rafraîchissement (toutes les minutes si « Auto » est coché) — pas du temps réel à la seconde. Vos positions sont mémorisées dans ce navigateur uniquement. Les totaux sont regroupés par devise ; le total en euros convertit les autres devises avec un taux de change récupéré en direct (à titre indicatif).',
@@ -651,7 +654,7 @@ const I18N = {
   },
   en: {
     sub: 'Real prices · technical analysis explained plainly',
-    pf: '💼 Portfolio', guide: '📘 Guide →',
+    pf: 'Portfolio', guide: 'Guide →',
     pfTitle: '💼 My portfolio', pfAuto: 'Auto (1 min)', pfRefresh: '↻ Refresh', pfAdd: 'Add',
     phSym: 'Symbol (e.g. AAPL, AIR.PA)', phQty: 'Quantity', phBuy: 'Buy price (opt.)',
     pfNote: '⚠ Indicative tracking. Latest market close, refreshed on each update (every minute if "Auto" is on) — not real time to the second. Your positions are stored in this browser only. Totals are grouped by currency; the euro total converts other currencies using a live exchange rate (indicative).',
@@ -707,6 +710,10 @@ const I18N = {
   },
 };
 function t(k, ...args) { const d = I18N[currentLang()] || I18N.fr; let v = d[k]; if (v == null) v = I18N.fr[k]; if (v == null) return k; return typeof v === 'function' ? v(...args) : v; }
+
+// Icônes fines (trait) pour le bouton clair/sombre.
+const ICON_MOON = '<svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.9A8.5 8.5 0 1 1 11.1 3a6.6 6.6 0 0 0 9.9 9.9Z"/></svg>';
+const ICON_SUN = '<svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.1"/><path d="M12 2.6v2.1M12 19.3v2.1M4.5 4.5l1.5 1.5M18 18l1.5 1.5M2.6 12h2.1M19.3 12h2.1M4.5 19.5l1.5-1.5M18 6l1.5-1.5"/></svg>';
 
 const LABEL_COLOR = { STRONG_BUY:'#4fa587', BUY:'#6cb492', HOLD:'#c9a24e', SELL:'#e0965c', STRONG_SELL:'#e07f8c' };
 const LABEL_TEXT_L = {
@@ -1378,7 +1385,7 @@ function currentTheme() {
 function updateThemeBtn() {
   const btn = document.getElementById('theme-btn'); if (!btn) return;
   const dark = currentTheme() === 'dark';
-  btn.textContent = dark ? '☀️' : '🌙';
+  btn.innerHTML = dark ? ICON_SUN : ICON_MOON;
   btn.title = dark ? t('themeToLight') : t('themeToDark');
 }
 
@@ -1550,7 +1557,7 @@ function initAssistant() {
 // ── Portefeuille (positions mémorisées dans le navigateur) ───────────────────
 function getPf() { try { return JSON.parse(localStorage.getItem('portfolio') || '[]'); } catch (e) { return []; } }
 function setPf(a) { localStorage.setItem('portfolio', JSON.stringify(a)); updatePfBadge(); }
-function updatePfBadge() { const n = getPf().length; document.getElementById('pf-open').textContent = n ? `${t('pf')} (${n})` : t('pf'); }
+function updatePfBadge() { const n = getPf().length; const el = document.getElementById('pf-label'); if (el) el.textContent = n ? `${t('pf')} (${n})` : t('pf'); }
 function fmtNum(v, n = 0) { return v == null ? '—' : Number(v).toLocaleString(localeOf(), { minimumFractionDigits: n, maximumFractionDigits: n }); }
 let pfPrices = {};   // SYMBOLE -> { price, name, currency } ou { error:true }
 let pfFx = { EUR: 1 }; // DEVISE -> taux vers l'euro (1 unité = X €)
