@@ -35,7 +35,8 @@ async function fetchYahoo(ticker) {
   }
   if (bars.length < 30) throw new Error('historique insuffisant');
   const name = (r.meta && (r.meta.shortName || r.meta.longName)) || null;
-  return { ticker: ticker.toUpperCase(), bars: bars.slice(-400), source: 'yahoo', name };
+  const currency = (r.meta && r.meta.currency) || null;
+  return { ticker: ticker.toUpperCase(), bars: bars.slice(-400), source: 'yahoo', name, currency };
 }
 
 async function fetchStooq(ticker) {
@@ -56,7 +57,7 @@ async function fetchStooq(ticker) {
     });
   }
   if (bars.length < 30) throw new Error('trop peu de séances');
-  return { ticker: ticker.toUpperCase(), bars: bars.slice(-400), source: 'stooq', name: null };
+  return { ticker: ticker.toUpperCase(), bars: bars.slice(-400), source: 'stooq', name: null, currency: null };
 }
 
 // Essaie Yahoo (fiable côté serveur), puis Stooq en secours.
@@ -287,7 +288,7 @@ module.exports = async (req, res) => {
       const rk = riskMetrics(closes);
       const ex = explain(a, rk, series.ticker);
       results.push({
-        ticker: series.ticker, name: series.name || null, source: series.source, day: series.bars[series.bars.length - 1].day,
+        ticker: series.ticker, name: series.name || null, currency: series.currency || null, source: series.source, day: series.bars[series.bars.length - 1].day,
         price: a.metrics.price, score: a.value, label: a.label, reco: a.reco,
         metrics: a.metrics, risk: rk, contributions: a.contributions,
         spark: closes.slice(-90), chart: closes.slice(-260), ...ex,
