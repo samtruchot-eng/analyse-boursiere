@@ -71,6 +71,11 @@
     --neg: #ef9aa4; --warn: #e6bd72; --oblig: #a98cc0; --cash: #7d6f7a; --shadow: none;
   }
 
+  /* Bascule de langue : on masque la version non active (revert = display par défaut). */
+  .gl-en { display: none; }
+  html[data-glang="en"] .gl-fr { display: none; }
+  html[data-glang="en"] .gl-en { display: revert; }
+
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
@@ -257,8 +262,8 @@
 
 <nav class="topbar">
   <div class="wrap">
-    <a class="back" href="/">← Retour à l'analyse</a>
-    <div class="tb-right"><span class="brand">butterfly</span><button class="tb-theme" id="theme-btn" type="button" aria-label="Basculer clair/sombre">🌙</button></div>
+    <a class="back" href="/"><span class="gl-fr">← Retour à l'analyse</span><span class="gl-en">← Back to analysis</span></a>
+    <div class="tb-right"><span class="brand">butterfly</span><button class="tb-theme" id="lang-btn" type="button">English</button><button class="tb-theme" id="theme-btn" type="button" aria-label="Basculer clair/sombre">🌙</button></div>
   </div>
 </nav>
 
@@ -275,11 +280,14 @@
       <circle cx="25.9" cy="12.8" r="1.5" fill="#e7c256"/>
       <circle cx="38.1" cy="12.8" r="1.5" fill="#e7c256"/>
     </svg> butterfly</div>
-    <p class="eyebrow">Guide de l'investisseur</p>
-    <h1>Comprendre, analyser, investir</h1>
-    <p class="lede">Un guide clair et complet pour bien utiliser votre application, comprendre ce que
+    <p class="eyebrow"><span class="gl-fr">Guide de l'investisseur</span><span class="gl-en">Investor guide</span></p>
+    <h1><span class="gl-fr">Comprendre, analyser, investir</span><span class="gl-en">Understand, analyse, invest</span></h1>
+    <p class="lede gl-fr">Un guide clair et complet pour bien utiliser votre application, comprendre ce que
       racontent les indicateurs, lire les marchés dans leur contexte, et bâtir un plan d'investissement
       posé. Écrit pour être lu sans être expert.</p>
+    <p class="lede gl-en">A clear, complete guide to getting the most from your app: understand what the
+      indicators are saying, read the markets in context, and build a calm investment plan. Written to be
+      read without being an expert.</p>
   </div>
 </header>
 
@@ -287,8 +295,8 @@
 
 <section>
   <div class="toc" id="sommaire">
-    <h2>Sommaire</h2>
-    <ol>
+    <h2><span class="gl-fr">Sommaire</span><span class="gl-en">Contents</span></h2>
+    <ol class="gl-fr">
       <li><a href="#avertissement">À lire avant tout</a></li>
       <li><a href="#demarrer">Bien démarrer avec l'appli</a></li>
       <li><a href="#bases">Les bases de l'investissement</a></li>
@@ -304,10 +312,27 @@
       <li><a href="#routine">Votre routine mensuelle</a></li>
       <li><a href="#glossaire">Glossaire express</a></li>
     </ol>
+    <ol class="gl-en">
+      <li><a href="#avertissement">Read this first</a></li>
+      <li><a href="#demarrer">Getting started with the app</a></li>
+      <li><a href="#bases">Investing basics</a></li>
+      <li><a href="#technique">Understanding technical analysis</a></li>
+      <li><a href="#approfondi">Deeper analysis</a></li>
+      <li><a href="#risque">Understanding risk</a></li>
+      <li><a href="#contexte">Market context (2026)</a></li>
+      <li><a href="#lecture">Reading your scores in context</a></li>
+      <li><a href="#watchlists">Thematic watchlists</a></li>
+      <li><a href="#plan">Building an investment plan</a></li>
+      <li><a href="#courtier">Choosing a broker</a></li>
+      <li><a href="#fiscalite">Tax (pointers)</a></li>
+      <li><a href="#routine">Your monthly routine</a></li>
+      <li><a href="#glossaire">Quick glossary</a></li>
+    </ol>
   </div>
 </section>
 
 <section id="avertissement">
+  <div class="gl-fr">
   <p class="eyebrow">Avertissement</p>
   <h2>À lire avant tout</h2>
   <div class="prose">
@@ -324,9 +349,27 @@
     </div>
     <a class="to-toc" href="#sommaire">↑ Retour au sommaire</a>
   </div>
+  </div>
+  <div class="gl-en">
+  <p class="eyebrow">Disclaimer</p>
+  <h2>Read this first</h2>
+  <div class="prose">
+    <p>This guide is <strong>educational and informational</strong>. It is <strong>not investment
+      advice</strong> or a personalised recommendation: it knows neither your situation, nor your goals, nor
+      your real risk tolerance.</p>
+    <p>Your app's analysis is <strong>technical</strong>: it describes the setup of <em>prices</em> over the
+      short/medium term, it does not predict the future. Use it as a compass, not a crystal ball.</p>
+    <div class="disclaimer">
+      <strong>⚠ Reminder.</strong> Past performance does not guarantee future results. Investing carries a
+      risk of capital loss. For any binding decision, consult a licensed professional.
+    </div>
+    <a class="to-toc" href="#sommaire">↑ Back to top</a>
+  </div>
+  </div>
 </section>
 
 <section id="demarrer">
+  <div class="gl-fr">
   <p class="eyebrow">Prise en main</p>
   <h2>Bien démarrer avec l'appli</h2>
   <div class="prose">
@@ -344,9 +387,29 @@
     <div class="cardlet"><h4>L'étoile ⭐ &amp; les favoris</h4><p>Cliquez l'étoile d'une carte pour la mémoriser. Vos favoris apparaissent en haut, avec un bouton « Analyser mes favoris » pour tout relancer en un clic.</p></div>
   </div>
   <div class="prose"><a class="to-toc" href="#sommaire">↑ Retour au sommaire</a></div>
+  </div>
+  <div class="gl-en">
+  <p class="eyebrow">Getting started</p>
+  <h2>Getting started with the app</h2>
+  <div class="prose">
+    <p>The app is simple: you type one or more symbols (separated by commas), click <strong>Analyse</strong>,
+      and each stock appears as a card. Here's how to read a card.</p>
+  </div>
+  <div class="cards">
+    <div class="cardlet"><h4>The score gauge <span class="lab">0–100</span></h4><p>A numeric summary of the technical setup. The fuller and greener the ring, the more favourable the signals; red = deteriorated. A summary, not a prediction.</p></div>
+    <div class="cardlet"><h4>Why this score? <span class="lab">clickable</span></h4><p><strong>Click (or hover) the score ring</strong>: a panel breaks down each factor with a bar (green = pushes up, red = down), from most to least influential, with the maths "50 (neutral) + factors = score".</p></div>
+    <div class="cardlet"><h4>The reco pill</h4><p>Turns the score into a plain word: <strong>STRONG BUY, BUY, HOLD, SELL, STRONG SELL</strong>. The colour matches the gauge.</p></div>
+    <div class="cardlet"><h4>The mini-chart</h4><p>Recent price action (≈ 90 sessions). Green if the stock ends higher than at the start of the period, red otherwise.</p></div>
+    <div class="cardlet"><h4>The risk chips</h4><p>Four markers at a glance: 1-year return, volatility, worst drop (drawdown), Sharpe ratio — coloured green/orange/red.</p></div>
+    <div class="cardlet"><h4>The analysis points</h4><p>Plain-English sentences with a colour bar: green = bullish, red = bearish, orange = watch out, grey = neutral.</p></div>
+    <div class="cardlet"><h4>The ⭐ star &amp; favourites</h4><p>Click a card's star to save it. Your favourites appear at the top, with an "Analyse my favourites" button to re-run them all in one click.</p></div>
+  </div>
+  <div class="prose"><a class="to-toc" href="#sommaire">↑ Back to top</a></div>
+  </div>
 </section>
 
 <section id="bases">
+  <div class="gl-fr">
   <p class="eyebrow">Les fondations</p>
   <h2>Les bases de l'investissement</h2>
   <div class="prose"><p>Avant les indicateurs, quelques idées simples qui comptent bien plus que le
@@ -364,9 +427,30 @@
       va de pair : viser plus de rendement, c'est accepter plus de secousses.</div>
     <a class="to-toc" href="#sommaire">↑ Retour au sommaire</a>
   </div>
+  </div>
+  <div class="gl-en">
+  <p class="eyebrow">The foundations</p>
+  <h2>Investing basics</h2>
+  <div class="prose"><p>Before the indicators, a few simple ideas that matter far more than the "hot tip"
+    of the moment.</p></div>
+  <div class="cards">
+    <div class="cardlet"><h4>Stock</h4><p>A share of a company. High upside, but riskier: the price can swing a lot.</p></div>
+    <div class="cardlet"><h4>Bond</h4><p>A loan to a government or company that pays interest. More stable, a more modest return.</p></div>
+    <div class="cardlet"><h4>ETF (index fund)</h4><p>A basket that tracks an index (e.g. the whole world). In a single purchase you're diversified — the building block of a portfolio.</p></div>
+    <div class="cardlet"><h4>Gold &amp; cash</h4><p>Gold, a safe haven under stress; cash, your safety cushion and your ammunition to invest.</p></div>
+  </div>
+  <div class="prose">
+    <div class="callout"><strong>The golden rule: diversification.</strong> Don't put all your eggs in one
+      basket. Spreading across several stocks, sectors, regions and asset classes reduces risk without, in
+      general, sacrificing long-term return. <strong>Risk and return</strong> go together: aiming for more
+      return means accepting more turbulence.</div>
+    <a class="to-toc" href="#sommaire">↑ Back to top</a>
+  </div>
+  </div>
 </section>
 
 <section id="technique">
+  <div class="gl-fr">
   <p class="eyebrow">Les indicateurs</p>
   <h2>Comprendre l'analyse technique</h2>
   <div class="prose"><p>Votre appli calcule plusieurs indicateurs à partir des cours. Voici ce qu'ils
@@ -401,9 +485,46 @@
       chacun sur un titre donné, <strong>cliquez son score</strong> dans l'appli.</div>
     <a class="to-toc" href="#sommaire">↑ Retour au sommaire</a>
   </div>
+  </div>
+  <div class="gl-en">
+  <p class="eyebrow">The indicators</p>
+  <h2>Understanding technical analysis</h2>
+  <div class="prose"><p>Your app computes several indicators from prices. Here's what they say, in plain
+    language.</p></div>
+  <div class="cards">
+    <div class="cardlet"><h4>Moving averages <span class="lab">SMA / EMA</span></h4><p>The average price over 50 or 200 days, which smooths the noise. Price <strong>above</strong> its averages = bullish trend; below = bearish.</p></div>
+    <div class="cardlet"><h4>Golden / death cross</h4><p>When the 50-day average crosses <strong>above</strong> the 200-day ("golden cross"), it's a favourable underlying signal; below ("death cross"), unfavourable.</p></div>
+    <div class="cardlet"><h4>RSI <span class="lab">0–100</span></h4><p>The "strength" of the move. <strong>&gt; 70</strong> = overbought (the stock has risen a lot, a pause is possible); <strong>&lt; 30</strong> = oversold (rebound possible).</p></div>
+    <div class="cardlet"><h4>MACD</h4><p>Compares two averages to capture momentum. <strong>Positive</strong> histogram = bullish short-term momentum; negative = bearish.</p></div>
+    <div class="cardlet"><h4>Bollinger bands</h4><p>A "channel" around the price. Near the top = stretched/expensive short term; near the bottom = depressed, rebound possible.</p></div>
+    <div class="cardlet"><h4>Momentum</h4><p>The pace of change over ~60 sessions. Strong and positive = supportive; negative = fading.</p></div>
+  </div>
+
+  <h3 style="margin-top:32px">The advanced factors</h3>
+  <div class="prose"><p>Four extra indicators sharpen the analysis — some of which few consumer tools use.
+    They answer the question: is this move <strong>really serious</strong>?</p></div>
+  <div class="cards">
+    <div class="cardlet"><h4>Volume <span class="lab">OBV</span></h4><p>The crux: a rise <strong>on heavy volume</strong> is far more credible than one on light volume (often a false signal). OBV adds up volume by the direction of each session to say whether trading <strong>confirms</strong> the price move… or contradicts it.</p></div>
+    <div class="cardlet"><h4>Trend strength <span class="lab">ADX</span></h4><p>Measures whether a trend is <strong>strong and established</strong> or the market is drifting every which way. Above 25: a clear trend. Below 18: no clear direction — and there, trend signals are <strong>unreliable</strong>, the app warns you.</p></div>
+    <div class="cardlet"><h4>Stochastic</h4><p>A second <strong>overbought / oversold</strong> detector that complements the RSI: it places price within its recent high/low range. Near 100 = top of the range; near 0 = bottom (rebound possible).</p></div>
+    <div class="cardlet"><h4>Price / RSI divergence</h4><p>The "hidden" signal: when price makes a new high but momentum (RSI) <strong>weakens</strong> behind the scenes → possible loss of steam. And the reverse (new low, momentum turning up) sometimes heralds a <strong>rebound</strong>.</p></div>
+    <div class="cardlet"><h4>Money flow <span class="lab">MFI</span></h4><p>An "RSI that also counts volume": it flags <strong>overbought</strong> (&gt; 80) and <strong>oversold</strong> (&lt; 20) taking traded amounts into account, not just price. More complete than the RSI alone.</p></div>
+    <div class="cardlet"><h4>Parabolic SAR <span class="lab">trailing stop</span></h4><p>Gives the <strong>trend direction</strong> and a concrete <strong>stop level</strong>: SAR below price = bullish trend (it flips if price drops below); above = bearish.</p></div>
+    <div class="cardlet"><h4>Squeeze <span class="lab">compression</span></h4><p>When the volatility bands tighten abnormally, it's often the <strong>calm before a wide move</strong>. A useful alert — but it does <strong>not indicate the direction</strong> of the coming move.</p></div>
+    <div class="cardlet"><h4>Relative volume</h4><p>Today's volume compared to its average (e.g. <strong>×1.8</strong>). High volume signals <strong>strong conviction</strong> behind a move; low volume invites caution.</p></div>
+  </div>
+
+  <div class="prose">
+    <div class="callout">No indicator is right on its own. Your <strong>score</strong> combines <strong>fourteen
+      factors</strong> and weights them to avoid over-reacting to a single signal. To see the exact weight of
+      each on a given stock, <strong>click its score</strong> in the app.</div>
+    <a class="to-toc" href="#sommaire">↑ Back to top</a>
+  </div>
+  </div>
 </section>
 
 <section id="approfondi">
+  <div class="gl-fr">
   <p class="eyebrow">Aller plus loin</p>
   <h2>L'analyse approfondie</h2>
   <div class="prose"><p>Au-delà des indicateurs pris un par un, l'appli croise plusieurs <strong>angles</strong>
@@ -421,9 +542,30 @@
       lit dans les <strong>points d'analyse</strong> et les <strong>détails chiffrés</strong> de chaque carte.</div>
     <a class="to-toc" href="#sommaire">↑ Retour au sommaire</a>
   </div>
+  </div>
+  <div class="gl-en">
+  <p class="eyebrow">Going further</p>
+  <h2>Deeper analysis</h2>
+  <div class="prose"><p>Beyond the indicators taken one by one, the app crosses several <strong>angles</strong>
+    to answer finer questions: is this move consistent over time? Where are the <em>key zones</em>? Can the
+    signal be trusted? How does this stock behave against the market?</p></div>
+  <div class="cards">
+    <div class="cardlet"><h4>Multi-timeframe <span class="lab">short + underlying</span></h4><p>The indicators are read both on the <strong>daily</strong> (short term) and the <strong>weekly</strong> (underlying trend). When the two are <strong>aligned</strong>, the signal is more reliable; when they <strong>disagree</strong> (short term bullish but underlying bearish), the app urges caution.</p></div>
+    <div class="cardlet"><h4>Key levels &amp; events</h4><p>The app spots the nearest <strong>supports</strong> (floors) and <strong>resistances</strong> (ceilings), and flags <strong>recent events</strong>: a range breakout, a new 52-week high or low, a fresh golden/death cross.</p></div>
+    <div class="cardlet"><h4>Confidence &amp; range</h4><p>The <strong>signal confidence</strong> (0–100) measures whether the factors <strong>agree with each other</strong>: a high score <em>and</em> high confidence is more solid than a score built on contradictory signals. The app also gives a <strong>likely 1-month price range</strong>, from volatility — an honest band, not a prediction.</p></div>
+    <div class="cardlet"><h4>Link to the market <span class="lab">beta</span></h4><p><strong>Beta</strong> tells whether the stock <strong>amplifies</strong> market moves (×1.5 = jumpier) or is <strong>calmer</strong> (×0.7). The <strong>correlation</strong> to the S&amp;P 500 measures how closely it follows the market. Useful to avoid stacking only stocks that rise and fall together.</p></div>
+  </div>
+  <div class="prose">
+    <div class="callout"><strong>Signal confidence</strong> appears at the top of the panel that opens when you
+      <strong>click a score</strong>. The rest (levels, events, multi-timeframe, beta) is read in the
+      <strong>analysis points</strong> and the <strong>detailed figures</strong> of each card.</div>
+    <a class="to-toc" href="#sommaire">↑ Back to top</a>
+  </div>
+  </div>
 </section>
 
 <section id="risque">
+  <div class="gl-fr">
   <p class="eyebrow">Mesurer le risque</p>
   <h2>Comprendre le risque</h2>
   <div class="prose"><p>Le rendement attire l'œil, mais c'est le <strong>risque</strong> qui décide si vous
@@ -436,9 +578,25 @@
     <div class="cardlet"><h4>Performances</h4><p>Les variations sur 1 mois, 6 mois, 1 an. Utile pour situer un titre, sans oublier que le passé ne garantit rien.</p></div>
   </div>
   <div class="prose"><a class="to-toc" href="#sommaire">↑ Retour au sommaire</a></div>
+  </div>
+  <div class="gl-en">
+  <p class="eyebrow">Measuring risk</p>
+  <h2>Understanding risk</h2>
+  <div class="prose"><p>Return catches the eye, but it's <strong>risk</strong> that decides whether you'll hold
+    the position. The markers on your cards:</p></div>
+  <div class="cards">
+    <div class="cardlet"><h4>Volatility</h4><p>The size of the swings, in % per year. Low (&lt; 15%) = calm; high (&gt; 30%) = choppy. It helps you <strong>size</strong> a position.</p></div>
+    <div class="cardlet"><h4>Daily move <span class="lab">ATR</span></h4><p>"How much it moves on a normal day", in %. Concrete for anticipating day-to-day swings and placing a stop that won't trip on every wobble.</p></div>
+    <div class="cardlet"><h4>Sharpe ratio</h4><p>Return relative to the risk taken. <strong>&gt; 1</strong> = good; around 0 = poor; negative = the risk didn't pay off.</p></div>
+    <div class="cardlet"><h4>Max drawdown</h4><p>The worst drop suffered, from a peak to the next trough. A number to ask yourself: "would I have held on?"</p></div>
+    <div class="cardlet"><h4>Performance</h4><p>The moves over 1 month, 6 months, 1 year. Useful to place a stock, without forgetting that the past guarantees nothing.</p></div>
+  </div>
+  <div class="prose"><a class="to-toc" href="#sommaire">↑ Back to top</a></div>
+  </div>
 </section>
 
 <section id="contexte">
+  <div class="gl-fr">
   <p class="eyebrow">Le décor · 2026</p>
   <h2>Le contexte de marché (2026)</h2>
   <div class="prose">
@@ -480,9 +638,54 @@
     <div class="sector-line"><b>Volatils :</b> semi <span class="tick">NVDA</span><span class="tick">TSM</span> &nbsp;·&nbsp; <b>Défensives :</b> <span class="tick">PG</span><span class="tick">KO</span><span class="tick">COST</span></div>
   </div>
   <div class="prose"><a class="to-toc" href="#sommaire">↑ Retour au sommaire</a></div>
+  </div>
+  <div class="gl-en">
+  <p class="eyebrow">The backdrop · 2026</p>
+  <h2>Market context (2026)</h2>
+  <div class="prose">
+    <p>Prices don't move in a vacuum. In 2026 the backdrop mixes <strong>stocks near highs</strong> and
+      <strong>persistent geopolitical tension</strong>: conflicts in the Middle East and Ukraine, jumpy oil,
+      record gold, and a US central bank (the Fed) cautious on inflation.</p>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="k">S&amp;P 500</div><div class="v">≈ 7,420</div><div class="n">near its record (June)</div></div>
+    <div class="stat"><div class="k">WTI oil</div><div class="v gold">≈ $84</div><div class="n">peak of $113 in April</div></div>
+    <div class="stat"><div class="k">Gold</div><div class="v gold">&gt; $5,100</div><div class="n">all-time high</div></div>
+    <div class="stat"><div class="k">Fed rate</div><div class="v">3.50–3.75%</div><div class="n">on hold, hike possible</div></div>
+  </div>
+  <div class="prose">
+    <p>A geopolitical shock hits markets through four channels: the <strong>risk premium</strong>, the
+      <strong>flight to safe havens</strong> (gold, government bonds), <strong>commodity prices</strong> and
+      <strong>currencies</strong>. Here are the big themes of the moment and the sectors they lift — with
+      symbols to watch in the app.</p>
+  </div>
+
+  <div class="theme">
+    <div class="theme-head"><h3><span class="num">01 ·</span> Middle East &amp; oil</h3><span class="verdict warn">Volatile</span></div>
+    <p>Fragile ceasefire after the US–Iran war; oil spiked to $113 in April before easing. Expensive crude supports energy… but feeds inflation.</p>
+    <div class="sector-line"><b>Sector lifted:</b> Energy.<div class="ticks"><span class="tick">XOM</span><span class="tick">CVX</span><span class="tick">TTE.PA</span><span class="tick">SHEL</span></div></div>
+  </div>
+  <div class="theme">
+    <div class="theme-head"><h3><span class="num">02 ·</span> European rearmament</h3><span class="verdict warn">Consolidating</span></div>
+    <p>Record defence budgets (&gt; €360bn in 2025; France €57bn in 2026). After the 2025 surge, the sector is consolidating: names that have already risen a lot.</p>
+    <div class="sector-line"><b>Sector lifted:</b> Defence &amp; aero.<div class="ticks"><span class="tick">RHM.DE</span><span class="tick">AIR.PA</span><span class="tick">SAF.PA</span><span class="tick">HO.PA</span><span class="tick">LMT</span></div></div>
+  </div>
+  <div class="theme">
+    <div class="theme-head"><h3><span class="num">03 ·</span> Gold &amp; safe havens</h3><span class="verdict bull">Supportive trend</span></div>
+    <p>Gold has topped $5,100 an ounce (+60% in 2025). Recommended allocations are drifting from 2% toward 5–10% of portfolios.</p>
+    <div class="sector-line"><b>To watch:</b> gold &amp; gold miners.<div class="ticks"><span class="tick">NEM</span><span class="tick">GOLD</span><span class="tick">GDX</span><span class="tick">AEM</span></div></div>
+  </div>
+  <div class="theme">
+    <div class="theme-head"><h3><span class="num">04 ·</span> Tariffs &amp; rates</h3><span class="verdict bear">Under pressure</span></div>
+    <p>Tariffs from 10% to &gt; 100% (including 25% on semiconductors): Asian chips wobble. "Higher for longer" rates → rotation toward defensives.</p>
+    <div class="sector-line"><b>Volatile:</b> chips <span class="tick">NVDA</span><span class="tick">TSM</span> &nbsp;·&nbsp; <b>Defensives:</b> <span class="tick">PG</span><span class="tick">KO</span><span class="tick">COST</span></div>
+  </div>
+  <div class="prose"><a class="to-toc" href="#sommaire">↑ Back to top</a></div>
+  </div>
 </section>
 
 <section id="lecture">
+  <div class="gl-fr">
   <p class="eyebrow">Le pont</p>
   <h2>Lire vos scores selon le contexte</h2>
   <div class="prose"><p>L'appli lit les cours, pas l'actualité. Tout l'intérêt est de <strong>croiser les
@@ -503,9 +706,33 @@
     </table>
   </div>
   <div class="prose"><a class="to-toc" href="#sommaire">↑ Retour au sommaire</a></div>
+  </div>
+  <div class="gl-en">
+  <p class="eyebrow">The bridge</p>
+  <h2>Reading your scores in context</h2>
+  <div class="prose"><p>The app reads prices, not the news. The whole point is to <strong>cross the two</strong>:
+    context says <em>where to look</em>, the app says whether the technicals <em>confirm</em>.</p></div>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Situation</th><th>What to check in the app</th><th>How to read it</th></tr></thead>
+      <tbody>
+        <tr><td>Sector lifted by a theme</td><td>Score + Trend (price &gt; SMA 50 &amp; 200)</td><td>The technicals <strong>confirm</strong> the theme if price is above its averages.</td></tr>
+        <tr><td>Stock already up a lot</td><td>RSI &gt; 70 + "Watch points"</td><td>Overbought = <strong>correction</strong> risk; often better to wait for a pullback.</td></tr>
+        <tr><td>Jumpy asset (chips, oil)</td><td>Volatility + Max drawdown</td><td>Measures the swings; you <strong>size</strong> the position accordingly.</td></tr>
+        <tr><td>Defensive rotation</td><td>Sharpe + low volatility</td><td>Steadier return for the risk taken.</td></tr>
+        <tr><td>Possible reversal</td><td>MACD + MA cross 50/200</td><td><em>Death cross</em> = caution; <em>golden cross</em> = improving.</td></tr>
+        <tr><td>Rise to confirm</td><td>Volume (OBV) + Trend strength (ADX)</td><td>Rise <strong>on volume</strong> and high ADX = credible move; light volume or low ADX = handle with care.</td></tr>
+        <tr><td>Rally losing steam</td><td>Price / RSI divergence</td><td><strong>Bearish</strong> divergence = the rise tires despite new highs; often an early warning.</td></tr>
+        <tr><td>Signal to firm up</td><td>Multi-timeframe + Signal confidence</td><td>Short term and underlying <strong>aligned</strong> and <strong>high</strong> confidence = a sturdier signal; disagreement or low confidence = wait for confirmation.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose"><a class="to-toc" href="#sommaire">↑ Back to top</a></div>
+  </div>
 </section>
 
 <section id="watchlists">
+  <div class="gl-fr">
   <p class="eyebrow">Prêt à analyser</p>
   <h2>Watchlists thématiques</h2>
   <div class="prose"><p>Cliquez <strong>« Analyser&nbsp;→ »</strong> : la liste s'ouvre directement dans
@@ -525,9 +752,32 @@
       <span class="tick">.SW</span>. Si une croix rouge apparaît, essayez l'autre variante.</div>
     <a class="to-toc" href="#sommaire">↑ Retour au sommaire</a>
   </div>
+  </div>
+  <div class="gl-en">
+  <p class="eyebrow">Ready to analyse</p>
+  <h2>Thematic watchlists</h2>
+  <div class="prose"><p>Click <strong>"Analyse&nbsp;→"</strong>: the list opens straight in the app, already
+    filled in and analysed. Each list fits within the 12-symbol limit.</p></div>
+
+  <div class="watch"><div class="wl-head"><span class="wl-title">Energy</span><span class="wl-tag">oil &amp; gas</span></div><div class="wl-body"><div class="wl-syms">XOM, CVX, TTE.PA, SHEL</div><a class="wl-go" href="/">Analyse →</a></div></div>
+  <div class="watch"><div class="wl-head"><span class="wl-title">Defence &amp; aero</span><span class="wl-tag">rearmament</span></div><div class="wl-body"><div class="wl-syms">RHM.DE, AIR.PA, SAF.PA, HO.PA, LMT, RTX</div><a class="wl-go" href="/">Analyse →</a></div></div>
+  <div class="watch"><div class="wl-head"><span class="wl-title">Gold &amp; havens</span><span class="wl-tag">gold miners</span></div><div class="wl-body"><div class="wl-syms">NEM, GOLD, GDX, AEM</div><a class="wl-go" href="/">Analyse →</a></div></div>
+  <div class="watch"><div class="wl-head"><span class="wl-title">Semiconductors</span><span class="wl-tag">volatile</span></div><div class="wl-body"><div class="wl-syms">NVDA, TSM, AMD, AVGO</div><a class="wl-go" href="/">Analyse →</a></div></div>
+  <div class="watch"><div class="wl-head"><span class="wl-title">Defensives</span><span class="wl-tag">high rates</span></div><div class="wl-body"><div class="wl-syms">PG, KO, COST, WMT</div><a class="wl-go" href="/">Analyse →</a></div></div>
+  <div class="watch"><div class="wl-head"><span class="wl-title">Market benchmarks</span><span class="wl-tag">indices</span></div><div class="wl-body"><div class="wl-syms">SPY, ^GSPC</div><a class="wl-go" href="/">Analyse →</a></div></div>
+
+  <div class="prose">
+    <div class="disclaimer" style="margin-top:22px"><strong>Symbol tip.</strong> US stocks with no suffix
+      (<span class="tick">NVDA</span>). For Europe, your app goes through Yahoo: add the exchange —
+      Paris <span class="tick">.PA</span>, Frankfurt <span class="tick">.DE</span>, Zurich
+      <span class="tick">.SW</span>. If a red cross appears, try the other variant.</div>
+    <a class="to-toc" href="#sommaire">↑ Back to top</a>
+  </div>
+  </div>
 </section>
 
 <section id="plan">
+  <div class="gl-fr">
   <p class="eyebrow">La méthode</p>
   <h2>Bâtir un plan d'investissement</h2>
   <div class="prose"><p>Un plan n'est pas « acheter la bonne action au bon moment ». C'est un
@@ -570,9 +820,55 @@
       chiffres sont des repères, pas une prescription.</div>
     <a class="to-toc" href="#sommaire">↑ Retour au sommaire</a>
   </div>
+  </div>
+  <div class="gl-en">
+  <p class="eyebrow">The method</p>
+  <h2>Building an investment plan</h2>
+  <div class="prose"><p>A plan isn't "buy the right stock at the right time". It's a <strong>framework</strong>
+    that protects you from your emotions and the unexpected. The principles, then three illustrative
+    profiles.</p></div>
+
+  <div class="principles">
+    <div class="principle"><div class="pn">A</div><h4>Horizon &amp; goal</h4><p>Money you won't need for at least 5–8 years. A long plan survives short-term crises.</p></div>
+    <div class="principle"><div class="pn">B</div><h4>Risk tolerance</h4><p>How far can you watch your portfolio fall without panicking? That sets your equity share.</p></div>
+    <div class="principle"><div class="pn">C</div><h4>Diversification</h4><p>Several asset classes, regions, sectors. The opposite of "all in on a trendy theme".</p></div>
+    <div class="principle"><div class="pn">D</div><h4>Regularity (DCA)</h4><p>Investing a fixed amount each month smooths your buy price and avoids timing the market.</p></div>
+    <div class="principle"><div class="pn">E</div><h4>Safety cushion</h4><p>3 to 6 months of expenses in cash <em>before</em> investing. Never your day-to-day money.</p></div>
+    <div class="principle"><div class="pn">F</div><h4>Rebalancing</h4><p>Once or twice a year, reset the sliders to target. It forces you to sell high, buy low.</p></div>
+  </div>
+
+  <h3 style="margin-top:32px">Three illustrative profiles</h3>
+  <div class="prose"><p><strong>Example</strong> allocations, to adapt. The "equities" pocket is built simply:
+    a <strong>core</strong> of world ETFs (70–80%) + thematic <strong>satellites</strong> (defence, energy,
+    gold…) capped at 20–30%, where the app helps you choose entry points.</p></div>
+
+  <div class="profile">
+    <div class="profile-head"><h3 style="margin:0">Cautious</h3><span class="who">stability first</span></div>
+    <div class="alloc"><span class="a-act" style="width:30%"></span><span class="a-obl" style="width:45%"></span><span class="a-or" style="width:10%"></span><span class="a-cash" style="width:15%"></span></div>
+    <div class="legend"><span><i style="background:var(--indigo)"></i>Equities 30%</span><span><i style="background:var(--oblig)"></i>Bonds 45%</span><span><i style="background:var(--gold)"></i>Gold 10%</span><span><i style="background:var(--cash)"></i>Cash 15%</span></div>
+  </div>
+  <div class="profile">
+    <div class="profile-head"><h3 style="margin:0">Balanced</h3><span class="who">growth &amp; calm</span></div>
+    <div class="alloc"><span class="a-act" style="width:55%"></span><span class="a-obl" style="width:25%"></span><span class="a-or" style="width:10%"></span><span class="a-cash" style="width:10%"></span></div>
+    <div class="legend"><span><i style="background:var(--indigo)"></i>Equities 55%</span><span><i style="background:var(--oblig)"></i>Bonds 25%</span><span><i style="background:var(--gold)"></i>Gold 10%</span><span><i style="background:var(--cash)"></i>Cash 10%</span></div>
+  </div>
+  <div class="profile">
+    <div class="profile-head"><h3 style="margin:0">Dynamic</h3><span class="who">long horizon, high tolerance</span></div>
+    <div class="alloc"><span class="a-act" style="width:75%"></span><span class="a-obl" style="width:10%"></span><span class="a-or" style="width:10%"></span><span class="a-cash" style="width:5%"></span></div>
+    <div class="legend"><span><i style="background:var(--indigo)"></i>Equities 75%</span><span><i style="background:var(--oblig)"></i>Bonds 10%</span><span><i style="background:var(--gold)"></i>Gold 10%</span><span><i style="background:var(--cash)"></i>Cash 5%</span></div>
+  </div>
+
+  <div class="prose">
+    <div class="disclaimer" style="margin-top:22px"><strong>Guardrails.</strong> No leverage or credit to
+      invest. Beware of <strong>concentration</strong> (one theme = 5–10% max). These figures are pointers,
+      not a prescription.</div>
+    <a class="to-toc" href="#sommaire">↑ Back to top</a>
+  </div>
+  </div>
 </section>
 
 <section id="courtier">
+  <div class="gl-fr">
   <p class="eyebrow">Passer à l'action</p>
   <h2>Choisir un courtier</h2>
   <div class="prose">
@@ -615,9 +911,55 @@
       pour un choix engageant, rapprochez-vous d'un professionnel.</div>
     <a class="to-toc" href="#sommaire">↑ Retour au sommaire</a>
   </div>
+  </div>
+  <div class="gl-en">
+  <p class="eyebrow">Taking action</p>
+  <h2>Choosing a broker</h2>
+  <div class="prose">
+    <p>butterfly helps you <strong>analyse</strong>; to <strong>actually buy</strong>, you need a
+      <strong>broker</strong> (the intermediary that executes your orders). Here's what to compare — no ads,
+      no bias. Always check the <em>current</em> terms: they change often.</p>
+  </div>
+
+  <h3 style="margin-top:6px">Tax-wrapper or plain account?</h3>
+  <div class="cards">
+    <div class="cardlet"><h4>PEA <span class="lab">France</span></h4><p>A favourable French tax wrapper: after 5 years, gains escape income tax (excluding social charges). €150,000 cap. Stocks and certain "PEA-eligible" ETFs (often Europe, or World in synthetic form).</p></div>
+    <div class="cardlet"><h4>Plain brokerage account</h4><p>No cap, access to the <em>whole</em> universe (US stocks, etc.) and every product. But gains are taxed (a flat tax of about 30% in France). Handy for what a PEA can't hold.</p></div>
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Broker type</th><th>Fees</th><th>PEA</th><th>Recurring deposits</th><th>What to check</th></tr></thead>
+      <tbody>
+        <tr><td>Mobile neo-broker <span class="tick">e.g. Trade Republic</span></td><td>Very low</td><td>Often no</td><td>Yes, free</td><td>Wrapper (often plain), range, local tax</td></tr>
+        <tr><td>Online broker <span class="tick">e.g. Bourse Direct, Fortuneo, BoursoBank</span></td><td>Variable</td><td>Yes</td><td>Depends</td><td>Per-order fees, PEA-eligible ETFs</td></tr>
+        <tr><td>Traditional bank</td><td>Higher</td><td>Yes</td><td>Depends</td><td>Brokerage &amp; custody costs</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin-top:28px">What to look at</h3>
+  <div class="cards">
+    <div class="cardlet"><h4>Fees</h4><p>Per order, account keeping, and FX if you buy in dollars. Over time, it adds up.</p></div>
+    <div class="cardlet"><h4>Wrapper</h4><p>Tax wrapper (light tax, Europe) or plain account (whole universe, taxed). Many offer both.</p></div>
+    <div class="cardlet"><h4>Available products</h4><p>Are the stocks — and especially the <strong>ETFs</strong> — you care about available?</p></div>
+    <div class="cardlet"><h4>Recurring deposits</h4><p>An automatic plan (DCA) makes regularity easy: a real edge for staying the course.</p></div>
+    <div class="cardlet"><h4>Safety</h4><p>A regulated broker (AMF/ACPR in France, an EU equivalent) and protection of your assets.</p></div>
+    <div class="cardlet"><h4>Simplicity</h4><p>A clear app you'll actually use beats a bloated one.</p></div>
+  </div>
+
+  <div class="prose">
+    <div class="disclaimer" style="margin-top:22px"><strong>Important.</strong> This comparison is
+      <strong>informational and not exhaustive</strong>. butterfly is tied to no broker and receives no
+      payment. Offers, fees and availability change often: check the current terms, and for a binding choice,
+      consult a professional.</div>
+    <a class="to-toc" href="#sommaire">↑ Back to top</a>
+  </div>
+  </div>
 </section>
 
 <section id="fiscalite">
+  <div class="gl-fr">
   <p class="eyebrow">Ce que retient l'impôt</p>
   <h2>Fiscalité (repères)</h2>
   <div class="prose">
@@ -663,9 +1005,58 @@
       (comptable, conseiller fiscal).</div>
     <a class="to-toc" href="#sommaire">↑ Retour au sommaire</a>
   </div>
+  </div>
+  <div class="gl-en">
+  <p class="eyebrow">What the taxman keeps</p>
+  <h2>Tax (pointers)</h2>
+  <div class="prose">
+    <p>When you make money in the markets — <strong>capital gains</strong> (on selling) or
+      <strong>income</strong> (dividends, coupons) — part goes to tax. How much? It depends on two things: the
+      <strong>wrapper</strong> used (plain account, PEA…) and above all your <strong>country of
+      residence</strong>.</p>
+    <div class="callout"><strong>⚠ Important:</strong> this section mainly describes <strong>France</strong>.
+      If you live elsewhere (Switzerland, Belgium…), the rules are <em>different</em> — see below.</div>
+  </div>
+
+  <h3 style="margin-top:6px">In France, by wrapper</h3>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Wrapper</th><th>Tax on gains</th><th>Social charges</th><th>Key point</th></tr></thead>
+      <tbody>
+        <tr><td>Plain account (CTO)</td><td>Flat tax 12.8% (or scale)</td><td>17.2%</td><td>≈ <strong>30%</strong> total; losses carried 10 years</td></tr>
+        <tr><td>PEA — withdrawal before 5 years</td><td>Taxed (flat tax)</td><td>17.2%</td><td>The withdrawal <strong>closes</strong> the plan (with exceptions)</td></tr>
+        <tr><td>PEA — after 5 years</td><td><strong>Exempt</strong> from income tax</td><td>17.2%</td><td>Big long-term advantage</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cards">
+    <div class="cardlet"><h4>Dividends</h4><p>In a plain account they're taxed (flat tax) the year they're paid. In a PEA they're <strong>sheltered</strong> as long as you don't withdraw.</p></div>
+    <div class="cardlet"><h4>Capital losses</h4><p>In a plain account they offset gains of the same kind and <strong>carry forward 10 years</strong>. Don't forget them on your return.</p></div>
+    <div class="cardlet"><h4>Cryptos</h4><p>In France (individual): gains taxed at the flat tax ~30% <strong>when converting to euros</strong>. Crypto↔crypto swaps don't trigger tax.</p></div>
+    <div class="cardlet"><h4>Foreign account</h4><p>A foreign broker (e.g. a German neo-broker) or a crypto platform: the account must be <strong>declared</strong> (form 3916). Often no French tax statement → declare gains yourself.</p></div>
+    <div class="cardlet"><h4>Life insurance (assurance-vie)</h4><p>Another French wrapper, with a favourable regime after <strong>8 years</strong> (annual allowance). Useful for a long-term project.</p></div>
+    <div class="cardlet"><h4>The declaration</h4><p>Gains are declared each year. A French broker provides a tax statement (IFU) that summarises everything.</p></div>
+  </div>
+
+  <h3 style="margin-top:28px">Not a French resident?</h3>
+  <div class="cards">
+    <div class="cardlet"><h4>🇨🇭 Switzerland</h4><p>Generally, <strong>no tax on capital gains</strong> from private wealth. But there's a <strong>wealth tax</strong> and <strong>dividends are taxed</strong>; rules vary by canton. No PEA (a French scheme).</p></div>
+    <div class="cardlet"><h4>🌍 Other countries</h4><p>Each country has its own rules (rates, wrappers, thresholds). The "wrapper + residence" principle still holds — check with your local tax authority.</p></div>
+  </div>
+
+  <div class="prose">
+    <div class="disclaimer" style="margin-top:22px"><strong>This is not tax advice.</strong> Rates,
+      thresholds and rules <strong>change regularly</strong> and depend on your situation. Check official
+      sources (in France: impots.gouv.fr) and, for any decision, consult a professional (accountant, tax
+      adviser).</div>
+    <a class="to-toc" href="#sommaire">↑ Back to top</a>
+  </div>
+  </div>
 </section>
 
 <section id="routine">
+  <div class="gl-fr">
   <p class="eyebrow">En pratique</p>
   <h2>Votre routine mensuelle</h2>
   <ol class="routine">
@@ -678,9 +1069,25 @@
     <li>Gardez en tête : la technique éclaire le <strong>court/moyen terme</strong> ; votre plan se juge sur des <strong>années</strong>.</li>
   </ol>
   <div class="prose"><a class="to-toc" href="#sommaire">↑ Retour au sommaire</a></div>
+  </div>
+  <div class="gl-en">
+  <p class="eyebrow">In practice</p>
+  <h2>Your monthly routine</h2>
+  <ol class="routine">
+    <li>Open the app, paste a <strong>watchlist</strong> (or your favourites), click Analyse.</li>
+    <li>Spot the stocks in an <strong>uptrend</strong> (price above the averages, good score).</li>
+    <li>Set aside the <strong>overbought</strong> ones for now (RSI &gt; 70): note them for a pullback.</li>
+    <li>Check <strong>volatility</strong> and <strong>drawdown</strong>: the jumpier it is, the smaller the position.</li>
+    <li>Invest your <strong>scheduled amount</strong>: first the core (world ETF), then a satellite at the margin.</li>
+    <li>Once or twice a year, <strong>rebalance</strong> toward your targets.</li>
+    <li>Keep in mind: technicals light up the <strong>short/medium term</strong>; your plan is judged over <strong>years</strong>.</li>
+  </ol>
+  <div class="prose"><a class="to-toc" href="#sommaire">↑ Back to top</a></div>
+  </div>
 </section>
 
 <section id="glossaire">
+  <div class="gl-fr">
   <p class="eyebrow">Pour mémoire</p>
   <h2>Glossaire express</h2>
   <dl class="gloss">
@@ -709,13 +1116,44 @@
     <dt>ETF</dt><dd>Fonds coté qui réplique un indice ; diversification immédiate en un seul achat.</dd>
   </dl>
   <div class="prose"><a class="to-toc" href="#sommaire">↑ Retour au sommaire</a></div>
+  </div>
+  <div class="gl-en">
+  <p class="eyebrow">For reference</p>
+  <h2>Quick glossary</h2>
+  <dl class="gloss">
+    <dt>Score (0–100)</dt><dd>72+ strong buy · 58–71 buy · 42–57 hold · 28–41 sell · &lt; 28 strong sell. Click it in the app to see the breakdown of its fourteen factors.</dd>
+    <dt>RSI</dt><dd>Relative strength. &gt; 70 = overbought, &lt; 30 = oversold.</dd>
+    <dt>MACD</dt><dd>Gap between two moving averages; positive histogram = bullish momentum.</dd>
+    <dt>Golden / death cross</dt><dd>Crossing of the 50-day average above (bullish) or below (bearish) the 200-day.</dd>
+    <dt>Volume / OBV</dt><dd>Adds up volume by session direction: says whether trading confirms the price move or contradicts it.</dd>
+    <dt>ADX</dt><dd>Trend strength (regardless of direction). &gt; 25 = clear trend; &lt; 18 = directionless market, unreliable signals.</dd>
+    <dt>Stochastic</dt><dd>Price position within its recent high/low range. Complements the RSI for overbought/oversold.</dd>
+    <dt>Divergence</dt><dd>Gap between price and momentum (RSI): new high but weaker momentum = fading; new low but rising momentum = rebound possible.</dd>
+    <dt>MFI</dt><dd>"Money Flow Index": like the RSI but weighted by volume. &gt; 80 = overbought, &lt; 20 = oversold.</dd>
+    <dt>Parabolic SAR</dt><dd>Trend-following indicator: below price = bullish, above = bearish. Also acts as a trailing stop.</dd>
+    <dt>Squeeze</dt><dd>Volatility compression (tight bands): often heralds a wide move, without giving the direction.</dd>
+    <dt>Relative volume</dt><dd>Today's volume against its recent average. High = strong conviction behind the move.</dd>
+    <dt>Multi-timeframe</dt><dd>Cross-reading of the short term (daily) and the underlying trend (weekly). Aligned = more reliable signal; disagreeing = caution.</dd>
+    <dt>Support / resistance</dt><dd>Levels where price has bounced (floor) or stalled (ceiling). Markers to place an entry or exit.</dd>
+    <dt>Signal confidence</dt><dd>Measure (0–100) of how much the score's factors agree. High = they point the same way; low = contradictory signals.</dd>
+    <dt>Likely range</dt><dd>Price band estimated over 1 month from volatility (≈ 2 chances in 3). A ballpark, not a forecast.</dd>
+    <dt>Beta</dt><dd>Sensitivity to the market. &gt; 1 = amplifies moves (jumpier); &lt; 1 = calmer. Measured vs S&amp;P 500.</dd>
+    <dt>Volatility</dt><dd>Size of the swings in % per year. The higher it is, the more the stock moves.</dd>
+    <dt>ATR</dt><dd>"Average True Range": the typical daily move, in %. Useful to size a stop.</dd>
+    <dt>Sharpe ratio</dt><dd>Return per unit of risk. &gt; 1 = good, &lt; 0 = the risk didn't pay off.</dd>
+    <dt>Max drawdown</dt><dd>Worst loss suffered from a peak to the next trough.</dd>
+    <dt>DCA</dt><dd>"Dollar Cost Averaging": investing a fixed amount at regular intervals.</dd>
+    <dt>ETF</dt><dd>Listed fund that tracks an index; instant diversification in a single purchase.</dd>
+  </dl>
+  <div class="prose"><a class="to-toc" href="#sommaire">↑ Back to top</a></div>
+  </div>
 </section>
 
 </div>
 
 <footer>
   <div class="wrap">
-    <h3>Sources (contexte 2026)</h3>
+    <h3><span class="gl-fr">Sources (contexte 2026)</span><span class="gl-en">Sources (2026 context)</span></h3>
     <p class="src">
       Wellington Management — <a href="https://www.wellington.com/en/insights/geopolitics-in-2026-risks-and-opportunities-were-watching">Geopolitics in 2026</a> ·
       Bank of America Private Bank — <a href="https://www.privatebank.bankofamerica.com/articles/midyear-outlook-us-china-race-for-dominance.html">2026 Midyear Outlook</a> ·
@@ -724,14 +1162,18 @@
       World Gold Council — <a href="https://www.gold.org/goldhub/research/why-gold-2026-cross-asset-perspective">Why gold in 2026</a> ·
       CNBC — <a href="https://www.cnbc.com/2026/05/30/defense-stocks-consolidation-rheinmetall-saab-renk.html">European defense stocks consolidation</a>.
     </p>
-    <p class="src" style="margin-top:20px; color:rgba(255,255,255,.55)">⚠ Guide pédagogique et informatif.
+    <p class="src gl-fr" style="margin-top:20px; color:rgba(255,255,255,.55)">⚠ Guide pédagogique et informatif.
       Ne constitue pas un conseil en investissement ni une recommandation personnalisée. Les performances
       passées ne préjugent pas des performances futures. Investir comporte un risque de perte en capital.
       Chiffres de contexte datés de 2026, susceptibles d'avoir évolué.</p>
+    <p class="src gl-en" style="margin-top:20px; color:rgba(255,255,255,.55)">⚠ Educational and informational
+      guide. Not investment advice or a personalised recommendation. Past performance does not guarantee
+      future results. Investing carries a risk of capital loss. Context figures dated 2026 and may have
+      changed.</p>
   </div>
 </footer>
 
-<a class="toplink" id="toplink" href="#sommaire">↑ Haut</a>
+<a class="toplink" id="toplink" href="#sommaire"><span class="gl-fr">↑ Haut</span><span class="gl-en">↑ Top</span></a>
 
 <script>
   // Thème clair/sombre (choix mémorisé, partagé avec l'appli).
@@ -740,17 +1182,30 @@
     if (s === 'light' || s === 'dark') return s;
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
+  // Langue (choix mémorisé, partagé avec l'appli).
+  function currentLang() { return localStorage.getItem('lang') === 'en' ? 'en' : 'fr'; }
+  function applyLang() {
+    const en = currentLang() === 'en';
+    document.documentElement.setAttribute('data-glang', en ? 'en' : 'fr');
+    document.documentElement.lang = en ? 'en' : 'fr';
+    const lb = document.getElementById('lang-btn');
+    if (lb) { lb.textContent = en ? 'Français' : 'English'; lb.setAttribute('aria-label', en ? 'Passer en français' : 'Switch to English'); }
+    applyTheme();
+  }
   function applyTheme() {
     const s = localStorage.getItem('theme');
     if (s === 'light' || s === 'dark') document.documentElement.setAttribute('data-theme', s);
     else document.documentElement.removeAttribute('data-theme');
-    const btn = document.getElementById('theme-btn');
-    if (btn) { const dark = currentTheme() === 'dark'; btn.textContent = dark ? '☀️' : '🌙'; btn.title = dark ? 'Passer en clair' : 'Passer en sombre'; }
+    const btn = document.getElementById('theme-btn'), en = currentLang() === 'en';
+    if (btn) { const dark = currentTheme() === 'dark'; btn.textContent = dark ? '☀️' : '🌙'; btn.title = dark ? (en ? 'Switch to light' : 'Passer en clair') : (en ? 'Switch to dark' : 'Passer en sombre'); }
   }
   document.getElementById('theme-btn').addEventListener('click', function () {
     localStorage.setItem('theme', currentTheme() === 'dark' ? 'light' : 'dark'); applyTheme();
   });
-  applyTheme();
+  document.getElementById('lang-btn').addEventListener('click', function () {
+    localStorage.setItem('lang', currentLang() === 'en' ? 'fr' : 'en'); applyLang();
+  });
+  applyLang();
 
   // Boutons « Analyser » : ouvre l'appli avec la watchlist pré-remplie (+ retour au guide).
   document.querySelectorAll('.watch').forEach(function (w) {
