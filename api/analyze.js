@@ -137,6 +137,112 @@ function bollinger(v, p = 20, k = 2) {
 function lastDefined(a) { for (let i = a.length - 1; i >= 0; i--) if (a[i] != null) return a[i]; return null; }
 function momentum(v, p) { return (v.length > p && v[v.length - 1 - p]) ? (v[v.length - 1] / v[v.length - 1 - p] - 1) * 100 : null; }
 
+// ── Volume : On-Balance Volume (cumule le volume selon le sens de la séance) ──
+function obv(closes, volumes) {
+  const out = new Array(closes.length).fill(0);
+  for (let i = 1; i < closes.length; i++) {
+    const v = (volumes && volumes[i]) ? volumes[i] : 0;
+    out[i] = out[i - 1] + (closes[i] > closes[i - 1] ? v : (closes[i] < closes[i - 1] ? -v : 0));
+  }
+  return out;
+}
+
+// Coefficient de corrélation temps→valeur sur les p dernières valeurs : ∈ [-1,1].
+// Positif = série qui monte régulièrement, négatif = qui baisse ; 0 = plat/erratique.
+function trendCorr(series, p) {
+  const n = Math.min(p, series.length);
+  if (n < 3) return 0;
+  const w = series.slice(-n);
+  const mx = (n - 1) / 2, my = w.reduce((a, b) => a + b, 0) / n;
+  let num = 0, dxx = 0, dyy = 0;
+  for (let i = 0; i < n; i++) { const dx = i - mx, dy = w[i] - my; num += dx * dy; dxx += dx * dx; dyy += dy * dy; }
+  return (dxx === 0 || dyy === 0) ? 0 : num / Math.sqrt(dxx * dyy);
+}
+
+// ── ATR (amplitude vraie moyenne) : « de combien ça bouge par jour » ──────────
+function trueRanges(barsArr) {
+  const tr = [];
+  for (let i = 1; i < barsArr.length; i++) {
+    const b = barsArr[i], pb = barsArr[i - 1];
+    const h = b.high != null ? b.high : b.close, l = b.low != null ? b.low : b.close;
+    tr.push(Math.max(h - l, Math.abs(h - pb.close), Math.abs(l - pb.close)));
+  }
+  return tr;
+}
+function atr(barsArr, p = 14) {
+  const tr = trueRanges(barsArr);
+  if (tr.length < p) return null;
+  let a = tr.slice(0, p).reduce((s, x) => s + x, 0) / p; // lissage de Wilder
+  for (let i = p; i < tr.length; i++) a = (a * (p - 1) + tr[i]) / p;
+  return a;
+}
+
+// ── ADX : force de la tendance (peu importe le sens) + sens via +DI / -DI ─────
+function adx(barsArr, p = 14) {
+  if (barsArr.length < 2 * p) return null;
+  const plusDM = [], minusDM = [], tr = [];
+  for (let i = 1; i < barsArr.length; i++) {
+    const b = barsArr[i], pb = barsArr[i - 1];
+    const h = b.high != null ? b.high : b.close, l = b.low != null ? b.low : b.close;
+    const ph = pb.high != null ? pb.high : pb.close, pl = pb.low != null ? pb.low : pb.close;
+    const up = h - ph, down = pl - l;
+    plusDM.push(up > down && up > 0 ? up : 0);
+    minusDM.push(down > up && down > 0 ? down : 0);
+    tr.push(Math.max(h - l, Math.abs(h - pb.close), Math.abs(l - pb.close)));
+  }
+  const smooth = (arr) => { // lissage de Wilder cumulé
+    const out = new Array(arr.length).fill(null);
+    if (arr.length < p) return out;
+    let s = arr.slice(0, p).reduce((a, b) => a + b, 0);
+    out[p - 1] = s;
+    for (let i = p; i < arr.length; i++) { s = s - s / p + arr[i]; out[i] = s; }
+    return out;
+  };
+  const trS = smooth(tr), pS = smooth(plusDM), mS = smooth(minusDM);
+  const dx = [];
+  for (let i = p - 1; i < tr.length; i++) {
+    if (!trS[i]) { continue; }
+    const pdi = 100 * pS[i] / trS[i], mdi = 100 * mS[i] / trS[i];
+    const sum = pdi + mdi;
+    dx.push(sum === 0 ? 0 : 100 * Math.abs(pdi - mdi) / sum);
+  }
+  let adxVal = null;
+  if (dx.length >= p) {
+    let a = dx.slice(0, p).reduce((s, x) => s + x, 0) / p;
+    for (let i = p; i < dx.length; i++) a = (a * (p - 1) + dx[i]) / p;
+    adxVal = a;
+  }
+  const li = tr.length - 1;
+  const plusDI = trS[li] ? 100 * pS[li] / trS[li] : null;
+  const minusDI = trS[li] ? 100 * mS[li] / trS[li] : null;
+  return { adx: adxVal, plusDI, minusDI };
+}
+
+// ── Stochastique %K : position du cours dans son couloir haut/bas récent ──────
+function stochastic(barsArr, p = 14) {
+  if (barsArr.length < p) return null;
+  const w = barsArr.slice(-p);
+  const hh = Math.max(...w.map(b => b.high != null ? b.high : b.close));
+  const ll = Math.min(...w.map(b => b.low != null ? b.low : b.close));
+  const c = barsArr[barsArr.length - 1].close;
+  return hh === ll ? 50 : 100 * (c - ll) / (hh - ll);
+}
+
+// ── Divergence prix / RSI : le cours et l'élan ne racontent pas la même chose ─
+function rsiDivergence(closes, rsiArr, look = 40) {
+  const n = closes.length;
+  if (n < look + 5) return null;
+  const half = Math.floor(look / 2), a0 = n - look, aMid = n - half;
+  const argmax = (f, t) => { let bi = f; for (let i = f; i < t; i++) if (closes[i] > closes[bi]) bi = i; return bi; };
+  const argmin = (f, t) => { let bi = f; for (let i = f; i < t; i++) if (closes[i] < closes[bi]) bi = i; return bi; };
+  const hi1 = argmax(a0, aMid), hi2 = argmax(aMid, n), lo1 = argmin(a0, aMid), lo2 = argmin(aMid, n);
+  const r = i => rsiArr[i];
+  if ([hi1, hi2, lo1, lo2].some(i => r(i) == null)) return null;
+  if (closes[hi2] > closes[hi1] && r(hi2) < r(hi1) - 3) return 'bear'; // sommet plus haut, élan plus faible
+  if (closes[lo2] < closes[lo1] && r(lo2) > r(lo1) + 3) return 'bull'; // creux plus bas, élan qui se redresse
+  return null;
+}
+
 // ── Risque ─────────────────────────────────────────────────────────────────
 
 function dailyReturns(c) { const r = []; for (let i = 1; i < c.length; i++) if (c[i - 1]) r.push(c[i] / c[i - 1] - 1); return r; }
@@ -173,16 +279,26 @@ function clamp(x, lo = -1, hi = 1) { return Math.max(lo, Math.min(hi, x)); }
 
 // ── Signaux + score ─────────────────────────────────────────────────────────
 
-const WEIGHTS = { trend_lt: 1.5, trend_mt: 1.2, ma_cross: 1.3, rsi: 1.0, macd: 1.2, bollinger: 0.8, momentum: 1.0 };
+const WEIGHTS = {
+  trend_lt: 1.5, trend_mt: 1.2, ma_cross: 1.3, rsi: 1.0, macd: 1.2, bollinger: 0.8, momentum: 1.0,
+  trend_strength: 1.1, volume: 0.9, stoch: 0.7, divergence: 0.8,
+};
 
 function analyze(series) {
   const c = series.bars.map(b => b.close);
+  const volumes = series.bars.map(b => b.volume);
+  const hasVolume = volumes.some(v => v > 0);
   const price = c[c.length - 1];
   const sma50 = lastDefined(sma(c, 50)), sma200 = lastDefined(sma(c, 200));
-  const rsi14 = lastDefined(rsi(c, 14));
+  const rsiArr = rsi(c, 14), rsi14 = lastDefined(rsiArr);
   const m = macd(c); const hist = lastDefined(m.hist);
   const bb = bollinger(c, 20, 2); const bbu = lastDefined(bb.up), bbl = lastDefined(bb.low);
   const mom60 = momentum(c, 60);
+  const adxData = adx(series.bars, 14);
+  const stochK = stochastic(series.bars, 14);
+  const obvTrend = hasVolume ? trendCorr(obv(c, volumes), 40) : null;
+  const atrVal = atr(series.bars, 14);
+  const div = rsiDivergence(c, rsiArr, 40);
 
   const signals = {};
   if (sma50) signals.trend_mt = clamp((price / sma50 - 1) * 8);
@@ -196,6 +312,21 @@ function analyze(series) {
   if (hist != null && price) signals.macd = clamp(hist / (price * 0.02));
   if (bbu && bbl && bbu > bbl) signals.bollinger = clamp((0.5 - (price - bbl) / (bbu - bbl)) * 2);
   if (mom60 != null) signals.momentum = clamp(mom60 / 25);
+  // Force de tendance : sens donné par +DI/-DI, atténué quand l'ADX est faible (marché sans direction).
+  if (adxData && adxData.plusDI != null && adxData.minusDI != null) {
+    const dir = clamp((adxData.plusDI - adxData.minusDI) / 40);
+    const conf = adxData.adx != null ? clamp((adxData.adx - 15) / 25, 0, 1) : 0.5;
+    signals.trend_strength = clamp(dir * (0.5 + 0.5 * conf));
+  }
+  // Volume : l'élan des volumes confirme-t-il (ou contredit-il) le mouvement du cours ?
+  if (obvTrend != null) signals.volume = clamp(obvTrend);
+  if (stochK != null) {
+    if (stochK >= 80) signals.stoch = clamp(-(stochK - 80) / 15);
+    else if (stochK <= 20) signals.stoch = clamp((20 - stochK) / 15);
+    else signals.stoch = clamp((stochK - 50) / 50);
+  }
+  if (div === 'bear') signals.divergence = -0.6;
+  else if (div === 'bull') signals.divergence = 0.6;
 
   let tw = 0, wsum = 0; const contrib = {};
   for (const [k, s] of Object.entries(signals)) { const w = WEIGHTS[k] || 1; tw += w; wsum += s * w; contrib[k] = s * w; }
@@ -207,6 +338,11 @@ function analyze(series) {
     price: round(price, 2), sma50: round(sma50, 2), sma200: round(sma200, 2),
     rsi14: round(rsi14, 1), macd_hist: round(hist, 3), momentum_60: round(mom60, 1),
     bb_upper: round(bbu, 2), bb_lower: round(bbl, 2),
+    adx: adxData ? round(adxData.adx, 1) : null,
+    plus_di: adxData ? round(adxData.plusDI, 1) : null, minus_di: adxData ? round(adxData.minusDI, 1) : null,
+    stoch: round(stochK, 1), obv_trend: round(obvTrend, 2),
+    atr_pct: (atrVal != null && price) ? round(atrVal / price * 100, 2) : null,
+    divergence: div,
   };
   return { signals, value, label, reco, metrics, contributions: contrib, price };
 }
@@ -257,6 +393,31 @@ function explain(a, rk, ticker) {
     else if (m.momentum_60 < -8) pts.push({ s: 'bear', topic: 'Momentum', text: `Sur 60 séances, ${m.momentum_60} % : dynamique négative.` });
     else pts.push({ s: 'neutral', topic: 'Momentum', text: `Sur 60 séances, ${m.momentum_60} % : quasi stable.` });
   }
+  // Force de tendance (ADX) : dit si les signaux de tendance sont fiables ou non.
+  if (m.adx != null) {
+    const haussier = m.plus_di != null && m.minus_di != null && m.plus_di >= m.minus_di;
+    if (m.adx >= 25)
+      pts.push({ s: haussier ? 'bull' : 'bear', topic: 'Force de tendance', text: `Tendance ${haussier ? 'haussière' : 'baissière'} nette et installée (ADX ${m.adx}) : le mouvement est directionnel.` });
+    else if (m.adx < 18) {
+      pts.push({ s: 'neutral', topic: 'Force de tendance', text: `Pas de tendance marquée (ADX ${m.adx}) : le marché avance sans direction claire, les signaux de tendance sont à prendre avec prudence.` });
+      vig.push(`Tendance faible (ADX ${m.adx}) : signaux directionnels peu fiables.`);
+    } else
+      pts.push({ s: 'neutral', topic: 'Force de tendance', text: `Tendance modérée (ADX ${m.adx}).` });
+  }
+  // Volume : le mouvement est-il « soutenu » par les échanges ?
+  if (m.obv_trend != null) {
+    if (m.obv_trend > 0.3) pts.push({ s: 'bull', topic: 'Volume', text: `Les volumes accompagnent la hausse (accumulation) : mouvement plus crédible.` });
+    else if (m.obv_trend < -0.3) { pts.push({ s: 'bear', topic: 'Volume', text: `Les volumes accompagnent la baisse (distribution) : pression vendeuse réelle.` }); }
+    else pts.push({ s: 'neutral', topic: 'Volume', text: `Le volume ne confirme pas franchement le mouvement : mouvement peu soutenu, à surveiller.` });
+  }
+  // Stochastique : signalé surtout aux extrêmes, en appui du RSI.
+  if (m.stoch != null) {
+    if (m.stoch >= 80) { pts.push({ s: 'warn', topic: 'Stochastique', text: `Stochastique à ${m.stoch} : haut de son couloir récent (suracheté à court terme).` }); }
+    else if (m.stoch <= 20) pts.push({ s: 'bull', topic: 'Stochastique', text: `Stochastique à ${m.stoch} : bas de son couloir récent (survendu à court terme, rebond possible).` });
+  }
+  // Divergence prix / RSI : signal d'essoufflement ou de retournement souvent négligé.
+  if (m.divergence === 'bear') { pts.push({ s: 'warn', topic: 'Divergence', text: `Divergence baissière : le cours fait un nouveau sommet mais l'élan (RSI) faiblit — essoufflement possible.` }); vig.push('Divergence baissière prix / RSI : la hausse s\'essouffle.'); }
+  else if (m.divergence === 'bull') pts.push({ s: 'bull', topic: 'Divergence', text: `Divergence haussière : le cours fait un nouveau creux mais l'élan (RSI) se redresse — rebond possible.` });
 
   const parts = [];
   if (rk.annual_vol_pct != null) {
@@ -266,6 +427,7 @@ function explain(a, rk, ticker) {
   }
   if (rk.max_drawdown_pct != null) { parts.push(`pire baisse ${rk.max_drawdown_pct} %`); if (rk.max_drawdown_pct < -35) vig.push(`Le titre a déjà perdu ${Math.abs(rk.max_drawdown_pct)} % depuis un sommet.`); }
   if (rk.sharpe != null) parts.push(rk.sharpe >= 1 ? `Sharpe solide (${rk.sharpe})` : (rk.sharpe >= 0 ? `Sharpe modeste (${rk.sharpe})` : `Sharpe négatif (${rk.sharpe})`));
+  if (m.atr_pct != null) parts.push(`mouvement quotidien typique ±${m.atr_pct} %`);
   const risk_summary = parts.length ? 'Profil de risque : ' + parts.join(', ') + '.' : '';
 
   return { headline, points: pts, risk_summary, vigilance: vig };
@@ -303,4 +465,4 @@ module.exports = async (req, res) => {
 };
 
 // Exposé pour les tests (n'affecte pas le handler par défaut utilisé par Vercel).
-module.exports._internal = { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown };
+module.exports._internal = { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown, obv, trendCorr, atr, adx, stochastic, rsiDivergence };

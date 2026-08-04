@@ -539,7 +539,8 @@
 const LABEL_COLOR = { STRONG_BUY:'#4fa587', BUY:'#6cb492', HOLD:'#c9a24e', SELL:'#e0965c', STRONG_SELL:'#e07f8c' };
 const LABEL_TEXT  = { STRONG_BUY:'ACHAT MARQUÉ', BUY:'ACHAT', HOLD:'NEUTRE', SELL:'VENTE', STRONG_SELL:'VENTE MARQUÉE' };
 const SIGNAL_LABEL = { trend_lt:'Tendance long terme', trend_mt:'Tendance moyen terme',
-  ma_cross:'Croisement MM 50/200', rsi:'RSI', macd:'MACD', bollinger:'Bollinger', momentum:'Momentum' };
+  ma_cross:'Croisement MM 50/200', rsi:'RSI', macd:'MACD', bollinger:'Bollinger', momentum:'Momentum',
+  trend_strength:'Force de tendance (ADX)', volume:'Volume (OBV)', stoch:'Stochastique', divergence:'Divergence RSI' };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt = (v, n=2) => (v==null ? '—' : Number(v).toFixed(n));
 
@@ -654,9 +655,15 @@ function card(r) {
   const totalAbs = Object.values(r.contributions||{}).reduce((a,x)=>a+Math.abs(x),0) || 1;
   const contribs = Object.entries(r.contributions||{}).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]))
     .map(([k,v])=>`<tr><td>${esc(SIGNAL_LABEL[k]||k)}</td><td style="color:${v>=0?'var(--pos)':'var(--neg)'}">${v>=0?'+':''}${(v/totalAbs*50).toFixed(1)}</td></tr>`).join('');
+  const m = r.metrics;
+  const obvTxt = m.obv_trend==null ? '—' : (m.obv_trend>0.3?'confirme ↑':(m.obv_trend<-0.3?'confirme ↓':'neutre'));
+  const adxTxt = m.adx==null ? '—' : fmt(m.adx,1)+(m.adx>=25?' (forte)':(m.adx<18?' (faible)':' (modérée)'));
   const metricsRows = [
-    ['RSI (14)', fmt(r.metrics.rsi14,1)], ['SMA 50', fmt(r.metrics.sma50)], ['SMA 200', fmt(r.metrics.sma200)],
-    ['Momentum 60 j', fmt(r.metrics.momentum_60,1)+'%'], ['Volatilité', fmt(r.risk.annual_vol_pct,1)+'%'],
+    ['RSI (14)', fmt(m.rsi14,1)], ['Stochastique', fmt(m.stoch,1)],
+    ['Force de tendance (ADX)', adxTxt], ['Volume (OBV)', obvTxt],
+    ['SMA 50', fmt(m.sma50)], ['SMA 200', fmt(m.sma200)],
+    ['Momentum 60 j', fmt(m.momentum_60,1)+'%'], ['Mouvement/jour (ATR)', m.atr_pct==null?'—':'±'+fmt(m.atr_pct,2)+'%'],
+    ['Volatilité', fmt(r.risk.annual_vol_pct,1)+'%'],
     ['Ratio de Sharpe', fmt(r.risk.sharpe,2)], ['Max drawdown', fmt(r.risk.max_drawdown_pct,1)+'%'],
     ['Perf. 1 an', fmt(r.risk.ret_1y_pct,1)+'%'],
   ].map(([l,v])=>`<tr><td>${l}</td><td>${v}</td></tr>`).join('');
@@ -703,6 +710,8 @@ function autoAlerts(r) {
   const rsi = r.metrics && r.metrics.rsi14;
   if (rsi != null && rsi >= 70) out.push({ sev: 'warn', t: r.ticker, msg: `RSI ${rsi.toFixed(0)} — surachat (risque de correction)` });
   if (rsi != null && rsi <= 30) out.push({ sev: 'info', t: r.ticker, msg: `RSI ${rsi.toFixed(0)} — survendu (rebond possible)` });
+  if (r.metrics && r.metrics.divergence === 'bear') out.push({ sev: 'warn', t: r.ticker, msg: `divergence baissière — la hausse s'essouffle (élan en baisse)` });
+  if (r.metrics && r.metrics.divergence === 'bull') out.push({ sev: 'info', t: r.ticker, msg: `divergence haussière — rebond possible (élan en hausse)` });
   if (r.label === 'STRONG_BUY') out.push({ sev: 'pos', t: r.ticker, msg: `signal fort : achat marqué (score ${Math.round(r.score)})` });
   if (r.label === 'STRONG_SELL') out.push({ sev: 'neg', t: r.ticker, msg: `signal fort : vente marquée (score ${Math.round(r.score)})` });
   const fh = r.risk && r.risk.from_high_pct;

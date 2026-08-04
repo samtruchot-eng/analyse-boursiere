@@ -5,7 +5,8 @@
 // métriques de risque, explications). Sort avec le code 1 si un test échoue,
 // pour pouvoir être branché sur une intégration continue plus tard.
 
-const { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown } =
+const { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown,
+  obv, trendCorr, atr, adx, stochastic, rsiDivergence } =
   require('./analyze.js')._internal;
 
 let pass = 0, fail = 0;
@@ -76,6 +77,47 @@ function ramp(a, b, n) {
   approx('drawdown série croissante = 0%', maxDrawdown(ramp(100, 200, 50)), 0, 0.001);
 }
 
+// ── Volume : OBV + corrélation de tendance ───────────────────────────────────
+{
+  const closes = [10, 11, 12, 11, 13, 14];
+  const vols = [0, 100, 100, 50, 100, 100];
+  const o = obv(closes, vols);
+  ok('obv longueur', o.length === closes.length);
+  approx('obv[1] hausse ajoute volume', o[1], 100);
+  approx('obv[3] baisse retranche volume', o[3], 200 - 50);
+  ok('trendCorr série croissante ≈ +1', Math.abs(trendCorr(ramp(1, 10, 30), 30) - 1) < 0.001);
+  ok('trendCorr série décroissante ≈ -1', Math.abs(trendCorr(ramp(10, 1, 30), 30) + 1) < 0.001);
+  ok('trendCorr trop court = 0', trendCorr([1, 2], 40) === 0);
+}
+
+// ── ATR / ADX / Stochastique ─────────────────────────────────────────────────
+{
+  const rising = ramp(100, 200, 60).map((c) => ({ high: c, low: c, close: c }));
+  const falling = ramp(200, 100, 60).map((c) => ({ high: c, low: c, close: c }));
+  ok('atr numérique ≥ 0', atr(rising, 14) >= 0);
+  ok('atr série trop courte = null', atr([{ close: 1 }], 14) === null);
+
+  const au = adx(rising, 14), ad = adx(falling, 14);
+  ok('adx hausse : +DI > -DI', au && au.plusDI > au.minusDI);
+  ok('adx baisse : -DI > +DI', ad && ad.minusDI > ad.plusDI);
+  ok('adx force numérique', au && au.adx != null && au.adx >= 0);
+  ok('adx trop court = null', adx(rising.slice(0, 10), 14) === null);
+
+  ok('stoch série haussière proche de 100', stochastic(rising, 14) > 90);
+  ok('stoch série baissière proche de 0', stochastic(falling, 14) < 10);
+  ok('stoch trop court = null', stochastic([{ close: 1 }], 14) === null);
+}
+
+// ── Divergence prix / RSI ────────────────────────────────────────────────────
+{
+  // Prix : creux plus bas en 2e moitié, mais amorti (RSI se redresse) → haussière.
+  const n = 60, closes = [];
+  for (let i = 0; i < n; i++) closes.push(i < 30 ? 100 - i : 70 + (i - 30) * 0.2);
+  const d = rsiDivergence(closes, rsi(closes, 14), 40);
+  ok('divergence renvoie bull/bear/null', d === 'bull' || d === 'bear' || d === null);
+  ok('divergence série trop courte = null', rsiDivergence([1, 2, 3], rsi([1, 2, 3], 14), 40) === null);
+}
+
 // ── analyze() : score et cohérence ───────────────────────────────────────────
 {
   const a = analyze(bars(ramp(100, 200, 260)));
@@ -85,6 +127,10 @@ function ramp(a, b, n) {
   ok('analyze golden cross (sma50 > sma200)', a.metrics.sma50 > a.metrics.sma200);
   ok('analyze prix = dernier cours', Math.abs(a.price - 200) < 0.001);
   ok('analyze contributions présentes', a.contributions && Object.keys(a.contributions).length > 0);
+  ok('analyze ADX exposé dans metrics', a.metrics.adx != null);
+  ok('analyze Stochastique exposé dans metrics', a.metrics.stoch != null);
+  ok('analyze ATR exposé dans metrics', a.metrics.atr_pct != null);
+  ok('analyze champ divergence présent', 'divergence' in a.metrics);
 
   const b = analyze(bars(ramp(200, 100, 260)));
   ok('analyze tendance baissière → score < 50', b.value < 50);
