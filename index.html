@@ -457,12 +457,13 @@
         <circle cx="25.9" cy="12.8" r="1.5" fill="#e7c256"/>
         <circle cx="38.1" cy="12.8" r="1.5" fill="#e7c256"/>
       </svg> butterfly</h1>
-      <div class="sub">Cours réels · analyse technique expliquée en français</div>
+      <div class="sub" data-i18n="sub">Cours réels · analyse technique expliquée simplement</div>
     </div>
     <div class="header-links">
+      <button class="guide-link" id="lang-btn" type="button">English</button>
       <button class="guide-link theme-btn" id="theme-btn" type="button" aria-label="Basculer clair/sombre">🌙</button>
       <button class="guide-link" id="pf-open" type="button">💼 Portefeuille</button>
-      <a class="guide-link" href="/guide">📘 Guide →</a>
+      <a class="guide-link" href="/guide" data-i18n="guide">📘 Guide →</a>
     </div>
   </div>
 </header>
@@ -471,43 +472,39 @@
 
   <section id="portfolio" hidden>
     <div class="pf-head">
-      <h2>💼 Mon portefeuille</h2>
+      <h2 data-i18n="pfTitle">💼 Mon portefeuille</h2>
       <div class="pf-actions">
         <span class="pf-updated" id="pf-updated"></span>
-        <label><input type="checkbox" id="pf-auto"> Auto (1 min)</label>
-        <button class="pf-refresh" id="pf-refresh" type="button">↻ Rafraîchir</button>
+        <label><input type="checkbox" id="pf-auto"> <span data-i18n="pfAuto">Auto (1 min)</span></label>
+        <button class="pf-refresh" id="pf-refresh" type="button" data-i18n="pfRefresh">↻ Rafraîchir</button>
       </div>
     </div>
     <form id="pf-form">
-      <input id="pf-sym" placeholder="Symbole (ex. AAPL, AIR.PA)" autocomplete="off" autocapitalize="characters" spellcheck="false">
-      <input id="pf-qty" type="number" step="any" min="0" placeholder="Quantité">
-      <input id="pf-buy" type="number" step="any" min="0" placeholder="Prix d'achat (opt.)">
-      <button type="submit">Ajouter</button>
+      <input id="pf-sym" data-i18n-ph="phSym" placeholder="Symbole (ex. AAPL, AIR.PA)" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <input id="pf-qty" type="number" step="any" min="0" data-i18n-ph="phQty" placeholder="Quantité">
+      <input id="pf-buy" type="number" step="any" min="0" data-i18n-ph="phBuy" placeholder="Prix d'achat (opt.)">
+      <button type="submit" data-i18n="pfAdd">Ajouter</button>
     </form>
     <div id="pf-chart"></div>
     <div id="pf-body"></div>
-    <div class="pf-note">⚠ Suivi indicatif. Cours du dernier point de marché, réactualisé à chaque rafraîchissement
-      (toutes les minutes si « Auto » est coché) — pas du temps réel à la seconde. Vos positions sont mémorisées
-      dans ce navigateur uniquement. Les totaux sont regroupés par devise ; le <b>total en euros</b> convertit
-      les autres devises avec un taux de change récupéré en direct (à titre indicatif).</div>
+    <div class="pf-note" data-i18n="pfNote">⚠ Suivi indicatif.</div>
     <div class="pf-backup">
-      💾 Sauvegarde :
-      <button class="pf-refresh" id="pf-export" type="button">Exporter</button>
-      <button class="pf-refresh" id="pf-import" type="button">Importer</button>
+      <span data-i18n="backup">💾 Sauvegarde :</span>
+      <button class="pf-refresh" id="pf-export" type="button" data-i18n="exportBtn">Exporter</button>
+      <button class="pf-refresh" id="pf-import" type="button" data-i18n="importBtn">Importer</button>
       <input id="pf-file" type="file" accept="application/json,.json" hidden>
-      <span class="pf-backup-note">Enregistre (ou restaure) vos favoris, positions, alertes et historique dans un fichier — pour les sauvegarder ou les transférer sur un autre appareil.</span>
+      <span class="pf-backup-note" data-i18n="backupNote">Enregistre (ou restaure) vos favoris…</span>
     </div>
   </section>
 
   <div class="controls">
-    <input id="tickers" type="text" placeholder="Ex. AAPL, MSFT, NVDA" autocomplete="off"
+    <input id="tickers" type="text" data-i18n-ph="phTickers" placeholder="Ex. AAPL, MSFT, NVDA" autocomplete="off"
       autocapitalize="characters" spellcheck="false">
-    <button id="go">Analyser</button>
+    <button id="go" data-i18n="analyze">Analyser</button>
   </div>
-  <div class="hint">Séparez les symboles par des virgules. Ex. AAPL (Apple), MSFT (Microsoft),
-    NVDA (Nvidia), SPY (indice S&amp;P 500), air.fr (Airbus Paris).</div>
+  <div class="hint" data-i18n="hint">Séparez les symboles par des virgules.</div>
 
-  <div class="cats-label">Explorer par catégorie</div>
+  <div class="cats-label" data-i18n="catsLabel">Explorer par catégorie</div>
   <div id="cat-tabs" class="cat-tabs"></div>
   <div id="categories" class="cats"></div>
 
@@ -518,28 +515,26 @@
   <div id="compare"></div>
   <div id="results" class="grid"></div>
 
-  <h2>Comment lire le score</h2>
+  <h2 data-i18n="howToScore">Comment lire le score</h2>
   <div class="glossary"><dl id="glossary"></dl></div>
 
-  <footer>
-    ⚠ Analyse technique automatisée à but informatif et pédagogique. Ne constitue pas un conseil
-    en investissement ni une recommandation personnalisée. Les performances passées ne préjugent
-    pas des performances futures. Investir comporte un risque de perte en capital.
+  <footer data-i18n="footer">
+    ⚠ Analyse technique automatisée à but informatif et pédagogique.
   </footer>
 </main>
 
 <!-- Graphique agrandi -->
 <div id="chart-modal" class="modal" hidden>
   <div class="modal-card">
-    <div class="modal-head"><span id="chart-title"></span><button id="chart-close" aria-label="Fermer">✕</button></div>
+    <div class="modal-head"><span id="chart-title"></span><button id="chart-close" data-i18n-al="close" aria-label="Fermer">✕</button></div>
     <div id="chart-body"></div>
     <div id="chart-periods" class="chart-periods"></div>
     <div class="chart-legend">
-      <span><i class="sw sw-price"></i>Cours</span>
-      <span><i class="sw sw-50"></i>Moyenne 50 j</span>
-      <span><i class="sw sw-200"></i>Moyenne 200 j</span>
+      <span><i class="sw sw-price"></i><span data-i18n="legendPrice">Cours</span></span>
+      <span><i class="sw sw-50"></i><span data-i18n="legend50">Moyenne 50 j</span></span>
+      <span><i class="sw sw-200"></i><span data-i18n="legend200">Moyenne 200 j</span></span>
     </div>
-    <div class="chart-note">Les moyennes mobiles lissent la tendance. Cours au-dessus de ses moyennes = tendance haussière ; en dessous = baissière. La moyenne 200 j apparaît si l'historique est suffisant.</div>
+    <div class="chart-note" data-i18n="chartNote">Les moyennes mobiles lissent la tendance.</div>
     <div id="chart-sim"></div>
   </div>
 </div>
@@ -547,49 +542,196 @@
 <!-- Explication du score -->
 <div id="score-modal" class="modal" hidden>
   <div class="modal-card">
-    <div class="modal-head"><span id="score-title"></span><button id="score-close" aria-label="Fermer">✕</button></div>
+    <div class="modal-head"><span id="score-title"></span><button id="score-close" data-i18n-al="close" aria-label="Fermer">✕</button></div>
     <div id="score-body"></div>
   </div>
 </div>
 
 <!-- Assistant intégré (aide locale, sans IA) -->
-<button id="ask-launch" class="ask-launch" aria-label="Ouvrir l'assistant" aria-expanded="false">💬 Aide</button>
+<button id="ask-launch" class="ask-launch" data-i18n="askHelp" data-i18n-al="askOpen" aria-label="Ouvrir l'assistant" aria-expanded="false">💬 Aide</button>
 <div id="ask-panel" class="ask-panel" hidden>
-  <div class="ask-head"><span>🤖 Assistant</span><button id="ask-close" aria-label="Fermer l'assistant">✕</button></div>
+  <div class="ask-head"><span data-i18n="askTitle">🤖 Assistant</span><button id="ask-close" data-i18n-al="askClose" aria-label="Fermer l'assistant">✕</button></div>
   <div id="ask-msgs" class="ask-msgs"></div>
   <div id="ask-sugg" class="ask-sugg"></div>
   <form id="ask-form" class="ask-form" autocomplete="off">
-    <input id="ask-input" type="text" placeholder="Posez votre question…" aria-label="Votre question">
-    <button type="submit" aria-label="Envoyer">›</button>
+    <input id="ask-input" type="text" data-i18n-ph="askPh" data-i18n-al="askAria" placeholder="Posez votre question…" aria-label="Votre question">
+    <button type="submit" data-i18n-al="askSend" aria-label="Envoyer">›</button>
   </form>
 </div>
 
 <script>
+// ── Internationalisation (français / anglais) ────────────────────────────────
+function currentLang() { const s = localStorage.getItem('lang'); return s === 'en' ? 'en' : 'fr'; }
+function localeOf() { return currentLang() === 'en' ? 'en-US' : 'fr-FR'; }
+const I18N = {
+  fr: {
+    sub: 'Cours réels · analyse technique expliquée simplement',
+    pf: '💼 Portefeuille', guide: '📘 Guide →',
+    pfTitle: '💼 Mon portefeuille', pfAuto: 'Auto (1 min)', pfRefresh: '↻ Rafraîchir', pfAdd: 'Ajouter',
+    phSym: 'Symbole (ex. AAPL, AIR.PA)', phQty: 'Quantité', phBuy: "Prix d'achat (opt.)",
+    pfNote: '⚠ Suivi indicatif. Cours du dernier point de marché, réactualisé à chaque rafraîchissement (toutes les minutes si « Auto » est coché) — pas du temps réel à la seconde. Vos positions sont mémorisées dans ce navigateur uniquement. Les totaux sont regroupés par devise ; le total en euros convertit les autres devises avec un taux de change récupéré en direct (à titre indicatif).',
+    backup: '💾 Sauvegarde :', exportBtn: 'Exporter', importBtn: 'Importer',
+    backupNote: 'Enregistre (ou restaure) vos favoris, positions, alertes et historique dans un fichier — pour les sauvegarder ou les transférer sur un autre appareil.',
+    phTickers: 'Ex. AAPL, MSFT, NVDA', analyze: 'Analyser',
+    hint: 'Séparez les symboles par des virgules. Ex. AAPL (Apple), MSFT (Microsoft), NVDA (Nvidia), SPY (indice S&P 500), air.fr (Airbus Paris).',
+    catsLabel: 'Explorer par catégorie', howToScore: 'Comment lire le score',
+    footer: '⚠ Analyse technique automatisée à but informatif et pédagogique. Ne constitue pas un conseil en investissement ni une recommandation personnalisée. Les performances passées ne préjugent pas des performances futures. Investir comporte un risque de perte en capital.',
+    close: 'Fermer', legendPrice: 'Cours', legend50: 'Moyenne 50 j', legend200: 'Moyenne 200 j',
+    chartNote: "Les moyennes mobiles lissent la tendance. Cours au-dessus de ses moyennes = tendance haussière ; en dessous = baissière. La moyenne 200 j apparaît si l'historique est suffisant.",
+    askHelp: '💬 Aide', askTitle: '🤖 Assistant', askClose: "Fermer l'assistant", askPh: 'Posez votre question…', askSend: 'Envoyer', askAria: 'Votre question', askOpen: "Ouvrir l'assistant",
+    themeToLight: 'Passer en clair', themeToDark: 'Passer en sombre', langBtn: 'English', langAria: 'Switch to English',
+    // Cartes / analyses
+    fetchFail: 'Impossible de récupérer ce titre :', checkSym: "Vérifiez le symbole (ex. air.fr pour une valeur de Paris).",
+    asof: 'au', favTitle: 'Ajouter/retirer des favoris', favAria: 'Favori', alertTitle: 'Alerte de prix', noteTitle: 'Note personnelle', noteAria: 'Note',
+    zoomTitle: 'Agrandir · moyennes 50 et 200 jours', whyScore: 'Pourquoi ce score ? Voir le détail',
+    details: 'Détails chiffrés', contribToScore: 'Contributions au score', vigilance: '⚠ Points de vigilance',
+    mWeekly: 'Tendance de fond (hebdo)', mConf: 'Confiance du signal', mRsi: 'RSI (14)', mMfi: 'Flux monétaire (MFI)', mStoch: 'Stochastique', mAdx: 'Force de tendance (ADX)', mObv: 'Volume (OBV)', mRvol: 'Volume relatif', mSar: 'Parabolic SAR', mSqz: 'Compression (squeeze)', mSma50: 'SMA 50', mSma200: 'SMA 200', mSup: 'Support proche', mRes: 'Résistance proche', mProj: 'Fourchette 1 mois', mBeta: 'Bêta vs S&P 500', mMom: 'Momentum 60 j', mAtr: 'Mouvement/jour (ATR)', mVol: 'Volatilité', mSharpe: 'Ratio de Sharpe', mDd: 'Max drawdown', mRet1y: 'Perf. 1 an',
+    obvUp: 'confirme ↑', obvDown: 'confirme ↓', obvNeutral: 'neutre', adxStrong: 'forte', adxWeak: 'faible', adxMod: 'modérée',
+    wkBull: 'haussière ↑', wkBear: 'baissière ↓', wkNeutral: 'hésitante', sarBelow: 'sous le cours ↑', sarAbove: 'au-dessus ↓', sqzYes: 'oui (compression)', sqzNo: 'non',
+    whyLead: 'Pourquoi', whyDrivers: 'Principaux moteurs', whyClick: 'cliquez pour le détail', scoreWord: 'Score',
+    confSignal: 'Confiance du signal', confExplain: "mesure l'accord entre les facteurs. Plus les facteurs vont dans le même sens, plus le score est fiable.",
+    sxIntro1: 'Le score part de', sxNeutral: '50 (neutre)', sxIntro2: 'Chaque facteur technique le pousse vers le', sxUp: 'haut (vert)', sxDown: 'bas (rouge)', sxIntro3: 'Plus la barre est longue, plus le facteur pèse. Les facteurs sont classés du plus influent au moins influent.',
+    sxSum: '(somme des facteurs)', sxNeutralParen: '(neutre)',
+    sxNote: "💡 Analyse purement technique (basée sur les cours passés), à but informatif — ce n'est pas un conseil en investissement. Définitions de chaque indicateur dans le",
+    guideWord: 'guide', vsSp: 'vs S&P 500 (1 an) :', pts: 'pts', better: '(fait mieux que le marché)', worse: '(fait moins bien)',
+    cPerf: 'Perf. 1 an', cVol: 'Volatilité', cDd: 'Max drawdown', cSharpe: 'Sharpe',
+    // Alertes
+    alRsiOver: n => `RSI ${n} — surachat (risque de correction)`, alRsiUnder: n => `RSI ${n} — survendu (rebond possible)`,
+    alDivBear: "divergence baissière — la hausse s'essouffle (élan en baisse)", alDivBull: 'divergence haussière — rebond possible (élan en hausse)',
+    alStrongBuy: s => `signal fort : achat marqué (score ${s})`, alStrongSell: s => `signal fort : vente marquée (score ${s})`,
+    alNearHigh: p => `proche de son plus-haut 52 sem. (${p} %)`, alNearLow: 'proche de son plus-bas 52 sem.',
+    alHit: (op, p, c) => `seuil ${op} ${p} atteint (cours ${c})`, alertsTitle: 'Alertes',
+    // Comparateur
+    cmpTitle: (n) => `📊 Comparateur (${n}) · triez en cliquant une colonne`, colTicker: 'Titre', colScore: 'Score', colReco: 'Reco', colRet: 'Perf 1 an', colVol: 'Volatilité', colSharpe: 'Sharpe',
+    // Invites
+    alPromptCur: (t, op, p) => `Alerte prix pour ${t} — actuelle : ${op} ${p}.\nNouveau prix seuil (laissez vide pour supprimer l'alerte) :`,
+    alPromptNew: (t, px) => `Alerte prix pour ${t}${px != null ? ' (cours actuel : ' + px + ')' : ''}.\nJe vous préviendrai quand le cours franchit ce seuil.\nPrix seuil :`,
+    notePrompt: t => `Note personnelle pour ${t} (laissez vide pour supprimer) :`,
+    // Statut
+    loading: 'Récupération des cours réels et analyse…', noneFetched: "Aucun titre n'a pu être récupéré. Vérifiez les symboles ou réessayez dans un instant.", errPrefix: 'Erreur :', errRetry: 'Réessayez dans un instant.',
+    // Favoris
+    favTip: "⭐ Astuce : cliquez l'étoile ☆ en haut d'une carte pour l'ajouter à vos favoris.", favMine: '⭐ Mes favoris', favAnalyzeAll: 'Analyser mes favoris', favAnalyze: t => `Analyser ${t}`, remove: 'Retirer', removeAria: t => `Retirer ${t}`,
+    // Score history / delta
+    prevScore: (s, d) => `Score précédent : ${s} le ${d}`, vsWord: 'vs', scoreEvo: n => `Évolution du score · ${n} relevés`,
+    // Simulateur
+    simHead: '🧮 Simulateur — investissement programmé', simInvest1: "J'investis", simInvest2: 'par mois sur cette période.',
+    simResult: (mo, inv, val, gainCls, gain, pct) => `Sur ~${mo} mois, vous auriez investi <b>${inv}</b> et cela vaudrait aujourd'hui <b>${val}</b> — <span class="${gainCls}">${gain} (${pct})</span>.`,
+    simNote: 'Montants dans la devise du titre. Simulation sur la période affichée, à titre illustratif — les performances passées ne préjugent pas des performances futures.',
+    // Portefeuille
+    pfEmpty: "Aucune position pour l'instant. Ajoutez-en une ci-dessus : un <b>symbole</b> et une <b>quantité</b> (et le <b>prix d'achat</b> si vous voulez suivre la plus-value).",
+    pfUnavail: 'indispo.', pfColTitle: 'Titre', pfColQty: 'Qté', pfColBuy: 'PRU', pfColPrice: 'Cours', pfColVal: 'Valeur', pfColPl: '+/−', pfColPct: '%',
+    pfTotal: cur => `Total ${cur}`, pfTotalEur: partial => `Total en euros${partial ? ' (partiel)' : ''}`,
+    pfHistTitle: 'Valeur du portefeuille dans le temps', pfSince: d => `depuis le ${d}`, pfHistNote: n => `${n} relevés · un point par jour où vous ouvrez le portefeuille.`,
+    pfByPos: 'Par position', pfBySector: 'Par secteur', pfPartsPl: 'parts', pfPartsSg: 'part', pfUpdated: h => `Mis à jour à ${h}`,
+    confirmRestore: 'Restaurer cette sauvegarde ? Vos favoris, positions, alertes et historique actuels seront remplacés.', invalidBackup: 'Fichier de sauvegarde invalide.',
+    backToGuide: '← Retour au guide',
+    // Groupes de catégories
+    gActions: 'Actions', gRegions: 'Régions', gEtf: 'ETF', gCrypto: 'Crypto',
+    catAnalyze: syms => `Analyser : ${syms}`,
+  },
+  en: {
+    sub: 'Real prices · technical analysis explained plainly',
+    pf: '💼 Portfolio', guide: '📘 Guide →',
+    pfTitle: '💼 My portfolio', pfAuto: 'Auto (1 min)', pfRefresh: '↻ Refresh', pfAdd: 'Add',
+    phSym: 'Symbol (e.g. AAPL, AIR.PA)', phQty: 'Quantity', phBuy: 'Buy price (opt.)',
+    pfNote: '⚠ Indicative tracking. Latest market close, refreshed on each update (every minute if "Auto" is on) — not real time to the second. Your positions are stored in this browser only. Totals are grouped by currency; the euro total converts other currencies using a live exchange rate (indicative).',
+    backup: '💾 Backup:', exportBtn: 'Export', importBtn: 'Import',
+    backupNote: 'Saves (or restores) your favourites, positions, alerts and history to a file — to back them up or move them to another device.',
+    phTickers: 'e.g. AAPL, MSFT, NVDA', analyze: 'Analyse',
+    hint: 'Separate symbols with commas. e.g. AAPL (Apple), MSFT (Microsoft), NVDA (Nvidia), SPY (S&P 500 index), air.fr (Airbus Paris).',
+    catsLabel: 'Explore by category', howToScore: 'How to read the score',
+    footer: '⚠ Automated technical analysis for information and education. Not investment advice or a personalised recommendation. Past performance does not guarantee future results. Investing carries a risk of capital loss.',
+    close: 'Close', legendPrice: 'Price', legend50: '50-day average', legend200: '200-day average',
+    chartNote: 'Moving averages smooth the trend. Price above its averages = bullish trend; below = bearish. The 200-day average appears when history is long enough.',
+    askHelp: '💬 Help', askTitle: '🤖 Assistant', askClose: 'Close the assistant', askPh: 'Ask your question…', askSend: 'Send', askAria: 'Your question', askOpen: 'Open the assistant',
+    themeToLight: 'Switch to light', themeToDark: 'Switch to dark', langBtn: 'Français', langAria: 'Passer en français',
+    fetchFail: 'Could not fetch this symbol:', checkSym: 'Check the symbol (e.g. air.fr for a Paris-listed stock).',
+    asof: 'as of', favTitle: 'Add/remove from favourites', favAria: 'Favourite', alertTitle: 'Price alert', noteTitle: 'Personal note', noteAria: 'Note',
+    zoomTitle: 'Enlarge · 50- and 200-day averages', whyScore: 'Why this score? See the breakdown',
+    details: 'Detailed figures', contribToScore: 'Contributions to the score', vigilance: '⚠ Watch points',
+    mWeekly: 'Underlying trend (weekly)', mConf: 'Signal confidence', mRsi: 'RSI (14)', mMfi: 'Money Flow Index (MFI)', mStoch: 'Stochastic', mAdx: 'Trend strength (ADX)', mObv: 'Volume (OBV)', mRvol: 'Relative volume', mSar: 'Parabolic SAR', mSqz: 'Squeeze', mSma50: 'SMA 50', mSma200: 'SMA 200', mSup: 'Nearby support', mRes: 'Nearby resistance', mProj: '1-month range', mBeta: 'Beta vs S&P 500', mMom: 'Momentum 60d', mAtr: 'Daily move (ATR)', mVol: 'Volatility', mSharpe: 'Sharpe ratio', mDd: 'Max drawdown', mRet1y: '1-year return',
+    obvUp: 'confirms ↑', obvDown: 'confirms ↓', obvNeutral: 'neutral', adxStrong: 'strong', adxWeak: 'weak', adxMod: 'moderate',
+    wkBull: 'bullish ↑', wkBear: 'bearish ↓', wkNeutral: 'unclear', sarBelow: 'below price ↑', sarAbove: 'above price ↓', sqzYes: 'yes (squeeze)', sqzNo: 'no',
+    whyLead: 'Why', whyDrivers: 'Main drivers', whyClick: 'click for the breakdown', scoreWord: 'Score',
+    confSignal: 'Signal confidence', confExplain: 'measures how much the factors agree. The more they point the same way, the more reliable the score.',
+    sxIntro1: 'The score starts at', sxNeutral: '50 (neutral)', sxIntro2: 'Each technical factor pushes it', sxUp: 'up (green)', sxDown: 'down (red)', sxIntro3: 'The longer the bar, the more the factor weighs. Factors are ranked from most to least influential.',
+    sxSum: '(sum of factors)', sxNeutralParen: '(neutral)',
+    sxNote: '💡 Purely technical analysis (based on past prices), for information — not investment advice. Definitions of each indicator in the',
+    guideWord: 'guide', vsSp: 'vs S&P 500 (1y):', pts: 'pts', better: '(beats the market)', worse: '(lags the market)',
+    cPerf: '1-year return', cVol: 'Volatility', cDd: 'Max drawdown', cSharpe: 'Sharpe',
+    alRsiOver: n => `RSI ${n} — overbought (pullback risk)`, alRsiUnder: n => `RSI ${n} — oversold (rebound possible)`,
+    alDivBear: 'bearish divergence — the rise is losing steam (momentum down)', alDivBull: 'bullish divergence — rebound possible (momentum up)',
+    alStrongBuy: s => `strong signal: strong buy (score ${s})`, alStrongSell: s => `strong signal: strong sell (score ${s})`,
+    alNearHigh: p => `near its 52-week high (${p}%)`, alNearLow: 'near its 52-week low',
+    alHit: (op, p, c) => `threshold ${op} ${p} reached (price ${c})`, alertsTitle: 'Alerts',
+    cmpTitle: (n) => `📊 Comparison (${n}) · sort by clicking a column`, colTicker: 'Symbol', colScore: 'Score', colReco: 'Reco', colRet: '1y return', colVol: 'Volatility', colSharpe: 'Sharpe',
+    alPromptCur: (t, op, p) => `Price alert for ${t} — current: ${op} ${p}.\nNew threshold price (leave empty to remove the alert):`,
+    alPromptNew: (t, px) => `Price alert for ${t}${px != null ? ' (current price: ' + px + ')' : ''}.\nI'll warn you when the price crosses this threshold.\nThreshold price:`,
+    notePrompt: t => `Personal note for ${t} (leave empty to delete):`,
+    loading: 'Fetching real prices and analysing…', noneFetched: 'No symbol could be fetched. Check the symbols or try again shortly.', errPrefix: 'Error:', errRetry: 'Try again shortly.',
+    favTip: '⭐ Tip: click the ☆ star at the top of a card to add it to your favourites.', favMine: '⭐ My favourites', favAnalyzeAll: 'Analyse my favourites', favAnalyze: t => `Analyse ${t}`, remove: 'Remove', removeAria: t => `Remove ${t}`,
+    prevScore: (s, d) => `Previous score: ${s} on ${d}`, vsWord: 'vs', scoreEvo: n => `Score over time · ${n} readings`,
+    simHead: '🧮 Simulator — recurring investment', simInvest1: 'I invest', simInvest2: 'per month over this period.',
+    simResult: (mo, inv, val, gainCls, gain, pct) => `Over ~${mo} months, you would have invested <b>${inv}</b> and it would be worth <b>${val}</b> today — <span class="${gainCls}">${gain} (${pct})</span>.`,
+    simNote: 'Amounts in the security\'s currency. Simulation over the displayed period, illustrative only — past performance does not guarantee future results.',
+    pfEmpty: 'No positions yet. Add one above: a <b>symbol</b> and a <b>quantity</b> (and the <b>buy price</b> if you want to track gains).',
+    pfUnavail: 'n/a', pfColTitle: 'Symbol', pfColQty: 'Qty', pfColBuy: 'Avg', pfColPrice: 'Price', pfColVal: 'Value', pfColPl: '+/−', pfColPct: '%',
+    pfTotal: cur => `Total ${cur}`, pfTotalEur: partial => `Total in euros${partial ? ' (partial)' : ''}`,
+    pfHistTitle: 'Portfolio value over time', pfSince: d => `since ${d}`, pfHistNote: n => `${n} readings · one point per day you open the portfolio.`,
+    pfByPos: 'By position', pfBySector: 'By sector', pfPartsPl: 'holdings', pfPartsSg: 'holding', pfUpdated: h => `Updated at ${h}`,
+    confirmRestore: 'Restore this backup? Your current favourites, positions, alerts and history will be replaced.', invalidBackup: 'Invalid backup file.',
+    backToGuide: '← Back to the guide',
+    gActions: 'Stocks', gRegions: 'Regions', gEtf: 'ETFs', gCrypto: 'Crypto',
+    catAnalyze: syms => `Analyse: ${syms}`,
+  },
+};
+function t(k, ...args) { const d = I18N[currentLang()] || I18N.fr; let v = d[k]; if (v == null) v = I18N.fr[k]; if (v == null) return k; return typeof v === 'function' ? v(...args) : v; }
+
 const LABEL_COLOR = { STRONG_BUY:'#4fa587', BUY:'#6cb492', HOLD:'#c9a24e', SELL:'#e0965c', STRONG_SELL:'#e07f8c' };
-const LABEL_TEXT  = { STRONG_BUY:'ACHAT MARQUÉ', BUY:'ACHAT', HOLD:'NEUTRE', SELL:'VENTE', STRONG_SELL:'VENTE MARQUÉE' };
-const SIGNAL_LABEL = { trend_lt:'Tendance long terme', trend_mt:'Tendance moyen terme',
-  ma_cross:'Croisement MM 50/200', rsi:'RSI', macd:'MACD', bollinger:'Bollinger', momentum:'Momentum',
-  trend_strength:'Force de tendance (ADX)', volume:'Volume (OBV)', stoch:'Stochastique', divergence:'Divergence RSI',
-  htf_trend:'Tendance de fond (hebdo)', mfi:'Flux monétaire (MFI)', psar:'Parabolic SAR' };
+const LABEL_TEXT_L = {
+  fr: { STRONG_BUY:'ACHAT MARQUÉ', BUY:'ACHAT', HOLD:'NEUTRE', SELL:'VENTE', STRONG_SELL:'VENTE MARQUÉE' },
+  en: { STRONG_BUY:'STRONG BUY', BUY:'BUY', HOLD:'HOLD', SELL:'SELL', STRONG_SELL:'STRONG SELL' } };
+const SIGNAL_LABEL_L = {
+  fr: { trend_lt:'Tendance long terme', trend_mt:'Tendance moyen terme', ma_cross:'Croisement MM 50/200', rsi:'RSI', macd:'MACD', bollinger:'Bollinger', momentum:'Momentum', trend_strength:'Force de tendance (ADX)', volume:'Volume (OBV)', stoch:'Stochastique', divergence:'Divergence RSI', htf_trend:'Tendance de fond (hebdo)', mfi:'Flux monétaire (MFI)', psar:'Parabolic SAR' },
+  en: { trend_lt:'Long-term trend', trend_mt:'Medium-term trend', ma_cross:'MA cross 50/200', rsi:'RSI', macd:'MACD', bollinger:'Bollinger', momentum:'Momentum', trend_strength:'Trend strength (ADX)', volume:'Volume (OBV)', stoch:'Stochastic', divergence:'RSI divergence', htf_trend:'Underlying trend (weekly)', mfi:'Money Flow (MFI)', psar:'Parabolic SAR' } };
+const LABEL_TEXT = new Proxy({}, { get: (_, k) => (LABEL_TEXT_L[currentLang()] || LABEL_TEXT_L.fr)[k] });
+const SIGNAL_LABEL = new Proxy({}, { get: (_, k) => (SIGNAL_LABEL_L[currentLang()] || SIGNAL_LABEL_L.fr)[k] });
 // Poids de chaque facteur (identiques au moteur d'analyse) — sert à reconstituer
 // la part exacte de chaque facteur dans le score, pour l'explication détaillée.
 const SIGNAL_WEIGHT = { trend_lt:1.5, trend_mt:1.2, ma_cross:1.3, rsi:1.0, macd:1.2, bollinger:0.8, momentum:1.0,
   trend_strength:1.1, volume:0.9, stoch:0.7, divergence:0.8, htf_trend:1.3, mfi:0.8, psar:0.9 };
-const SIGNAL_DESC = {
-  trend_lt:'Position du cours vs sa moyenne 200 jours (tendance de fond)',
-  trend_mt:'Position du cours vs sa moyenne 50 jours (moyen terme)',
-  ma_cross:'Moyenne 50 j au-dessus (haussier) ou en dessous (baissier) de la 200 j',
-  rsi:'Surachat (>70) ou survente (<30) : mesure l\'élan',
-  macd:'Élan de court terme (croisement des moyennes exponentielles)',
-  bollinger:'Position dans les bandes de volatilité (haut/bas du couloir)',
-  momentum:'Performance sur les 60 dernières séances',
-  trend_strength:'Force et sens de la tendance (ADX + DI)',
-  volume:'Les volumes confirment-ils le mouvement du cours ?',
-  stoch:'Position du cours dans son couloir haut/bas récent',
-  divergence:'Cohérence entre le cours et l\'élan (RSI)',
-  htf_trend:'Tendance de fond lue sur le graphe hebdomadaire',
-  mfi:'Surachat/survente pondéré par les volumes (RSI + volume)',
-  psar:'Sens de la tendance et niveau de stop suiveur' };
+const SIGNAL_DESC_L = {
+  fr: {
+    trend_lt:'Position du cours vs sa moyenne 200 jours (tendance de fond)',
+    trend_mt:'Position du cours vs sa moyenne 50 jours (moyen terme)',
+    ma_cross:'Moyenne 50 j au-dessus (haussier) ou en dessous (baissier) de la 200 j',
+    rsi:'Surachat (>70) ou survente (<30) : mesure l\'élan',
+    macd:'Élan de court terme (croisement des moyennes exponentielles)',
+    bollinger:'Position dans les bandes de volatilité (haut/bas du couloir)',
+    momentum:'Performance sur les 60 dernières séances',
+    trend_strength:'Force et sens de la tendance (ADX + DI)',
+    volume:'Les volumes confirment-ils le mouvement du cours ?',
+    stoch:'Position du cours dans son couloir haut/bas récent',
+    divergence:'Cohérence entre le cours et l\'élan (RSI)',
+    htf_trend:'Tendance de fond lue sur le graphe hebdomadaire',
+    mfi:'Surachat/survente pondéré par les volumes (RSI + volume)',
+    psar:'Sens de la tendance et niveau de stop suiveur' },
+  en: {
+    trend_lt:'Price vs its 200-day average (underlying trend)',
+    trend_mt:'Price vs its 50-day average (medium term)',
+    ma_cross:'50-day average above (bullish) or below (bearish) the 200-day',
+    rsi:'Overbought (>70) or oversold (<30): measures momentum',
+    macd:'Short-term momentum (crossing of exponential averages)',
+    bollinger:'Position within the volatility bands (top/bottom of the channel)',
+    momentum:'Performance over the last 60 sessions',
+    trend_strength:'Strength and direction of the trend (ADX + DI)',
+    volume:'Do the volumes confirm the price move?',
+    stoch:'Price position within its recent high/low range',
+    divergence:'Consistency between price and momentum (RSI)',
+    htf_trend:'Underlying trend read on the weekly chart',
+    mfi:'Overbought/oversold weighted by volume (RSI + volume)',
+    psar:'Trend direction and trailing-stop level' } };
+const SIGNAL_DESC = new Proxy({}, { get: (_, k) => (SIGNAL_DESC_L[currentLang()] || SIGNAL_DESC_L.fr)[k] });
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt = (v, n=2) => (v==null ? '—' : Number(v).toFixed(n));
 
@@ -656,9 +798,9 @@ function scorePoints(r) {
 function scoreTitle(r) {
   if (r.error) return '';
   const rows = scorePoints(r);
-  if (!rows.length) return `Score ${Math.round(r.score)}/100`;
+  if (!rows.length) return `${t('scoreWord')} ${Math.round(r.score)}/100`;
   const top = rows.slice(0, 3).map(x => `${SIGNAL_LABEL[x.k] || x.k} ${x.pts >= 0 ? '+' : ''}${x.pts.toFixed(1)}`).join(', ');
-  return `Pourquoi ${Math.round(r.score)}/100 ? Principaux moteurs : ${top}… — cliquez pour le détail`;
+  return `${t('whyLead')} ${Math.round(r.score)}/100 ? ${t('whyDrivers')} : ${top}… — ${t('whyClick')}`;
 }
 
 // Fenêtre détaillée : décomposition visuelle du score facteur par facteur.
@@ -681,14 +823,14 @@ function openScore(ticker) {
   const total = rows.reduce((a, x) => a + x.pts, 0);
   const conf = r.metrics && r.metrics.confidence;
   const confColor = conf==null ? 'var(--muted)' : (conf>=70?'var(--pos)':(conf>=50?'var(--warn)':'var(--neg)'));
-  const confLine = conf==null ? '' : `<div class="sx-conf">Confiance du signal : <strong style="color:${confColor}">${esc(r.metrics.confidence_label)}</strong> (${conf}/100) — mesure l'accord entre les facteurs. Plus les facteurs vont dans le même sens, plus le score est fiable.</div>`;
+  const confLine = conf==null ? '' : `<div class="sx-conf">${t('confSignal')} : <strong style="color:${confColor}">${esc(r.metrics.confidence_label)}</strong> (${conf}/100) — ${t('confExplain')}</div>`;
   document.getElementById('score-body').innerHTML = `
-    <div class="sx-lead">Score ${Math.round(r.score)}/100<span class="sx-pill" style="color:${color};background:${color}1f">${esc(recoText)}</span></div>
+    <div class="sx-lead">${t('scoreWord')} ${Math.round(r.score)}/100<span class="sx-pill" style="color:${color};background:${color}1f">${esc(recoText)}</span></div>
     ${confLine}
-    <div class="sx-intro">Le score part de <strong>50 (neutre)</strong>. Chaque facteur technique le pousse vers le <span style="color:var(--pos)">haut (vert)</span> ou le <span style="color:var(--neg)">bas (rouge)</span>. Plus la barre est longue, plus le facteur pèse. Les facteurs sont classés du plus influent au moins influent.</div>
+    <div class="sx-intro">${t('sxIntro1')} <strong>${t('sxNeutral')}</strong>. ${t('sxIntro2')} <span style="color:var(--pos)">${t('sxUp')}</span> ${currentLang()==='en'?'or':'ou le'} <span style="color:var(--neg)">${t('sxDown')}</span>. ${t('sxIntro3')}</div>
     ${body}
-    <div class="sx-total"><strong>50</strong> (neutre) ${total >= 0 ? '+' : '−'} <strong>${Math.abs(total).toFixed(1)}</strong> (somme des facteurs) = <strong style="color:${color}">${Math.round(r.score)}/100</strong>.</div>
-    <div class="sx-note">💡 Analyse purement technique (basée sur les cours passés), à but informatif — ce n'est pas un conseil en investissement. Définitions de chaque indicateur dans le <a href="/guide" style="color:var(--accent)">guide</a>.</div>`;
+    <div class="sx-total"><strong>50</strong> ${t('sxNeutralParen')} ${total >= 0 ? '+' : '−'} <strong>${Math.abs(total).toFixed(1)}</strong> ${t('sxSum')} = <strong style="color:${color}">${Math.round(r.score)}/100</strong>.</div>
+    <div class="sx-note">${t('sxNote')} <a href="/guide" style="color:var(--accent)">${t('guideWord')}</a>.</div>`;
   document.getElementById('score-modal').hidden = false;
 }
 function closeScore() { document.getElementById('score-modal').hidden = true; }
@@ -728,7 +870,7 @@ async function fetchBenchmark() {
 function relPerfHtml(r) {
   if (benchPerf == null || !r.risk || r.risk.ret_1y_pct == null || String(r.ticker).toUpperCase() === 'SPY') return '';
   const diff = r.risk.ret_1y_pct - benchPerf, cls = diff >= 0 ? 'pf-pos' : 'pf-neg';
-  return `<div class="relperf">vs S&amp;P 500 (1 an) : <span class="${cls}">${diff >= 0 ? '+' : ''}${fmt(diff, 1)} pts</span> ${diff >= 0 ? '(fait mieux que le marché)' : '(fait moins bien)'}</div>`;
+  return `<div class="relperf">${t('vsSp')} <span class="${cls}">${diff >= 0 ? '+' : ''}${fmt(diff, 1)} ${t('pts')}</span> ${diff >= 0 ? t('better') : t('worse')}</div>`;
 }
 
 // Petites étiquettes de risque colorées.
@@ -736,20 +878,20 @@ function riskChips(risk) {
   if (!risk) return '';
   const c = [];
   const perf = risk.ret_1y_pct;
-  if (perf != null) c.push({ k: 'Perf. 1 an', v: (perf >= 0 ? '+' : '') + fmt(perf, 1) + '%', t: perf >= 0 ? 'pos' : 'neg' });
+  if (perf != null) c.push({ k: t('cPerf'), v: (perf >= 0 ? '+' : '') + fmt(perf, 1) + '%', t: perf >= 0 ? 'pos' : 'neg' });
   const vol = risk.annual_vol_pct;
-  if (vol != null) c.push({ k: 'Volatilité', v: fmt(vol, 1) + '%', t: vol < 15 ? 'pos' : (vol < 30 ? 'warn' : 'neg') });
+  if (vol != null) c.push({ k: t('cVol'), v: fmt(vol, 1) + '%', t: vol < 15 ? 'pos' : (vol < 30 ? 'warn' : 'neg') });
   const dd = risk.max_drawdown_pct;
-  if (dd != null) c.push({ k: 'Max drawdown', v: fmt(dd, 1) + '%', t: dd < -35 ? 'neg' : 'warn' });
+  if (dd != null) c.push({ k: t('cDd'), v: fmt(dd, 1) + '%', t: dd < -35 ? 'neg' : 'warn' });
   const sh = risk.sharpe;
-  if (sh != null) c.push({ k: 'Sharpe', v: fmt(sh, 2), t: sh >= 1 ? 'pos' : (sh >= 0 ? 'warn' : 'neg') });
+  if (sh != null) c.push({ k: t('cSharpe'), v: fmt(sh, 2), t: sh >= 1 ? 'pos' : (sh >= 0 ? 'warn' : 'neg') });
   if (!c.length) return '';
   return `<div class="chips">${c.map(x => `<div class="chip ${x.t}"><span class="k">${x.k}</span><span class="v">${x.v}</span></div>`).join('')}</div>`;
 }
 
 function card(r) {
   if (r.error) return `<div class="card err" id="card-${esc(r.ticker)}"><div class="ticker">${esc(r.ticker)}${coHtml(r)}</div>
-    <div class="risk-summary" style="margin-top:8px">Impossible de récupérer ce titre : ${esc(r.error)}.<br>Vérifiez le symbole (ex. air.fr pour une valeur de Paris).</div></div>`;
+    <div class="risk-summary" style="margin-top:8px">${t('fetchFail')} ${esc(r.error)}.<br>${t('checkSym')}</div></div>`;
   const color = LABEL_COLOR[r.label] || '#666';
   const recoText = LABEL_TEXT[r.label] || esc(r.label.replace('_', ' '));
   const points = (r.points||[]).map(p => `<li class="${p.s}"><span><strong>${esc(p.topic)}.</strong> ${esc(p.text)}</span></li>`).join('');
@@ -757,42 +899,43 @@ function card(r) {
   const contribs = Object.entries(r.contributions||{}).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]))
     .map(([k,v])=>`<tr><td>${esc(SIGNAL_LABEL[k]||k)}</td><td style="color:${v>=0?'var(--pos)':'var(--neg)'}">${v>=0?'+':''}${(v/totalAbs*50).toFixed(1)}</td></tr>`).join('');
   const m = r.metrics;
-  const obvTxt = m.obv_trend==null ? '—' : (m.obv_trend>0.3?'confirme ↑':(m.obv_trend<-0.3?'confirme ↓':'neutre'));
-  const adxTxt = m.adx==null ? '—' : fmt(m.adx,1)+(m.adx>=25?' (forte)':(m.adx<18?' (faible)':' (modérée)'));
-  const wkTxt = { bull:'haussière ↑', bear:'baissière ↓', neutral:'hésitante' }[m.weekly_trend] || '—';
+  const obvTxt = m.obv_trend==null ? '—' : (m.obv_trend>0.3?t('obvUp'):(m.obv_trend<-0.3?t('obvDown'):t('obvNeutral')));
+  const adxTxt = m.adx==null ? '—' : fmt(m.adx,1)+(m.adx>=25?' ('+t('adxStrong')+')':(m.adx<18?' ('+t('adxWeak')+')':' ('+t('adxMod')+')'));
+  const wkTxt = { bull:t('wkBull'), bear:t('wkBear'), neutral:t('wkNeutral') }[m.weekly_trend] || '—';
   const confTxt = m.confidence==null ? '—' : `${m.confidence_label} (${m.confidence}/100)`;
   const supTxt = m.support==null ? '—' : `${fmt(m.support)} (${fmt(m.support_dist_pct,1)}%)`;
   const resTxt = m.resistance==null ? '—' : `${fmt(m.resistance)} (+${fmt(m.resistance_dist_pct,1)}%)`;
   const projTxt = m.proj_low_1m==null ? '—' : `${fmt(m.proj_low_1m)} – ${fmt(m.proj_high_1m)}`;
-  const betaTxt = m.beta==null ? '—' : `${fmt(m.beta,2)} (corr. ${fmt(m.market_corr,2)})`;
-  const sarTxt = m.psar==null ? '—' : `${fmt(m.psar)} (${m.psar_dir==='up'?'sous le cours ↑':'au-dessus ↓'})`;
+  const corrWord = currentLang()==='en' ? 'corr.' : 'corr.';
+  const betaTxt = m.beta==null ? '—' : `${fmt(m.beta,2)} (${corrWord} ${fmt(m.market_corr,2)})`;
+  const sarTxt = m.psar==null ? '—' : `${fmt(m.psar)} (${m.psar_dir==='up'?t('sarBelow'):t('sarAbove')})`;
   const rvolTxt = m.rel_volume==null ? '—' : `×${fmt(m.rel_volume,2)}`;
-  const sqzTxt = m.squeeze==null ? '—' : (m.squeeze?'oui (compression)':'non');
+  const sqzTxt = m.squeeze==null ? '—' : (m.squeeze?t('sqzYes'):t('sqzNo'));
   const metricsRows = [
-    ['Tendance de fond (hebdo)', wkTxt], ['Confiance du signal', confTxt],
-    ['RSI (14)', fmt(m.rsi14,1)], ['Flux monétaire (MFI)', fmt(m.mfi,1)],
-    ['Stochastique', fmt(m.stoch,1)], ['Force de tendance (ADX)', adxTxt],
-    ['Volume (OBV)', obvTxt], ['Volume relatif', rvolTxt],
-    ['Parabolic SAR', sarTxt], ['Compression (squeeze)', sqzTxt],
-    ['SMA 50', fmt(m.sma50)], ['SMA 200', fmt(m.sma200)],
-    ['Support proche', supTxt], ['Résistance proche', resTxt],
-    ['Fourchette 1 mois', projTxt], ['Bêta vs S&P 500', betaTxt],
-    ['Momentum 60 j', fmt(m.momentum_60,1)+'%'], ['Mouvement/jour (ATR)', m.atr_pct==null?'—':'±'+fmt(m.atr_pct,2)+'%'],
-    ['Volatilité', fmt(r.risk.annual_vol_pct,1)+'%'],
-    ['Ratio de Sharpe', fmt(r.risk.sharpe,2)], ['Max drawdown', fmt(r.risk.max_drawdown_pct,1)+'%'],
-    ['Perf. 1 an', fmt(r.risk.ret_1y_pct,1)+'%'],
+    [t('mWeekly'), wkTxt], [t('mConf'), confTxt],
+    [t('mRsi'), fmt(m.rsi14,1)], [t('mMfi'), fmt(m.mfi,1)],
+    [t('mStoch'), fmt(m.stoch,1)], [t('mAdx'), adxTxt],
+    [t('mObv'), obvTxt], [t('mRvol'), rvolTxt],
+    [t('mSar'), sarTxt], [t('mSqz'), sqzTxt],
+    [t('mSma50'), fmt(m.sma50)], [t('mSma200'), fmt(m.sma200)],
+    [t('mSup'), supTxt], [t('mRes'), resTxt],
+    [t('mProj'), projTxt], [t('mBeta'), betaTxt],
+    [t('mMom'), fmt(m.momentum_60,1)+'%'], [t('mAtr'), m.atr_pct==null?'—':'±'+fmt(m.atr_pct,2)+'%'],
+    [t('mVol'), fmt(r.risk.annual_vol_pct,1)+'%'],
+    [t('mSharpe'), fmt(r.risk.sharpe,2)], [t('mDd'), fmt(r.risk.max_drawdown_pct,1)+'%'],
+    [t('mRet1y'), fmt(r.risk.ret_1y_pct,1)+'%'],
   ].map(([l,v])=>`<tr><td>${l}</td><td>${v}</td></tr>`).join('');
-  const vigilance = (r.vigilance&&r.vigilance.length) ? `<div class="vigilance"><strong>⚠ Points de vigilance</strong><ul>${r.vigilance.map(v=>`<li>${esc(v)}</li>`).join('')}</ul></div>` : '';
+  const vigilance = (r.vigilance&&r.vigilance.length) ? `<div class="vigilance"><strong>${t('vigilance')}</strong><ul>${r.vigilance.map(v=>`<li>${esc(v)}</li>`).join('')}</ul></div>` : '';
   return `<div class="card" id="card-${esc(r.ticker)}">
     <div class="card-head">
       <div>
-        <div class="ticker">${esc(r.ticker)}${coHtml(r)} <button class="star${isFav(r.ticker) ? ' on' : ''}" data-t="${esc(r.ticker)}" title="Ajouter/retirer des favoris" aria-label="Favori">${isFav(r.ticker) ? '★' : '☆'}</button><button class="bell${getAlerts()[String(r.ticker).toUpperCase()] ? ' on' : ''}${customAlert(r) ? ' hit' : ''}" data-t="${esc(r.ticker)}" title="Alerte de prix" aria-label="Alerte de prix">🔔</button><button class="note-btn${getNotes()[String(r.ticker).toUpperCase()] ? ' on' : ''}" data-t="${esc(r.ticker)}" title="Note personnelle" aria-label="Note">✏️</button></div>
-        <div class="price"><strong>${fmt(r.price)}</strong> <span class="asof">au ${esc(r.day)}</span></div>
+        <div class="ticker">${esc(r.ticker)}${coHtml(r)} <button class="star${isFav(r.ticker) ? ' on' : ''}" data-t="${esc(r.ticker)}" title="${t('favTitle')}" aria-label="${t('favAria')}">${isFav(r.ticker) ? '★' : '☆'}</button><button class="bell${getAlerts()[String(r.ticker).toUpperCase()] ? ' on' : ''}${customAlert(r) ? ' hit' : ''}" data-t="${esc(r.ticker)}" title="${t('alertTitle')}" aria-label="${t('alertTitle')}">🔔</button><button class="note-btn${getNotes()[String(r.ticker).toUpperCase()] ? ' on' : ''}" data-t="${esc(r.ticker)}" title="${t('noteTitle')}" aria-label="${t('noteAria')}">✏️</button></div>
+        <div class="price"><strong>${fmt(r.price)}</strong> <span class="asof">${t('asof')} ${esc(r.day)}</span></div>
         <span class="reco-pill" style="color:${color};background:${color}1f">${recoText}</span>${scoreDeltaHtml(r)}
       </div>
-      <button class="score-btn" data-t="${esc(r.ticker)}" title="${esc(scoreTitle(r))}" aria-label="Pourquoi ce score ? Voir le détail">${scoreRing(r.score, color)}</button>
+      <button class="score-btn" data-t="${esc(r.ticker)}" title="${esc(scoreTitle(r))}" aria-label="${t('whyScore')}">${scoreRing(r.score, color)}</button>
     </div>
-    <button class="spark-btn" data-t="${esc(r.ticker)}" title="Agrandir · moyennes 50 et 200 jours">${spark(r.spark, esc(r.ticker))}<span class="spark-exp">⤢</span></button>
+    <button class="spark-btn" data-t="${esc(r.ticker)}" title="${t('zoomTitle')}">${spark(r.spark, esc(r.ticker))}<span class="spark-exp">⤢</span></button>
     <div class="headline">${esc(r.headline)}</div>
     ${noteHtml(r)}
     ${riskChips(r.risk)}
@@ -800,7 +943,7 @@ function card(r) {
     <ul class="points">${points}</ul>
     <div class="risk-summary">${esc(r.risk_summary||'')}</div>
     ${vigilance}
-    <details><summary>Détails chiffrés</summary><table class="metrics">${metricsRows}<tr><td colspan="2" style="padding-top:10px;color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:.03em">Contributions au score</td></tr>${contribs}</table>${scoreMini(r)}</details>
+    <details><summary>${t('details')}</summary><table class="metrics">${metricsRows}<tr><td colspan="2" style="padding-top:10px;color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:.03em">${t('contribToScore')}</td></tr>${contribs}</table>${scoreMini(r)}</details>
   </div>`;
 }
 
@@ -815,7 +958,7 @@ function customAlert(r) {
   const al = getAlerts()[String(r.ticker).toUpperCase()];
   if (!al) return null;
   const hit = al.dir === 'above' ? r.price >= al.price : r.price <= al.price;
-  return hit ? { sev: 'alert', t: r.ticker, msg: `seuil ${al.dir === 'above' ? '≥' : '≤'} ${al.price} atteint (cours ${fmt(r.price)})` } : null;
+  return hit ? { sev: 'alert', t: r.ticker, msg: t('alHit', al.dir === 'above' ? '≥' : '≤', al.price, fmt(r.price)) } : null;
 }
 
 // Alertes automatiques déduites de l'analyse (aucun réglage nécessaire).
@@ -823,16 +966,16 @@ function autoAlerts(r) {
   const out = [];
   if (!r || r.error) return out;
   const rsi = r.metrics && r.metrics.rsi14;
-  if (rsi != null && rsi >= 70) out.push({ sev: 'warn', t: r.ticker, msg: `RSI ${rsi.toFixed(0)} — surachat (risque de correction)` });
-  if (rsi != null && rsi <= 30) out.push({ sev: 'info', t: r.ticker, msg: `RSI ${rsi.toFixed(0)} — survendu (rebond possible)` });
-  if (r.metrics && r.metrics.divergence === 'bear') out.push({ sev: 'warn', t: r.ticker, msg: `divergence baissière — la hausse s'essouffle (élan en baisse)` });
-  if (r.metrics && r.metrics.divergence === 'bull') out.push({ sev: 'info', t: r.ticker, msg: `divergence haussière — rebond possible (élan en hausse)` });
-  if (r.label === 'STRONG_BUY') out.push({ sev: 'pos', t: r.ticker, msg: `signal fort : achat marqué (score ${Math.round(r.score)})` });
-  if (r.label === 'STRONG_SELL') out.push({ sev: 'neg', t: r.ticker, msg: `signal fort : vente marquée (score ${Math.round(r.score)})` });
+  if (rsi != null && rsi >= 70) out.push({ sev: 'warn', t: r.ticker, msg: t('alRsiOver', rsi.toFixed(0)) });
+  if (rsi != null && rsi <= 30) out.push({ sev: 'info', t: r.ticker, msg: t('alRsiUnder', rsi.toFixed(0)) });
+  if (r.metrics && r.metrics.divergence === 'bear') out.push({ sev: 'warn', t: r.ticker, msg: t('alDivBear') });
+  if (r.metrics && r.metrics.divergence === 'bull') out.push({ sev: 'info', t: r.ticker, msg: t('alDivBull') });
+  if (r.label === 'STRONG_BUY') out.push({ sev: 'pos', t: r.ticker, msg: t('alStrongBuy', Math.round(r.score)) });
+  if (r.label === 'STRONG_SELL') out.push({ sev: 'neg', t: r.ticker, msg: t('alStrongSell', Math.round(r.score)) });
   const fh = r.risk && r.risk.from_high_pct;
-  if (fh != null && fh >= -3) out.push({ sev: 'warn', t: r.ticker, msg: `proche de son plus-haut 52 sem. (${fh.toFixed(1)} %)` });
+  if (fh != null && fh >= -3) out.push({ sev: 'warn', t: r.ticker, msg: t('alNearHigh', fh.toFixed(1)) });
   if (r.risk && r.risk.low_52w && r.price != null && r.price <= r.risk.low_52w * 1.03)
-    out.push({ sev: 'info', t: r.ticker, msg: `proche de son plus-bas 52 sem.` });
+    out.push({ sev: 'info', t: r.ticker, msg: t('alNearLow') });
   return out;
 }
 
@@ -842,16 +985,16 @@ function renderAlerts(rows) {
   if (!list.length) { el.innerHTML = ''; return; }
   const order = { alert: 0, neg: 1, warn: 2, pos: 3, info: 4 };
   list.sort((a, b) => (order[a.sev] - order[b.sev]));
-  el.innerHTML = `<div class="alerts-box"><div class="alerts-title">🔔 Alertes (${list.length})</div><ul>` +
+  el.innerHTML = `<div class="alerts-box"><div class="alerts-title">🔔 ${t('alertsTitle')} (${list.length})</div><ul>` +
     list.map(a => `<li class="al-${a.sev}"><span class="al-t">${esc(a.t)}</span><span>${esc(a.msg)}</span></li>`).join('') + `</ul></div>`;
 }
 
 // ── Comparateur : tableau triable de tous les titres analysés ────────────────
 const LABEL_ORDER = { STRONG_BUY: 5, BUY: 4, HOLD: 3, SELL: 2, STRONG_SELL: 1 };
 const CMP_COLS = [
-  { key: 'ticker', label: 'Titre', align: 'left' }, { key: 'score', label: 'Score', align: 'right' },
-  { key: 'label', label: 'Reco', align: 'left' }, { key: 'ret', label: 'Perf 1 an', align: 'right' },
-  { key: 'vol', label: 'Volatilité', align: 'right' }, { key: 'sharpe', label: 'Sharpe', align: 'right' },
+  { key: 'ticker', tk: 'colTicker', align: 'left' }, { key: 'score', tk: 'colScore', align: 'right' },
+  { key: 'label', tk: 'colReco', align: 'left' }, { key: 'ret', tk: 'colRet', align: 'right' },
+  { key: 'vol', tk: 'colVol', align: 'right' }, { key: 'sharpe', tk: 'colSharpe', align: 'right' },
 ];
 let cmpSort = { key: 'score', dir: -1 };
 function cmpVal(r, key) {
@@ -875,7 +1018,7 @@ function renderCompare(rows) {
     return cmpSort.dir * (va - vb);
   });
   const arrow = k => cmpSort.key === k ? (cmpSort.dir < 0 ? ' ▾' : ' ▴') : '';
-  const head = CMP_COLS.map(c => `<th data-k="${c.key}" class="${c.align}">${c.label}${arrow(c.key)}</th>`).join('');
+  const head = CMP_COLS.map(c => `<th data-k="${c.key}" class="${c.align}">${t(c.tk)}${arrow(c.key)}</th>`).join('');
   const body = sorted.map(r => {
     const color = LABEL_COLOR[r.label] || 'var(--muted)';
     const perf = r.risk ? r.risk.ret_1y_pct : null;
@@ -888,7 +1031,7 @@ function renderCompare(rows) {
       <td class="right">${fmt(r.risk && r.risk.sharpe, 2)}</td>
     </tr>`;
   }).join('');
-  el.innerHTML = `<div class="cmp-box"><div class="cmp-title">📊 Comparateur (${data.length}) · triez en cliquant une colonne</div>
+  el.innerHTML = `<div class="cmp-box"><div class="cmp-title">${t('cmpTitle', data.length)}</div>
     <div class="cmp-scroll"><table class="cmp"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div></div>`;
 }
 document.getElementById('compare').addEventListener('click', e => {
@@ -910,19 +1053,19 @@ function rerender() {
 }
 
 // Créer / modifier / supprimer une alerte de prix pour un titre.
-function editAlert(t) {
-  t = String(t).toUpperCase();
-  const all = getAlerts(), cur = all[t];
-  const r = lastRows.find(x => String(x.ticker).toUpperCase() === t);
+function editAlert(sym) {
+  sym = String(sym).toUpperCase();
+  const all = getAlerts(), cur = all[sym];
+  const r = lastRows.find(x => String(x.ticker).toUpperCase() === sym);
   const price = r && r.price != null ? r.price : null;
   const help = cur
-    ? `Alerte prix pour ${t} — actuelle : ${cur.dir === 'above' ? '≥' : '≤'} ${cur.price}.\nNouveau prix seuil (laissez vide pour supprimer l'alerte) :`
-    : `Alerte prix pour ${t}${price != null ? ' (cours actuel : ' + price + ')' : ''}.\nJe vous préviendrai quand le cours franchit ce seuil.\nPrix seuil :`;
+    ? t('alPromptCur', sym, cur.dir === 'above' ? '≥' : '≤', cur.price)
+    : t('alPromptNew', sym, price);
   const input = window.prompt(help, cur ? String(cur.price) : '');
   if (input === null) return;
   const v = parseFloat(String(input).replace(',', '.'));
-  if (!String(input).trim() || !isFinite(v)) { delete all[t]; }
-  else { all[t] = { price: v, dir: (price != null && v >= price) ? 'above' : 'below' }; }
+  if (!String(input).trim() || !isFinite(v)) { delete all[sym]; }
+  else { all[sym] = { price: v, dir: (price != null && v >= price) ? 'above' : 'below' }; }
   localStorage.setItem('alerts', JSON.stringify(all));
   rerender();
 }
@@ -936,10 +1079,10 @@ async function run() {
   if (!tickers) return;
   localStorage.setItem('tickers', tickers);
   btn.disabled = true;
-  status.innerHTML = `<div class="banner info"><span class="spinner"></span> Récupération des cours réels et analyse…</div>`;
+  status.innerHTML = `<div class="banner info"><span class="spinner"></span> ${t('loading')}</div>`;
   out.innerHTML = '';
   try {
-    const res = await fetch('/api/analyze?tickers=' + encodeURIComponent(tickers));
+    const res = await fetch('/api/analyze?tickers=' + encodeURIComponent(tickers) + '&lang=' + currentLang());
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     lastRows = (data.results||[]).slice().sort((a,b)=>(b.score??-1)-(a.score??-1));
@@ -950,26 +1093,40 @@ async function run() {
     renderCompare(lastRows);
     fetchBenchmark();
     const okCount = lastRows.filter(r=>!r.error).length;
-    status.innerHTML = okCount ? '' : `<div class="banner err">Aucun titre n'a pu être récupéré. Vérifiez les symboles ou réessayez dans un instant.</div>`;
+    status.innerHTML = okCount ? '' : `<div class="banner err">${t('noneFetched')}</div>`;
   } catch (e) {
-    status.innerHTML = `<div class="banner err">Erreur : ${esc(e.message||e)}. Réessayez dans un instant.</div>`;
+    status.innerHTML = `<div class="banner err">${t('errPrefix')} ${esc(e.message||e)}. ${t('errRetry')}</div>`;
   } finally {
     btn.disabled = false;
   }
 }
 
-const GLOSSARY = {
-  'Score (0–100)': '72+ achat marqué · 58–71 achat · 42–57 neutre · 28–41 vente · <28 vente marquée. C\'est un résumé de la configuration technique, pas une prédiction.',
-  'RSI': 'Force relative (0–100). >70 = suracheté (risque de correction), <30 = survendu (rebond possible).',
-  'MACD': 'Écart entre deux moyennes mobiles ; histogramme positif = momentum haussier.',
-  'Golden / death cross': 'Croisement de la moyenne 50 j au-dessus (haussier) ou au-dessous (baissier) de la 200 j.',
-  'Volatilité': 'Amplitude des variations en % par an. Plus elle est élevée, plus le titre bouge fort.',
-  'Ratio de Sharpe': 'Rendement par unité de risque. >1 = bon, <0 = le risque n\'a pas payé.',
-  'Max drawdown': 'Pire perte subie depuis un sommet jusqu\'au creux suivant.',
+const GLOSSARY_L = {
+  fr: {
+    'Score (0–100)': '72+ achat marqué · 58–71 achat · 42–57 neutre · 28–41 vente · <28 vente marquée. C\'est un résumé de la configuration technique, pas une prédiction.',
+    'RSI': 'Force relative (0–100). >70 = suracheté (risque de correction), <30 = survendu (rebond possible).',
+    'MACD': 'Écart entre deux moyennes mobiles ; histogramme positif = momentum haussier.',
+    'Golden / death cross': 'Croisement de la moyenne 50 j au-dessus (haussier) ou au-dessous (baissier) de la 200 j.',
+    'Volatilité': 'Amplitude des variations en % par an. Plus elle est élevée, plus le titre bouge fort.',
+    'Ratio de Sharpe': 'Rendement par unité de risque. >1 = bon, <0 = le risque n\'a pas payé.',
+    'Max drawdown': 'Pire perte subie depuis un sommet jusqu\'au creux suivant.',
+  },
+  en: {
+    'Score (0–100)': '72+ strong buy · 58–71 buy · 42–57 hold · 28–41 sell · <28 strong sell. A summary of the technical setup, not a prediction.',
+    'RSI': 'Relative strength (0–100). >70 = overbought (pullback risk), <30 = oversold (rebound possible).',
+    'MACD': 'Gap between two moving averages; positive histogram = bullish momentum.',
+    'Golden / death cross': 'Crossing of the 50-day average above (bullish) or below (bearish) the 200-day.',
+    'Volatility': 'Size of the swings in % per year. The higher it is, the more the stock moves.',
+    'Sharpe ratio': 'Return per unit of risk. >1 = good, <0 = the risk did not pay off.',
+    'Max drawdown': 'Worst loss suffered from a peak to the next trough.',
+  },
 };
-
-document.getElementById('glossary').innerHTML =
-  Object.entries(GLOSSARY).map(([t,d])=>`<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join('');
+function renderGlossary() {
+  const g = GLOSSARY_L[currentLang()] || GLOSSARY_L.fr;
+  document.getElementById('glossary').innerHTML =
+    Object.entries(g).map(([term, d]) => `<dt>${esc(term)}</dt><dd>${esc(d)}</dd>`).join('');
+}
+renderGlossary();
 
 // ── Catégories (raccourcis thématiques prêts à analyser) ─────────────────────
 const CATEGORIES = [
@@ -1005,16 +1162,20 @@ const CATEGORIES = [
   { ico: '🇨🇳', label: 'Chine', group: 'regions', syms: 'BABA, PDD, JD, BIDU, NIO, LI, TCEHY' },
   { ico: '🇮🇳', label: 'Inde', group: 'regions', syms: 'INFY, WIT, HDB, IBN' },
 ];
-const CAT_GROUPS = [{ key: 'actions', label: 'Actions' }, { key: 'regions', label: 'Régions' }, { key: 'etf', label: 'ETF' }, { key: 'crypto', label: 'Crypto' }];
+const CAT_EN = {
+  'Grands indices':'Major indices','Tech US':'US Tech','France':'France','Énergie':'Energy','Défense':'Defence','Or & mines':'Gold & miners','Semi-conducteurs':'Semiconductors','Défensives':'Defensives','Santé & pharma':'Health & pharma','Intelligence artificielle':'Artificial intelligence','Cloud & logiciels':'Cloud & software','Luxe':'Luxury','Automobile & VE':'Autos & EV','Banques':'Banks','Cryptos':'Cryptos','Crypto & minage':'Crypto & mining','ETF Monde':'World ETFs','ETF USA':'US ETFs','ETF régions':'Region ETFs','ETF sectoriels':'Sector ETFs','ETF thématiques':'Thematic ETFs','ETF obligations':'Bond ETFs','ETF or & matières':'Gold & commodity ETFs','ETF crypto':'Crypto ETFs','États-Unis':'United States','Allemagne':'Germany','Royaume-Uni':'United Kingdom','Suisse':'Switzerland','Japon':'Japan','Chine':'China','Inde':'India' };
+function catLabel(c) { return currentLang() === 'en' ? (CAT_EN[c.label] || c.label) : c.label; }
+const CAT_GROUPS = [{ key: 'actions', tk: 'gActions' }, { key: 'regions', tk: 'gRegions' }, { key: 'etf', tk: 'gEtf' }, { key: 'crypto', tk: 'gCrypto' }];
 function catGroup(c) { if (c.group) return c.group; if (/^ETF/.test(c.label)) return 'etf'; if (/crypto/i.test(c.label)) return 'crypto'; return 'actions'; }
 let catActive = localStorage.getItem('catGroup') || 'actions';
 function renderCategories() {
   document.getElementById('cat-tabs').innerHTML = CAT_GROUPS.map(g =>
-    `<button class="cat-tab${g.key === catActive ? ' on' : ''}" data-g="${g.key}">${esc(g.label)}</button>`).join('');
+    `<button class="cat-tab${g.key === catActive ? ' on' : ''}" data-g="${g.key}">${t(g.tk)}</button>`).join('');
   document.getElementById('categories').innerHTML = CATEGORIES.map((c, i) => {
     if (catGroup(c) !== catActive) return '';
-    const lbl = catActive === 'etf' ? c.label.replace(/^ETF\s+/, '') : c.label;
-    return `<button class="cat" data-i="${i}" title="Analyser : ${esc(c.syms)}"><span class="ico">${c.ico}</span>${esc(lbl)}</button>`;
+    let lbl = catLabel(c);
+    if (catActive === 'etf') lbl = lbl.replace(/^ETF\s+/, '').replace(/\s+ETFs?$/, '');
+    return `<button class="cat" data-i="${i}" title="${esc(t('catAnalyze', c.syms))}"><span class="ico">${c.ico}</span>${esc(lbl)}</button>`;
   }).join('');
 }
 document.getElementById('cat-tabs').addEventListener('click', e => {
@@ -1031,13 +1192,13 @@ document.getElementById('categories').addEventListener('click', e => {
 // ── Notes personnelles par titre (dans le navigateur) ───────────────────────
 function getNotes() { try { return JSON.parse(localStorage.getItem('notes') || '{}'); } catch (e) { return {}; } }
 function noteHtml(r) { const n = getNotes()[String(r.ticker).toUpperCase()]; return n ? `<div class="card-note">✏️ ${esc(n)}</div>` : ''; }
-function editNote(t) {
-  t = String(t).toUpperCase();
-  const all = getNotes(), cur = all[t] || '';
-  const v = window.prompt('Note personnelle pour ' + t + ' (laissez vide pour supprimer) :', cur);
+function editNote(sym) {
+  sym = String(sym).toUpperCase();
+  const all = getNotes(), cur = all[sym] || '';
+  const v = window.prompt(t('notePrompt', sym), cur);
   if (v === null) return;
   const s = String(v).trim();
-  if (s) all[t] = s; else delete all[t];
+  if (s) all[sym] = s; else delete all[sym];
   localStorage.setItem('notes', JSON.stringify(all));
   rerender();
 }
@@ -1055,18 +1216,18 @@ function recordScore(t, s) {
   h[t] = arr;
 }
 function saveScoreHist() { if (scoreHist) localStorage.setItem('scoreHistory', JSON.stringify(scoreHist)); }
-function frDate(iso) { const p = String(iso).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }); }
+function frDate(iso) { const p = String(iso).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString(localeOf(), { day: 'numeric', month: 'short' }); }
 function scoreDeltaHtml(r) {
   const h = getScoreHistory(r.ticker); if (h.length < 2) return '';
   const d = h[h.length - 1].s - h[h.length - 2].s, cls = d > 0 ? 'up' : (d < 0 ? 'down' : 'flat'), arrow = d > 0 ? '▲' : (d < 0 ? '▼' : '=');
-  return `<span class="delta ${cls}" title="Score précédent : ${h[h.length - 2].s} le ${esc(frDate(h[h.length - 2].d))}">${arrow} ${d > 0 ? '+' : ''}${d} <small>vs ${esc(frDate(h[h.length - 2].d))}</small></span>`;
+  return `<span class="delta ${cls}" title="${esc(t('prevScore', h[h.length - 2].s, frDate(h[h.length - 2].d)))}">${arrow} ${d > 0 ? '+' : ''}${d} <small>${t('vsWord')} ${esc(frDate(h[h.length - 2].d))}</small></span>`;
 }
 function scoreMini(r) {
   const h = getScoreHistory(r.ticker); if (h.length < 2) return '';
   const vals = h.map(x => x.s), w = 260, ht = 40;
   const pts = vals.map((v, i) => `${(i / (vals.length - 1) * w).toFixed(1)},${(ht - v / 100 * ht).toFixed(1)}`).join(' ');
   const up = vals[vals.length - 1] >= vals[0];
-  return `<div class="score-hist"><div class="sh-lab">Évolution du score · ${h.length} relevés</div><svg viewBox="0 0 ${w} ${ht}" preserveAspectRatio="none"><polyline fill="none" stroke="${up ? 'var(--pos)' : 'var(--neg)'}" stroke-width="2" points="${pts}"/></svg></div>`;
+  return `<div class="score-hist"><div class="sh-lab">${t('scoreEvo', h.length)}</div><svg viewBox="0 0 ${w} ${ht}" preserveAspectRatio="none"><polyline fill="none" stroke="${up ? 'var(--pos)' : 'var(--neg)'}" stroke-width="2" points="${pts}"/></svg></div>`;
 }
 
 // ── Favoris (mémorisés dans le navigateur, aucune donnée envoyée) ─────────────
@@ -1088,12 +1249,12 @@ function syncStars() {
 function renderFavs() {
   const f = getFavs(), bar = document.getElementById('favbar');
   if (!f.length) {
-    bar.innerHTML = `<span class="fav-empty">⭐ Astuce : cliquez l'étoile ☆ en haut d'une carte pour l'ajouter à vos favoris.</span>`;
+    bar.innerHTML = `<span class="fav-empty">${t('favTip')}</span>`;
     return;
   }
-  bar.innerHTML = `<span class="fav-title">⭐ Mes favoris</span>` +
-    f.map(t => `<span class="fav-chip"><button class="fav-load" data-t="${esc(t)}" title="Analyser ${esc(t)}">${esc(t)}</button><button class="fav-del" data-t="${esc(t)}" title="Retirer" aria-label="Retirer ${esc(t)}">✕</button></span>`).join('') +
-    `<button class="fav-analyze">Analyser mes favoris</button>`;
+  bar.innerHTML = `<span class="fav-title">${t('favMine')}</span>` +
+    f.map(sy => `<span class="fav-chip"><button class="fav-load" data-t="${esc(sy)}" title="${esc(t('favAnalyze', sy))}">${esc(sy)}</button><button class="fav-del" data-t="${esc(sy)}" title="${t('remove')}" aria-label="${esc(t('removeAria', sy))}">✕</button></span>`).join('') +
+    `<button class="fav-analyze">${t('favAnalyzeAll')}</button>`;
 }
 document.getElementById('results').addEventListener('click', e => {
   const s = e.target.closest('.star'); if (s) { toggleFav(s.dataset.t); return; }
@@ -1144,8 +1305,9 @@ function updateSim() {
   const r = simulateDCA(chartCloses, m);
   if (!r || !r.months) { out.innerHTML = ''; return; }
   const cls = r.gain >= 0 ? 'pf-pos' : 'pf-neg';
-  out.innerHTML = `Sur ~${r.months} mois, vous auriez investi <b>${fmtNum(r.invested, 0)}</b> et cela vaudrait aujourd'hui <b>${fmtNum(r.value, 0)}</b> — <span class="${cls}">${r.gain >= 0 ? '+' : ''}${fmtNum(r.gain, 0)} (${r.gain >= 0 ? '+' : ''}${fmt(r.pct, 1)} %)</span>.
-    <span class="sim-note">Montants dans la devise du titre. Simulation sur la période affichée, à titre illustratif — les performances passées ne préjugent pas des performances futures.</span>`;
+  const gainTxt = `${r.gain >= 0 ? '+' : ''}${fmtNum(r.gain, 0)}`, pctTxt = `${r.gain >= 0 ? '+' : ''}${fmt(r.pct, 1)} %`;
+  out.innerHTML = t('simResult', r.months, fmtNum(r.invested, 0), fmtNum(r.value, 0), cls, gainTxt, pctTxt) +
+    `\n    <span class="sim-note">${t('simNote')}</span>`;
 }
 function openChart(ticker) {
   const r = lastRows.find(x => String(x.ticker).toUpperCase() === String(ticker).toUpperCase());
@@ -1153,9 +1315,9 @@ function openChart(ticker) {
   const closes = (r.chart && r.chart.length >= 30) ? r.chart : (r.spark || []);
   if (closes.length < 2) return;
   chartFull = closes; chartPeriodDays = 0;
-  document.getElementById('chart-title').innerHTML = `${esc(r.ticker)} <small>${esc(companyName(r))} · ${fmt(r.price)} au ${esc(r.day)}</small>`;
-  document.getElementById('chart-sim').innerHTML = `<div class="sim-head">🧮 Simulateur — investissement programmé</div>
-    <label class="sim-row">J'investis <input id="sim-amount" type="number" min="0" step="any" value="100"> par mois sur cette période.</label>
+  document.getElementById('chart-title').innerHTML = `${esc(r.ticker)} <small>${esc(companyName(r))} · ${fmt(r.price)} ${t('asof')} ${esc(r.day)}</small>`;
+  document.getElementById('chart-sim').innerHTML = `<div class="sim-head">${t('simHead')}</div>
+    <label class="sim-row">${t('simInvest1')} <input id="sim-amount" type="number" min="0" step="any" value="100"> ${t('simInvest2')}</label>
     <div id="sim-out"></div>`;
   renderChartView();
   document.getElementById('chart-modal').hidden = false;
@@ -1196,7 +1358,27 @@ function updateThemeBtn() {
   const btn = document.getElementById('theme-btn'); if (!btn) return;
   const dark = currentTheme() === 'dark';
   btn.textContent = dark ? '☀️' : '🌙';
-  btn.title = dark ? 'Passer en clair' : 'Passer en sombre';
+  btn.title = dark ? t('themeToLight') : t('themeToDark');
+}
+
+// ── Langue (français / anglais, choix mémorisé, partagé avec le guide) ────────
+function applyStaticI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll('[data-i18n-al]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAl)); });
+}
+function updateLangBtn() { const b = document.getElementById('lang-btn'); if (b) { b.textContent = t('langBtn'); b.setAttribute('aria-label', t('langAria')); } }
+function applyLang() {
+  document.documentElement.lang = currentLang();
+  applyStaticI18n(); updateLangBtn(); updateThemeBtn(); updatePfBadge();
+  renderGlossary(); renderCategories(); renderFavs(); renderPf();
+  if (lastRows.length) rerender();
+}
+function toggleLang() {
+  localStorage.setItem('lang', currentLang() === 'en' ? 'fr' : 'en');
+  applyLang();
+  if (window.__assistReset) window.__assistReset();
+  if (lastRows.some(r => !r.error)) run(); // ré-analyse pour traduire les phrases du serveur
 }
 function applyTheme() {
   const s = localStorage.getItem('theme');
@@ -1206,6 +1388,7 @@ function applyTheme() {
 }
 function toggleTheme() { localStorage.setItem('theme', currentTheme() === 'dark' ? 'light' : 'dark'); applyTheme(); }
 document.getElementById('theme-btn').addEventListener('click', toggleTheme);
+document.getElementById('lang-btn').addEventListener('click', toggleLang);
 applyTheme();
 
 document.getElementById('go').addEventListener('click', run);
@@ -1216,71 +1399,87 @@ const _norm = (s) => ' ' + String(s).toLowerCase().normalize('NFD')
   .replace(/[^a-z0-9]+/g, ' ').trim() + ' ';
 
 const ASSIST_ADVICE = [' dois je ', ' faut il ', ' je dois ', 'acheter', 'vendre', ' conseil', 'recommand',
-  'va monter', 'vas monter', 'va baisser', 'prevision', 'predi', 'bon moment', 'vaut il', 'faut il investir'];
-const ASSIST_ADVICE_ANSWER = "Je ne donne pas de <b>conseil personnalisé</b> : l'appli fait de l'analyse <i>technique</i>, pas une recommandation d'achat ou de vente. Pour vous faire votre idée sur un titre, regardez son <b>score</b>, sa <b>tendance</b> (cours au-dessus/sous ses moyennes), le <b>RSI</b> (&gt;70 = prudence) et son <b>risque</b> (volatilité, drawdown). La méthode complète est dans le <a href='/guide#plan' target='_blank'>guide</a>.";
-const ASSIST_FALLBACK = "Je ne suis pas sûr d'avoir la réponse exacte. 😅 Je peux expliquer : le <b>score</b> (et pourquoi il vaut tant), le <b>RSI</b>, le <b>MACD</b>, les <b>moyennes</b>, l'<b>ADX</b>, le <b>volume</b>, la <b>divergence</b>, le <b>MFI</b>, le <b>Parabolic SAR</b>, la <b>confiance du signal</b>, le <b>bêta</b>, les <b>supports/résistances</b>, la <b>volatilité</b>, le <b>Sharpe</b>, le <b>drawdown</b>, les <b>favoris</b>, les <b>alertes</b>, les <b>catégories</b>, les <b>symboles</b>… Le <a href='/guide' target='_blank'>guide complet</a> couvre tout en détail.";
-
+  'va monter', 'vas monter', 'va baisser', 'prevision', 'predi', 'bon moment', 'vaut il', 'faut il investir',
+  'should i', ' buy ', ' sell ', 'advice', 'recommend', 'will it', 'going up', 'going down', 'good time', 'worth buying'];
+const ASSIST_TXT = {
+  fr: {
+    adviceAnswer: "Je ne donne pas de <b>conseil personnalisé</b> : l'appli fait de l'analyse <i>technique</i>, pas une recommandation d'achat ou de vente. Pour vous faire votre idée sur un titre, regardez son <b>score</b>, sa <b>tendance</b>, le <b>RSI</b> (&gt;70 = prudence) et son <b>risque</b> (volatilité, drawdown). La méthode complète est dans le <a href='/guide#plan' target='_blank'>guide</a>.",
+    fallback: "Je ne suis pas sûr d'avoir la réponse exacte. 😅 Je peux expliquer : le <b>score</b>, le <b>RSI</b>, le <b>MACD</b>, l'<b>ADX</b>, le <b>volume</b>, la <b>divergence</b>, le <b>MFI</b>, le <b>SAR</b>, la <b>confiance</b>, le <b>bêta</b>, les <b>supports/résistances</b>, la <b>volatilité</b>, le <b>Sharpe</b>, les <b>favoris</b>, les <b>alertes</b>… Le <a href='/guide' target='_blank'>guide complet</a> couvre tout.",
+    hello: "Bonjour ! Posez-moi une question sur l'appli (score, RSI, favoris, alertes…) ou une notion d'investissement.",
+    thanks: "Avec plaisir ! 🙂 D'autres questions ?",
+    greeting: "Bonjour 👋 Je suis l'assistant de l'appli. Posez une question sur le fonctionnement (score, RSI, favoris, alertes…) ou une notion. <i>Je ne donne pas de conseil d'investissement.</i>",
+    sugg: ["Pourquoi ce score ?", "C'est quoi l'ADX ?", "Le volume, ça sert à quoi ?", "C'est quoi le bêta ?", "Comment créer une alerte ?"],
+  },
+  en: {
+    adviceAnswer: "I don't give <b>personalised advice</b>: the app does <i>technical</i> analysis, not a buy or sell recommendation. To form your own view on a stock, look at its <b>score</b>, its <b>trend</b>, the <b>RSI</b> (&gt;70 = caution) and its <b>risk</b> (volatility, drawdown). The full method is in the <a href='/guide#plan' target='_blank'>guide</a>.",
+    fallback: "I'm not sure I have the exact answer. 😅 I can explain: the <b>score</b>, <b>RSI</b>, <b>MACD</b>, <b>ADX</b>, <b>volume</b>, <b>divergence</b>, <b>MFI</b>, <b>SAR</b>, <b>confidence</b>, <b>beta</b>, <b>support/resistance</b>, <b>volatility</b>, <b>Sharpe</b>, <b>favourites</b>, <b>alerts</b>… The <a href='/guide' target='_blank'>full guide</a> covers everything.",
+    hello: "Hi! Ask me about the app (score, RSI, favourites, alerts…) or an investing concept.",
+    thanks: "You're welcome! 🙂 Any other questions?",
+    greeting: "Hi 👋 I'm the app assistant. Ask about how it works (score, RSI, favourites, alerts…) or a concept. <i>I don't give investment advice.</i>",
+    sugg: ["Why this score?", "What is ADX?", "What is volume for?", "What is beta?", "How do I set an alert?"],
+  },
+};
 const ASSIST_KB = [
-  { k: [' score ', 'note sur 100', ' sur 100', ' jauge ', 'anneau'], a: "Le <b>score (0–100)</b> résume la configuration technique : 72+ = achat marqué, 58–71 achat, 42–57 neutre, 28–41 vente, &lt;28 vente marquée. C'est une synthèse, pas une prédiction. <a href='/guide#technique' target='_blank'>En savoir plus</a>." },
-  { k: [' rsi ', 'surachat', 'survendu', 'survente'], a: "Le <b>RSI</b> (0–100) mesure la force du mouvement. <b>&gt;70</b> = suracheté (une pause/correction est possible) ; <b>&lt;30</b> = survendu (rebond possible). <a href='/guide#technique' target='_blank'>Détails</a>." },
-  { k: [' macd ', 'histogramme'], a: "Le <b>MACD</b> compare deux moyennes mobiles pour capter l'élan. Histogramme <b>positif</b> = momentum de court terme haussier ; négatif = baissier." },
-  { k: ['moyenne', ' sma ', ' ema ', '200 jours', '50 jours', ' tendance ', 'mm 50', 'mm 200'], a: "Les <b>moyennes mobiles</b> (50 et 200 j) lissent le cours. Cours <b>au-dessus</b> de ses moyennes = tendance haussière ; en dessous = baissière. <a href='/guide#technique' target='_blank'>Détails</a>." },
-  { k: ['golden cross', 'death cross', 'croisement'], a: "Un <b>golden cross</b> = la moyenne 50 j passe au-dessus de la 200 j (signal de fond favorable). Un <b>death cross</b> = l'inverse (défavorable)." },
-  { k: ['bollinger', ' bandes'], a: "Les <b>bandes de Bollinger</b> forment un couloir autour du cours : proche du haut = tendu/cher à court terme, proche du bas = déprimé (rebond possible)." },
-  { k: ['momentum'], a: "Le <b>momentum</b> mesure la vitesse de variation (~60 séances). Fort et positif = dynamique porteuse ; négatif = essoufflement." },
-  { k: [' adx ', 'force de tendance', 'directionnel', 'tendance forte', 'sans direction'], a: "L'<b>ADX</b> mesure la <b>force</b> d'une tendance (pas son sens). <b>&gt;25</b> = tendance nette et installée ; <b>&lt;18</b> = marché sans direction, où les signaux de tendance sont peu fiables. <a href='/guide#technique' target='_blank'>Détails</a>." },
-  { k: [' obv ', ' volume ', 'accumulation', 'distribution', 'echange'], a: "Le <b>volume (OBV)</b> dit si les échanges <b>confirment</b> le mouvement du cours : une hausse sur gros volume est bien plus crédible qu'une hausse sur volume faible. <a href='/guide#technique' target='_blank'>Détails</a>." },
-  { k: ['stochast'], a: "Le <b>stochastique</b> situe le cours dans son couloir haut/bas récent (0–100). Proche de 100 = haut (suracheté à court terme) ; proche de 0 = bas (rebond possible). Il complète le RSI." },
-  { k: ['divergence'], a: "Une <b>divergence</b> apparaît quand le cours et l'élan (RSI) ne disent pas la même chose : nouveau sommet mais RSI plus faible = essoufflement (baissière) ; nouveau creux mais RSI qui remonte = rebond possible (haussière)." },
-  { k: [' atr ', 'mouvement quotidien', 'amplitude', 'bouge par jour', 'mouvement par jour'], a: "L'<b>ATR</b> indique « de combien ça bouge un jour normal », en %. Pratique pour anticiper les secousses et placer un seuil (stop) qui ne saute pas au moindre soubresaut." },
-  { k: ['multi horizon', ' hebdo', 'hebdomadaire', 'court terme', 'long terme', 'tendance de fond'], a: "L'<b>analyse multi-horizon</b> lit les indicateurs sur le <b>quotidien</b> (court terme) et l'<b>hebdomadaire</b> (tendance de fond). Alignés = signal plus fiable ; en désaccord = prudence. <a href='/guide#approfondi' target='_blank'>Détails</a>." },
-  { k: ['support', 'resistance', ' niveau', 'plancher', 'plafond'], a: "Un <b>support</b> est un plancher où le cours a déjà rebondi ; une <b>résistance</b> un plafond où il a buté. L'appli affiche les plus proches — utiles pour situer une entrée ou une sortie. <a href='/guide#approfondi' target='_blank'>Détails</a>." },
-  { k: ['confiance', 'fiabilite', 'fiable', ' accord ', 'contradictoire'], a: "La <b>confiance du signal</b> (0–100) mesure si les facteurs sont <b>d'accord</b> entre eux. Élevée = ils vont dans le même sens (score plus solide) ; faible = signaux contradictoires. Elle s'affiche quand vous <b>cliquez un score</b>. <a href='/guide#approfondi' target='_blank'>Détails</a>." },
-  { k: ['fourchette', 'projection', ' plage ', 'prix probable', 'prochain mois', ' a un mois', 'a 1 mois'], a: "La <b>fourchette probable à 1 mois</b> est une plage de prix estimée à partir de la volatilité (≈ 2 chances sur 3). C'est un ordre de grandeur, <b>pas une prédiction</b>." },
-  { k: [' beta ', ' marche ', 's p 500', 'sp 500', 'correlation', 'amplifie le marche'], a: "Le <b>bêta</b> dit si le titre <b>amplifie</b> les mouvements du marché (&gt;1 = plus nerveux) ou s'il est plus <b>calme</b> (&lt;1), mesuré vs le S&amp;P 500. La <b>corrélation</b> dit à quel point il suit le marché. <a href='/guide#approfondi' target='_blank'>Détails</a>." },
-  { k: [' mfi ', 'flux monetaire', 'money flow', 'flux d argent'], a: "Le <b>MFI (Money Flow Index)</b> est comme le RSI mais <b>pondéré par les volumes</b> : &gt;80 = suracheté (afflux d'achats déjà fort), &lt;20 = survendu. Il combine prix et volume." },
-  { k: [' sar ', 'parabolic', 'stop suiveur', 'retournement', 'stop suivant'], a: "Le <b>Parabolic SAR</b> donne le sens de la tendance et un <b>niveau de stop suiveur</b> : SAR sous le cours = tendance haussière (bascule s'il passe dessous) ; au-dessus = baissière." },
-  { k: ['squeeze', 'compression', 'bandes resser', 'calme avant'], a: "Un <b>squeeze</b> (compression de volatilité) = les bandes se resserrent anormalement. C'est souvent le calme avant un <b>mouvement ample</b> — mais il n'indique <b>pas le sens</b>." },
-  { k: ['volume relatif', 'volume du jour', 'conviction', 'volume anormal'], a: "Le <b>volume relatif</b> compare le volume du jour à sa moyenne (ex. ×1,8). Un volume élevé signale une <b>forte conviction</b> derrière le mouvement." },
-  { k: ['pourquoi ce score', 'detail du score', 'decomposition', 'd ou vient le score', 'expliquer le score', 'cliquer le score', 'clic sur le score', 'facteurs du score'], a: "<b>Cliquez (ou survolez) l'anneau de score</b> d'une carte : une fenêtre détaille chaque facteur (barre verte = pousse le score vers le haut, rouge = vers le bas), du plus influent au moins influent, avec le calcul « 50 (neutre) + facteurs = score »." },
-  { k: ['volatilit'], a: "La <b>volatilité</b> (%/an) mesure l'ampleur des variations : faible (&lt;15 %) = tranquille, élevée (&gt;30 %) = ça secoue. Utile pour dimensionner une position. <a href='/guide#risque' target='_blank'>Détails</a>." },
-  { k: ['sharpe'], a: "Le <b>ratio de Sharpe</b> = le rendement rapporté au risque pris. &gt;1 = bon, autour de 0 = médiocre, négatif = le risque n'a pas payé." },
-  { k: ['drawdown', 'pire baisse', 'perte max'], a: "Le <b>max drawdown</b> est la pire baisse subie, d'un sommet jusqu'au creux suivant. Un bon test : « aurais-je tenu ? »" },
-  { k: ['favori', ' etoile', 'memoriser'], a: "Cliquez l'<b>étoile ⭐</b> en haut d'une carte pour l'ajouter à vos favoris. Ils apparaissent en haut, avec un bouton <b>« Analyser mes favoris »</b>, et sont mémorisés dans votre navigateur." },
-  { k: ['alerte', ' seuil', 'cloche', 'prevenir', 'notification', ' notif'], a: "La <b>cloche 🔔</b> sur une carte fixe un <b>prix seuil</b> : quand le cours le franchit, l'alerte s'affiche en haut. Il y a aussi des alertes automatiques (RSI surachat, signal fort…). <a href='/guide#demarrer' target='_blank'>Détails</a>." },
-  { k: ['categorie', 'thematique', ' theme', 'watchlist'], a: "Les <b>catégories</b> sous la recherche (Indices, Tech US, Santé…) remplissent la recherche et lancent l'analyse en un clic — pour explorer sans connaître les symboles." },
-  { k: ['symbole', 'ticker', 'suffixe', 'action franc', 'valeur franc', 'paris', 'francfort', 'airbus', 'air pa'], a: "Valeurs américaines sans suffixe (ex. <code>NVDA</code>). Europe : ajoutez la place — Paris <code>.PA</code> (ex. <code>AIR.PA</code>), Francfort <code>.DE</code>, Zurich <code>.SW</code>. Séparez plusieurs symboles par des virgules." },
-  { k: [' guide ', 'apprendre', 'documentation', 'tutoriel', ' aide'], a: "Le <a href='/guide' target='_blank'>Guide de l'investisseur</a> explique tout : prise en main, indicateurs, risque, contexte, plan d'investissement et glossaire." },
-  { k: ['ecran d accueil', 'installer', 'application', ' icone', 'ajouter a l ecran'], a: "Sur téléphone, vous pouvez <b>ajouter l'appli à l'écran d'accueil</b> : iPhone (Safari) → Partager → « Sur l'écran d'accueil » ; Android (Chrome) → menu ⋮ → « Installer l'application »." },
-  { k: ['diversif', 'repartir', ' oeufs', ' panier'], a: "La <b>diversification</b> = répartir entre plusieurs titres, secteurs, zones et classes d'actifs pour réduire le risque. « Ne pas mettre tous ses œufs dans le même panier. » <a href='/guide#bases' target='_blank'>Détails</a>." },
-  { k: [' dca ', 'regulier', 'chaque mois', 'programme', 'lisser'], a: "Le <b>DCA</b> (investissement programmé) = investir un montant fixe à intervalle régulier. Ça lisse le prix d'achat et évite de « timer » le marché. <a href='/guide#plan' target='_blank'>Détails</a>." },
-  { k: [' etf ', 'indiciel', 'fonds'], a: "Un <b>ETF</b> est un fonds coté qui réplique un indice (ex. le monde entier). En un seul achat, vous êtes diversifié — la brique de base d'un portefeuille. <a href='/guide#bases' target='_blank'>Détails</a>." },
-  { k: [' or ', 'metal precieux', 'valeur refuge', 'mines d or', 'lingot'], a: "L'<b>or</b> est une valeur refuge : il tend à monter en période de stress. On lui alloue souvent 5–10 % d'un portefeuille diversifié." },
-  { k: [' plan', 'portefeuille', 'allocation', ' profil', 'combien investir', 'repartition'], a: "Un <b>plan</b> repose sur : horizon, tolérance au risque, diversification, régularité (DCA) et rééquilibrage. Le guide propose 3 profils illustratifs. <a href='/guide#plan' target='_blank'>Voir le plan</a>." },
-  { k: ['donnee', ' source', ' yahoo', 'd ou vien', 'cours reel', 'fiable', 'temps reel'], a: "Les cours sont <b>réels</b>, récupérés côté serveur via Yahoo Finance (Stooq en secours), sans clé API. Pas du temps réel à la seconde : des séances quotidiennes." },
-  { k: ['crypto', 'bitcoin', ' btc', 'ethereum', ' eth '], a: "Les cryptos (<code>BTC-USD</code>, <code>ETH-USD</code>…) fonctionnent aussi. Note : comme elles s'échangent 7j/7, les mesures de risque annualisées sont un peu approximatives, mais les indicateurs restent pertinents." },
-  { k: ['perte en capital', 'risque de perdre', 'garanti', 'sur de gagner'], a: "⚠ L'appli est <b>informative</b>, ce n'est pas un conseil en investissement. L'analyse technique décrit une configuration de cours, elle ne prédit pas l'avenir. Investir comporte un risque de perte en capital." },
+  { k: [' score ', 'note sur 100', ' sur 100', ' jauge ', 'anneau', 'rating', ' gauge '], fr: "Le <b>score (0–100)</b> résume la configuration technique : 72+ = achat marqué, 58–71 achat, 42–57 neutre, 28–41 vente, &lt;28 vente marquée. C'est une synthèse, pas une prédiction. <a href='/guide#technique' target='_blank'>En savoir plus</a>.", en: "The <b>score (0–100)</b> summarises the technical setup: 72+ = strong buy, 58–71 buy, 42–57 hold, 28–41 sell, &lt;28 strong sell. A summary, not a prediction. <a href='/guide#technique' target='_blank'>Learn more</a>." },
+  { k: [' rsi ', 'surachat', 'survendu', 'survente', 'overbought', 'oversold'], fr: "Le <b>RSI</b> (0–100) mesure la force du mouvement. <b>&gt;70</b> = suracheté (correction possible) ; <b>&lt;30</b> = survendu (rebond possible).", en: "The <b>RSI</b> (0–100) measures the strength of the move. <b>&gt;70</b> = overbought (pullback possible); <b>&lt;30</b> = oversold (rebound possible)." },
+  { k: [' macd ', 'histogramme', 'histogram'], fr: "Le <b>MACD</b> compare deux moyennes mobiles pour capter l'élan. Histogramme <b>positif</b> = momentum haussier ; négatif = baissier.", en: "The <b>MACD</b> compares two moving averages to capture momentum. <b>Positive</b> histogram = bullish momentum; negative = bearish." },
+  { k: ['moyenne', ' sma ', ' ema ', '200 jours', '50 jours', ' tendance ', 'mm 50', 'mm 200', 'moving average', ' trend ', '200 day', '50 day'], fr: "Les <b>moyennes mobiles</b> (50 et 200 j) lissent le cours. Cours <b>au-dessus</b> = tendance haussière ; en dessous = baissière.", en: "The <b>moving averages</b> (50 and 200 day) smooth price. Price <b>above</b> = bullish trend; below = bearish." },
+  { k: ['golden cross', 'death cross', 'croisement'], fr: "Un <b>golden cross</b> = la moyenne 50 j passe au-dessus de la 200 j (favorable). Un <b>death cross</b> = l'inverse (défavorable).", en: "A <b>golden cross</b> = the 50-day average crosses above the 200-day (favourable). A <b>death cross</b> = the opposite (unfavourable)." },
+  { k: ['bollinger', ' bandes', ' bands'], fr: "Les <b>bandes de Bollinger</b> forment un couloir : proche du haut = tendu à court terme, proche du bas = déprimé (rebond possible).", en: "<b>Bollinger bands</b> form a channel: near the top = stretched short term, near the bottom = depressed (rebound possible)." },
+  { k: ['momentum'], fr: "Le <b>momentum</b> mesure la vitesse de variation (~60 séances). Fort et positif = dynamique porteuse ; négatif = essoufflement.", en: "<b>Momentum</b> measures the pace of change (~60 sessions). Strong and positive = supportive; negative = fading." },
+  { k: [' adx ', 'force de tendance', 'directionnel', 'tendance forte', 'sans direction', 'trend strength'], fr: "L'<b>ADX</b> mesure la <b>force</b> d'une tendance (pas son sens). <b>&gt;25</b> = tendance nette ; <b>&lt;18</b> = marché sans direction, signaux peu fiables.", en: "The <b>ADX</b> measures the <b>strength</b> of a trend (not its direction). <b>&gt;25</b> = clear trend; <b>&lt;18</b> = directionless market, unreliable signals." },
+  { k: [' obv ', ' volume ', 'accumulation', 'distribution', 'echange'], fr: "Le <b>volume (OBV)</b> dit si les échanges <b>confirment</b> le mouvement : une hausse sur gros volume est bien plus crédible.", en: "<b>Volume (OBV)</b> tells whether trading <b>confirms</b> the move: a rise on heavy volume is far more credible." },
+  { k: ['stochast'], fr: "Le <b>stochastique</b> situe le cours dans son couloir haut/bas récent. Proche de 100 = suracheté ; proche de 0 = survendu. Il complète le RSI.", en: "The <b>stochastic</b> places price within its recent high/low range. Near 100 = overbought; near 0 = oversold. It complements the RSI." },
+  { k: ['divergence'], fr: "Une <b>divergence</b> : le cours et l'élan (RSI) ne disent pas la même chose. Nouveau sommet mais RSI plus faible = essoufflement ; nouveau creux mais RSI qui remonte = rebond possible.", en: "A <b>divergence</b>: price and momentum (RSI) disagree. New high but weaker RSI = fading; new low but rising RSI = rebound possible." },
+  { k: [' atr ', 'mouvement quotidien', 'amplitude', 'bouge par jour', 'daily move'], fr: "L'<b>ATR</b> indique « de combien ça bouge un jour normal », en %. Utile pour placer un stop qui ne saute pas au moindre soubresaut.", en: "The <b>ATR</b> shows how much it moves on a normal day, in %. Handy for placing a stop that won't trip on every wobble." },
+  { k: ['multi horizon', ' hebdo', 'hebdomadaire', 'court terme', 'long terme', 'tendance de fond', 'multi timeframe', 'weekly', 'timeframe'], fr: "L'<b>analyse multi-horizon</b> lit les indicateurs sur le <b>quotidien</b> et l'<b>hebdomadaire</b>. Alignés = plus fiable ; en désaccord = prudence. <a href='/guide#approfondi' target='_blank'>Détails</a>.", en: "<b>Multi-timeframe</b> analysis reads the indicators on the <b>daily</b> and the <b>weekly</b>. Aligned = more reliable; disagreeing = caution. <a href='/guide#approfondi' target='_blank'>Details</a>." },
+  { k: ['support', 'resistance', ' niveau', 'plancher', 'plafond', ' level '], fr: "Un <b>support</b> est un plancher où le cours a rebondi ; une <b>résistance</b> un plafond où il a buté. L'appli affiche les plus proches. <a href='/guide#approfondi' target='_blank'>Détails</a>.", en: "A <b>support</b> is a floor where price bounced; a <b>resistance</b> a ceiling where it stalled. The app shows the nearest ones. <a href='/guide#approfondi' target='_blank'>Details</a>." },
+  { k: ['confiance', 'fiabilite', 'fiable', ' accord ', 'contradictoire', 'confidence', 'reliable'], fr: "La <b>confiance du signal</b> (0–100) mesure si les facteurs sont <b>d'accord</b>. Élevée = même sens (plus solide) ; faible = contradictoires. Elle s'affiche quand vous <b>cliquez un score</b>.", en: "<b>Signal confidence</b> (0–100) measures whether the factors <b>agree</b>. High = same direction (more solid); low = contradictory. It shows when you <b>click a score</b>." },
+  { k: ['fourchette', 'projection', ' plage ', 'prix probable', 'prochain mois', ' a un mois', 'a 1 mois', 'range', '1 month', 'one month'], fr: "La <b>fourchette probable à 1 mois</b> est estimée à partir de la volatilité (≈ 2 chances sur 3). Un ordre de grandeur, <b>pas une prédiction</b>.", en: "The <b>likely 1-month range</b> is estimated from volatility (≈ 2 chances in 3). A ballpark, <b>not a prediction</b>." },
+  { k: [' beta ', ' marche ', 's p 500', 'sp 500', 'correlation', 'amplifie le marche', ' market '], fr: "Le <b>bêta</b> dit si le titre <b>amplifie</b> les mouvements du marché (&gt;1 = plus nerveux) ou s'il est plus <b>calme</b> (&lt;1), vs le S&amp;P 500.", en: "<b>Beta</b> tells whether the stock <b>amplifies</b> market moves (&gt;1 = jumpier) or is <b>calmer</b> (&lt;1), vs the S&amp;P 500." },
+  { k: [' mfi ', 'flux monetaire', 'money flow', 'flux d argent'], fr: "Le <b>MFI</b> est comme le RSI mais <b>pondéré par les volumes</b> : &gt;80 = suracheté, &lt;20 = survendu.", en: "The <b>MFI</b> is like the RSI but <b>weighted by volume</b>: &gt;80 = overbought, &lt;20 = oversold." },
+  { k: [' sar ', 'parabolic', 'stop suiveur', 'retournement', 'trailing stop'], fr: "Le <b>Parabolic SAR</b> donne le sens de la tendance et un <b>niveau de stop suiveur</b> : sous le cours = haussier ; au-dessus = baissier.", en: "The <b>Parabolic SAR</b> gives the trend direction and a <b>trailing-stop level</b>: below price = bullish; above = bearish." },
+  { k: ['squeeze', 'compression', 'bandes resser', 'calme avant'], fr: "Un <b>squeeze</b> (compression de volatilité) = les bandes se resserrent. Souvent le calme avant un <b>mouvement ample</b> — sans en indiquer le <b>sens</b>.", en: "A <b>squeeze</b> (volatility compression) = the bands tighten. Often the calm before a <b>wide move</b> — without telling the <b>direction</b>." },
+  { k: ['volume relatif', 'volume du jour', 'conviction', 'volume anormal', 'relative volume'], fr: "Le <b>volume relatif</b> compare le volume du jour à sa moyenne (ex. ×1,8). Élevé = forte <b>conviction</b> derrière le mouvement.", en: "<b>Relative volume</b> compares today's volume to its average (e.g. ×1.8). High = strong <b>conviction</b> behind the move." },
+  { k: ['pourquoi ce score', 'detail du score', 'decomposition', 'd ou vient le score', 'expliquer le score', 'cliquer le score', 'facteurs du score', 'why this score', 'why the score', 'score breakdown'], fr: "<b>Cliquez (ou survolez) l'anneau de score</b> : une fenêtre détaille chaque facteur (barre verte = vers le haut, rouge = vers le bas), avec le calcul « 50 (neutre) + facteurs = score ».", en: "<b>Click (or hover) the score ring</b>: a panel breaks down each factor (green bar = pushes up, red = down), with the maths « 50 (neutral) + factors = score »." },
+  { k: ['volatilit', 'volatility'], fr: "La <b>volatilité</b> (%/an) : faible (&lt;15 %) = tranquille, élevée (&gt;30 %) = ça secoue. Utile pour dimensionner une position. <a href='/guide#risque' target='_blank'>Détails</a>.", en: "<b>Volatility</b> (%/yr): low (&lt;15%) = calm, high (&gt;30%) = choppy. Useful to size a position. <a href='/guide#risque' target='_blank'>Details</a>." },
+  { k: ['sharpe'], fr: "Le <b>ratio de Sharpe</b> = le rendement rapporté au risque. &gt;1 = bon, autour de 0 = médiocre, négatif = le risque n'a pas payé.", en: "The <b>Sharpe ratio</b> = return relative to risk. &gt;1 = good, around 0 = poor, negative = the risk didn't pay off." },
+  { k: ['drawdown', 'pire baisse', 'perte max', 'worst loss'], fr: "Le <b>max drawdown</b> est la pire baisse, d'un sommet au creux suivant. Un bon test : « aurais-je tenu ? »", en: "The <b>max drawdown</b> is the worst drop, from a peak to the next trough. A good test: \"would I have held on?\"" },
+  { k: ['favori', ' etoile', 'memoriser', 'favourite', 'favorite', ' star '], fr: "Cliquez l'<b>étoile ⭐</b> en haut d'une carte pour l'ajouter aux favoris. Un bouton <b>« Analyser mes favoris »</b> relance tout ; ils sont mémorisés dans le navigateur.", en: "Click the <b>⭐ star</b> at the top of a card to add it to favourites. An <b>\"Analyse my favourites\"</b> button re-runs them all; they're stored in the browser." },
+  { k: ['alerte', ' seuil', 'cloche', 'prevenir', 'notification', ' notif', ' alert', 'threshold', ' bell '], fr: "La <b>cloche 🔔</b> fixe un <b>prix seuil</b> : quand le cours le franchit, l'alerte s'affiche en haut. Il y a aussi des alertes automatiques. <a href='/guide#demarrer' target='_blank'>Détails</a>.", en: "The <b>🔔 bell</b> sets a <b>threshold price</b>: when price crosses it, the alert appears at the top. There are also automatic alerts. <a href='/guide#demarrer' target='_blank'>Details</a>." },
+  { k: ['categorie', 'thematique', ' theme', 'watchlist', 'categor'], fr: "Les <b>catégories</b> sous la recherche remplissent la recherche et lancent l'analyse en un clic — pour explorer sans connaître les symboles.", en: "The <b>categories</b> below the search fill the box and run the analysis in one click — to explore without knowing the symbols." },
+  { k: ['symbole', 'ticker', 'suffixe', 'action franc', 'valeur franc', 'paris', 'francfort', 'airbus', 'air pa', ' symbol', 'suffix'], fr: "Valeurs américaines sans suffixe (ex. <code>NVDA</code>). Europe : ajoutez la place — Paris <code>.PA</code>, Francfort <code>.DE</code>, Zurich <code>.SW</code>. Séparez par des virgules.", en: "US stocks with no suffix (e.g. <code>NVDA</code>). Europe: add the exchange — Paris <code>.PA</code>, Frankfurt <code>.DE</code>, Zurich <code>.SW</code>. Separate with commas." },
+  { k: [' guide ', 'apprendre', 'documentation', 'tutoriel', ' aide', ' learn ', ' help '], fr: "Le <a href='/guide' target='_blank'>Guide de l'investisseur</a> explique tout : prise en main, indicateurs, risque, plan d'investissement et glossaire.", en: "The <a href='/guide' target='_blank'>investor guide</a> explains everything: getting started, indicators, risk, investment plan and glossary." },
+  { k: ['ecran d accueil', 'installer', 'application', ' icone', 'ajouter a l ecran', 'install', 'home screen', ' icon '], fr: "Sur téléphone : <b>ajoutez l'appli à l'écran d'accueil</b> — iPhone (Safari) → Partager → « Sur l'écran d'accueil » ; Android (Chrome) → menu ⋮ → « Installer ».", en: "On phone: <b>add the app to your home screen</b> — iPhone (Safari) → Share → \"Add to Home Screen\"; Android (Chrome) → menu ⋮ → \"Install\"." },
+  { k: ['diversif', 'repartir', ' oeufs', ' panier', ' eggs ', ' basket '], fr: "La <b>diversification</b> = répartir entre titres, secteurs, zones et classes d'actifs pour réduire le risque. <a href='/guide#bases' target='_blank'>Détails</a>.", en: "<b>Diversification</b> = spreading across stocks, sectors, regions and asset classes to reduce risk. <a href='/guide#bases' target='_blank'>Details</a>." },
+  { k: [' dca ', 'regulier', 'chaque mois', 'programme', 'lisser', 'each month', 'recurring'], fr: "Le <b>DCA</b> = investir un montant fixe à intervalle régulier. Ça lisse le prix d'achat et évite de « timer » le marché. <a href='/guide#plan' target='_blank'>Détails</a>.", en: "<b>DCA</b> = investing a fixed amount at regular intervals. It smooths your buy price and avoids timing the market. <a href='/guide#plan' target='_blank'>Details</a>." },
+  { k: [' etf ', 'indiciel', 'fonds', ' fund '], fr: "Un <b>ETF</b> est un fonds coté qui réplique un indice. En un achat, vous êtes diversifié — la brique de base d'un portefeuille. <a href='/guide#bases' target='_blank'>Détails</a>.", en: "An <b>ETF</b> is a listed fund that tracks an index. In one purchase you're diversified — the building block of a portfolio. <a href='/guide#bases' target='_blank'>Details</a>." },
+  { k: [' or ', 'metal precieux', 'valeur refuge', 'mines d or', 'lingot', ' gold ', 'safe haven'], fr: "L'<b>or</b> est une valeur refuge : il tend à monter en période de stress. Souvent 5–10 % d'un portefeuille diversifié.", en: "<b>Gold</b> is a safe haven: it tends to rise in stress. Often 5–10% of a diversified portfolio." },
+  { k: [' plan', 'portefeuille', 'allocation', ' profil', 'combien investir', 'repartition', 'portfolio', ' profile '], fr: "Un <b>plan</b> repose sur : horizon, tolérance au risque, diversification, régularité (DCA) et rééquilibrage. <a href='/guide#plan' target='_blank'>Voir le plan</a>.", en: "A <b>plan</b> rests on: horizon, risk tolerance, diversification, regularity (DCA) and rebalancing. <a href='/guide#plan' target='_blank'>See the plan</a>." },
+  { k: ['donnee', ' source', ' yahoo', 'd ou vien', 'cours reel', 'fiable', 'temps reel', ' data ', 'real time', 'real price'], fr: "Les cours sont <b>réels</b>, récupérés côté serveur via Yahoo Finance (Stooq en secours), sans clé API. Pas du temps réel à la seconde : des séances quotidiennes.", en: "Prices are <b>real</b>, fetched server-side via Yahoo Finance (Stooq as backup), no API key. Not real-time to the second: daily sessions." },
+  { k: ['crypto', 'bitcoin', ' btc', 'ethereum', ' eth '], fr: "Les cryptos (<code>BTC-USD</code>, <code>ETH-USD</code>…) fonctionnent aussi. Comme elles s'échangent 7j/7, le risque annualisé est un peu approximatif, mais les indicateurs restent pertinents.", en: "Cryptos (<code>BTC-USD</code>, <code>ETH-USD</code>…) work too. As they trade 7 days a week, annualised risk is a bit approximate, but the indicators still apply." },
+  { k: ['perte en capital', 'risque de perdre', 'garanti', 'sur de gagner', 'capital loss', 'guaranteed'], fr: "⚠ L'appli est <b>informative</b>, pas un conseil en investissement. L'analyse technique décrit une configuration de cours, elle ne prédit pas l'avenir. Risque de perte en capital.", en: "⚠ The app is <b>informational</b>, not investment advice. Technical analysis describes a price setup, it does not predict the future. Risk of capital loss." },
 ];
 
 function assistAnswer(q) {
-  const n = _norm(q);
-  if (/ (bonjour|salut|coucou|bonsoir|hello|hey) /.test(n)) return "Bonjour ! Posez-moi une question sur l'appli (score, RSI, favoris, alertes, catégories…) ou une notion d'investissement.";
-  if (/ (merci|super|parfait|genial|top|nickel) /.test(n)) return "Avec plaisir ! 🙂 D'autres questions ?";
-  if (ASSIST_ADVICE.some((k) => n.includes(k))) return ASSIST_ADVICE_ANSWER;
+  const n = _norm(q), lang = currentLang();
+  const A = ASSIST_TXT[lang] || ASSIST_TXT.fr;
+  if (/ (bonjour|salut|coucou|bonsoir|hello|hey|hi|hiya) /.test(n)) return A.hello;
+  if (/ (merci|super|parfait|genial|top|nickel|thanks|thank you|great|perfect|cheers) /.test(n)) return A.thanks;
+  if (ASSIST_ADVICE.some((k) => n.includes(k))) return A.adviceAnswer;
   let best = null, bestScore = 0;
   for (const e of ASSIST_KB) {
     let s = 0;
     for (const k of e.k) if (n.includes(k)) s += k.trim().split(' ').length;
     if (s > bestScore) { bestScore = s; best = e; }
   }
-  return best ? best.a : ASSIST_FALLBACK;
+  return best ? (best[lang] || best.fr) : A.fallback;
 }
 
 function initAssistant() {
   const launch = document.getElementById('ask-launch'), panel = document.getElementById('ask-panel');
   const msgs = document.getElementById('ask-msgs'), sugg = document.getElementById('ask-sugg');
   const form = document.getElementById('ask-form'), inp = document.getElementById('ask-input');
-  const SUGG = ["Pourquoi ce score ?", "C'est quoi l'ADX ?", "Le volume, ça sert à quoi ?", "C'est quoi le bêta ?", "C'est quoi la confiance du signal ?", "Comment créer une alerte ?"];
   let greeted = false;
   function addMsg(html, who) {
     const d = document.createElement('div');
@@ -1297,12 +1496,15 @@ function initAssistant() {
     panel.hidden = false; launch.setAttribute('aria-expanded', 'true');
     if (!greeted) {
       greeted = true;
-      addMsg("Bonjour 👋 Je suis l'assistant de l'appli. Posez une question sur le fonctionnement (score, RSI, favoris, alertes…) ou une notion. <i>Je ne donne pas de conseil d'investissement.</i>", 'bot');
-      sugg.innerHTML = SUGG.map((s) => `<button class="ask-chip" type="button">${esc(s)}</button>`).join('');
+      const A = ASSIST_TXT[currentLang()] || ASSIST_TXT.fr;
+      addMsg(A.greeting, 'bot');
+      sugg.innerHTML = A.sugg.map((s) => `<button class="ask-chip" type="button">${esc(s)}</button>`).join('');
     }
     inp.focus();
   }
   function close() { panel.hidden = true; launch.setAttribute('aria-expanded', 'false'); }
+  // Réinitialise (au changement de langue) pour re-saluer dans la bonne langue.
+  window.__assistReset = () => { msgs.innerHTML = ''; sugg.innerHTML = ''; greeted = false; if (!panel.hidden) open(); };
   launch.addEventListener('click', () => (panel.hidden ? open() : close()));
   document.getElementById('ask-close').addEventListener('click', close);
   form.addEventListener('submit', (e) => { e.preventDefault(); ask(inp.value); inp.value = ''; });
@@ -1313,8 +1515,8 @@ function initAssistant() {
 // ── Portefeuille (positions mémorisées dans le navigateur) ───────────────────
 function getPf() { try { return JSON.parse(localStorage.getItem('portfolio') || '[]'); } catch (e) { return []; } }
 function setPf(a) { localStorage.setItem('portfolio', JSON.stringify(a)); updatePfBadge(); }
-function updatePfBadge() { const n = getPf().length; document.getElementById('pf-open').textContent = n ? `💼 Portefeuille (${n})` : '💼 Portefeuille'; }
-function fmtNum(v, n = 0) { return v == null ? '—' : Number(v).toLocaleString('fr-FR', { minimumFractionDigits: n, maximumFractionDigits: n }); }
+function updatePfBadge() { const n = getPf().length; document.getElementById('pf-open').textContent = n ? `${t('pf')} (${n})` : t('pf'); }
+function fmtNum(v, n = 0) { return v == null ? '—' : Number(v).toLocaleString(localeOf(), { minimumFractionDigits: n, maximumFractionDigits: n }); }
 let pfPrices = {};   // SYMBOLE -> { price, name, currency } ou { error:true }
 let pfFx = { EUR: 1 }; // DEVISE -> taux vers l'euro (1 unité = X €)
 let pfTimer = null;
@@ -1341,11 +1543,11 @@ function pfHistBlock() {
   const pts = vals.map((v, i) => `${(i / (vals.length - 1) * w).toFixed(1)},${(ht - (v - lo) / rng * (ht - 6) - 3).toFixed(1)}`).join(' ');
   const first = h[0], last = h[h.length - 1], d = last.v - first.v, pct = first.v > 0 ? d / first.v * 100 : 0;
   const cls = d >= 0 ? 'up' : 'down', arrow = d >= 0 ? '▲' : '▼', col = d >= 0 ? 'var(--pos)' : 'var(--neg)';
-  return `<div class="pf-hist"><div class="pf-block-t">Valeur du portefeuille dans le temps</div>
-    <div class="pf-hist-top"><b>${fmtNum(last.v, 0)} €</b><span class="delta ${cls}">${arrow} ${d >= 0 ? '+' : ''}${fmt(pct, 1)} % <small>depuis le ${esc(frDate(first.d))}</small></span></div>
+  return `<div class="pf-hist"><div class="pf-block-t">${t('pfHistTitle')}</div>
+    <div class="pf-hist-top"><b>${fmtNum(last.v, 0)} €</b><span class="delta ${cls}">${arrow} ${d >= 0 ? '+' : ''}${fmt(pct, 1)} % <small>${esc(t('pfSince', frDate(first.d)))}</small></span></div>
     <svg class="pf-hist-svg" viewBox="0 0 ${w} ${ht}" preserveAspectRatio="none"><defs><linearGradient id="pfg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".2"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
       <polygon points="0,${ht} ${pts} ${w},${ht}" fill="url(#pfg)"/><polyline fill="none" stroke="${col}" stroke-width="2" points="${pts}"/></svg>
-    <div class="pf-hist-note">${h.length} relevés · un point par jour où vous ouvrez le portefeuille.</div></div>`;
+    <div class="pf-hist-note">${t('pfHistNote', h.length)}</div></div>`;
 }
 
 // Camembert (donut) de répartition, en valeur € si possible.
@@ -1359,7 +1561,7 @@ function pfDonut(items) {
   }).join('');
   return `<svg viewBox="0 0 120 120" width="120" height="120" class="pf-donut" aria-hidden="true">${rings}
     <text x="60" y="58" text-anchor="middle" class="pf-donut-n">${items.length}</text>
-    <text x="60" y="72" text-anchor="middle" class="pf-donut-l">${items.length > 1 ? 'parts' : 'part'}</text></svg>`;
+    <text x="60" y="72" text-anchor="middle" class="pf-donut-l">${items.length > 1 ? t('pfPartsPl') : t('pfPartsSg')}</text></svg>`;
 }
 
 // Secteur d'un symbole (pour la répartition sectorielle du portefeuille).
@@ -1377,7 +1579,8 @@ const SECTORS = {
   AGG:'Obligations', BND:'Obligations', TLT:'Obligations', IEF:'Obligations', LQD:'Obligations', HYG:'Obligations',
   SPY:'Indices & ETF', QQQ:'Indices & ETF', DIA:'Indices & ETF', '^GSPC':'Indices & ETF', '^FCHI':'Indices & ETF', '^GDAXI':'Indices & ETF', VT:'Indices & ETF', 'VWCE.DE':'Indices & ETF', 'CW8.PA':'Indices & ETF', 'IWDA.AS':'Indices & ETF', URTH:'Indices & ETF', VOO:'Indices & ETF', VTI:'Indices & ETF', IVV:'Indices & ETF', VGK:'Indices & ETF', EZU:'Indices & ETF', EWJ:'Indices & ETF', VWO:'Indices & ETF', MCHI:'Indices & ETF', INDA:'Indices & ETF', EWU:'Indices & ETF', XLK:'Indices & ETF', XLE:'Indices & ETF', XLF:'Indices & ETF', XLV:'Indices & ETF', XLU:'Indices & ETF', XLI:'Indices & ETF', SMH:'Indices & ETF', ITA:'Indices & ETF', ARKK:'Indices & ETF', BOTZ:'Indices & ETF', ICLN:'Indices & ETF', LIT:'Indices & ETF', SOXX:'Indices & ETF', CIBR:'Indices & ETF', SKYY:'Indices & ETF',
 };
-function sectorOf(sym) { return SECTORS[String(sym).toUpperCase()] || 'Autre'; }
+const SECTOR_EN = { 'Technologie':'Technology','Santé':'Health','Énergie':'Energy','Finance':'Finance','Consommation':'Consumer','Télécoms':'Telecom','Industrie & défense':'Industry & defence','Automobile':'Autos','Matériaux & or':'Materials & gold','Matières premières':'Commodities','Crypto':'Crypto','Obligations':'Bonds','Indices & ETF':'Indices & ETFs','Autre':'Other' };
+function sectorOf(sym) { const fr = SECTORS[String(sym).toUpperCase()] || 'Autre'; return currentLang() === 'en' ? (SECTOR_EN[fr] || fr) : fr; }
 
 function pfChartBlock(title, items) {
   if (!items.length) return '';
@@ -1391,7 +1594,7 @@ function renderPf() {
   const pf = getPf(), body = document.getElementById('pf-body'), chartEl = document.getElementById('pf-chart');
   if (!pf.length) {
     chartEl.innerHTML = '';
-    body.innerHTML = `<div class="pf-empty">Aucune position pour l'instant. Ajoutez-en une ci-dessus : un <b>symbole</b> et une <b>quantité</b> (et le <b>prix d'achat</b> si vous voulez suivre la plus-value).</div>`;
+    body.innerHTML = `<div class="pf-empty">${t('pfEmpty')}</div>`;
     return;
   }
   const rows = pf.map((p, i) => {
@@ -1409,11 +1612,11 @@ function renderPf() {
       <td class="left"><b>${esc(String(p.sym).toUpperCase())}</b> <span class="pf-name">${esc(name)}</span></td>
       <td>${fmtNum(p.qty, (p.qty % 1 ? 2 : 0))}</td>
       <td>${hasBuy ? fmt(p.buy) : '—'}</td>
-      <td>${info.error ? '<span class="pf-neg">indispo.</span>' : (price != null ? fmt(price) : '…')}</td>
+      <td>${info.error ? '<span class="pf-neg">' + t('pfUnavail') + '</span>' : (price != null ? fmt(price) : '…')}</td>
       <td>${val != null ? fmtNum(val, 2) + ' ' + esc(cur) : '—'}</td>
       <td class="${cls}">${pl != null ? (pl >= 0 ? '+' : '') + fmtNum(pl, 2) + ' ' + esc(cur) : '—'}</td>
       <td class="${cls}">${plp != null ? (plp >= 0 ? '+' : '') + fmt(plp, 1) + '%' : '—'}</td>
-      <td class="left"><button class="pf-del" data-i="${i}" title="Retirer" aria-label="Retirer">✕</button></td>
+      <td class="left"><button class="pf-del" data-i="${i}" title="${t('remove')}" aria-label="${t('remove')}">✕</button></td>
     </tr>`;
   }).join('');
   const tot = {};
@@ -1426,11 +1629,11 @@ function renderPf() {
     if (p.buy != null && p.buy !== '') { tot[cur].cost += p.buy * p.qty; tot[cur].hasCost = true; }
   });
   const currencies = new Set(Object.keys(tot));
-  let foot = Object.entries(tot).map(([cur, t]) => {
-    const pl = t.hasCost ? t.val - t.cost : null;
-    const plp = (pl != null && t.cost > 0) ? pl / t.cost * 100 : null;
+  let foot = Object.entries(tot).map(([cur, tt]) => {
+    const pl = tt.hasCost ? tt.val - tt.cost : null;
+    const plp = (pl != null && tt.cost > 0) ? pl / tt.cost * 100 : null;
     const cls = pl == null ? '' : (pl >= 0 ? 'pf-pos' : 'pf-neg');
-    return `<tr><td class="left" colspan="4">Total ${esc(cur)}</td><td>${fmtNum(t.val, 2)} ${esc(cur)}</td>
+    return `<tr><td class="left" colspan="4">${esc(t('pfTotal', cur))}</td><td>${fmtNum(tt.val, 2)} ${esc(cur)}</td>
       <td class="${cls}">${pl != null ? (pl >= 0 ? '+' : '') + fmtNum(pl, 2) + ' ' + esc(cur) : '—'}</td>
       <td class="${cls}">${plp != null ? (plp >= 0 ? '+' : '') + fmt(plp, 1) + '%' : '—'}</td><td></td></tr>`;
   }).join('');
@@ -1451,14 +1654,14 @@ function renderPf() {
       const pl = eHasCost ? eVal - eCost : null;
       const plp = (pl != null && eCost > 0) ? pl / eCost * 100 : null;
       const cls = pl == null ? '' : (pl >= 0 ? 'pf-pos' : 'pf-neg');
-      foot += `<tr><td class="left" colspan="4">Total en euros${approx ? ' (partiel)' : ''}</td><td>${fmtNum(eVal, 2)} €</td>
+      foot += `<tr><td class="left" colspan="4">${esc(t('pfTotalEur', approx))}</td><td>${fmtNum(eVal, 2)} €</td>
         <td class="${cls}">${pl != null ? (pl >= 0 ? '+' : '') + fmtNum(pl, 2) + ' €' : '—'}</td>
         <td class="${cls}">${plp != null ? (plp >= 0 ? '+' : '') + fmt(plp, 1) + '%' : '—'}</td><td></td></tr>`;
     }
   }
 
   body.innerHTML = `<div class="pf-scroll"><table class="pf">
-    <thead><tr><th class="left">Titre</th><th>Qté</th><th>PRU</th><th>Cours</th><th>Valeur</th><th>+/−</th><th>%</th><th></th></tr></thead>
+    <thead><tr><th class="left">${t('pfColTitle')}</th><th>${t('pfColQty')}</th><th>${t('pfColBuy')}</th><th>${t('pfColPrice')}</th><th>${t('pfColVal')}</th><th>${t('pfColPl')}</th><th>${t('pfColPct')}</th><th></th></tr></thead>
     <tbody>${rows}</tbody><tfoot class="pf-tot">${foot}</tfoot></table></div>`;
 
   // Camemberts : par position et par secteur (valeur en € si convertible, sinon brute).
@@ -1479,7 +1682,7 @@ function renderPf() {
   const secItems = Object.entries(secMap).map(([label, value]) => ({ label, value }))
     .sort((a, b) => b.value - a.value).map((it, i) => ({ ...it, color: PF_COLORS[i % PF_COLORS.length] }));
   const charts = posItems.length
-    ? `<div class="pf-charts">${pfChartBlock('Par position', posItems)}${pfChartBlock('Par secteur', secItems)}</div>`
+    ? `<div class="pf-charts">${pfChartBlock(t('pfByPos'), posItems)}${pfChartBlock(t('pfBySector'), secItems)}</div>`
     : '';
   chartEl.innerHTML = pfHistBlock() + charts;
 }
@@ -1491,7 +1694,7 @@ async function refreshPf() {
   const btn = document.getElementById('pf-refresh');
   btn.disabled = true; btn.textContent = '…';
   try {
-    const res = await fetch('/api/analyze?tickers=' + encodeURIComponent(syms.join(',')));
+    const res = await fetch('/api/analyze?tickers=' + encodeURIComponent(syms.join(',')) + '&lang=' + currentLang());
     const data = await res.json();
     (data.results || []).forEach(r => {
       pfPrices[String(r.ticker).toUpperCase()] = r.error ? { error: true } : { price: r.price, name: r.name, currency: r.currency };
@@ -1514,9 +1717,9 @@ async function refreshPf() {
       if (ev != null) { tot += ev; any = true; }
     });
     if (any && tot > 0) recordPfValue(tot);
-    document.getElementById('pf-updated').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('pf-updated').textContent = t('pfUpdated', new Date().toLocaleTimeString(localeOf(), { hour: '2-digit', minute: '2-digit' }));
   } catch (e) { /* on garde les derniers prix connus */ }
-  btn.disabled = false; btn.textContent = '↻ Rafraîchir';
+  btn.disabled = false; btn.textContent = t('pfRefresh');
   renderPf();
 }
 
@@ -1539,10 +1742,10 @@ function importData(file) {
       const data = (obj && obj.data && typeof obj.data === 'object') ? obj.data : obj;
       if (!data || typeof data !== 'object') throw new Error('invalide');
       if (!BACKUP_KEYS.some(k => data[k] != null)) throw new Error('rien à restaurer');
-      if (!window.confirm('Restaurer cette sauvegarde ? Vos favoris, positions, alertes et historique actuels seront remplacés.')) return;
+      if (!window.confirm(t('confirmRestore'))) return;
       BACKUP_KEYS.forEach(k => { if (data[k] != null) localStorage.setItem(k, String(data[k])); });
       location.reload();
-    } catch (e) { window.alert('Fichier de sauvegarde invalide.'); }
+    } catch (e) { window.alert(t('invalidBackup')); }
   };
   rd.readAsText(file);
 }
@@ -1587,13 +1790,14 @@ const fromUrl = _params.get('tickers');
 const cameFromGuide = _params.get('from') === 'guide';
 document.getElementById('tickers').value = fromUrl || localStorage.getItem('tickers') || 'AAPL, MSFT, NVDA, GOOGL, SPY';
 // Affiche un retour vers le guide si on en vient (utile sur mobile, sans bouton retour).
-if (cameFromGuide) document.getElementById('backbar').innerHTML = '<a class="backlink" href="/guide">← Retour au guide</a>';
+if (cameFromGuide) document.getElementById('backbar').innerHTML = `<a class="backlink" href="/guide">${t('backToGuide')}</a>`;
 // Nettoie l'adresse pour qu'un rafraîchissement reparte des titres mémorisés.
 if ((fromUrl || cameFromGuide) && window.history.replaceState) window.history.replaceState(null, '', location.pathname);
 renderCategories();
 renderFavs();
 initAssistant();
 initPortfolio();
+applyLang();
 run();
 </script>
 </body>
