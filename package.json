@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "name": "analyse-boursiere",
+  "description": "butterfly — barrière d'accès (Edge Middleware). Le reste du site reste sans dépendance ni build.",
+  "dependencies": {
+    "@vercel/edge": "^1.2.1"
+  }
+}
