@@ -209,6 +209,49 @@ async function fetchNews(ticker, max = 7) {
   } catch (e) { return []; }
 }
 
+// Cours « léger » pour le portefeuille : dernier cours + clôture de la séance
+// précédente, sans l'analyse complète (un seul petit appel par symbole). Les
+// places cotées en sous-unité (pence de Londres…) sont ramenées à la devise
+// principale, sinon les montants seraient 100 fois trop grands.
+const SUBUNIT = { GBp: ['GBP', 100], GBX: ['GBP', 100], ZAc: ['ZAR', 100], ILA: ['ILS', 100] };
+async function fetchLight(ticker) {
+  let s;
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=5d`;
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    if (!res.ok) throw new Error(`yahoo HTTP ${res.status}`);
+    const data = await res.json();
+    const r = data && data.chart && data.chart.result && data.chart.result[0];
+    if (!r || !r.timestamp) throw new Error('symbole introuvable');
+    const q = (r.indicators && r.indicators.quote && r.indicators.quote[0]) || {};
+    const pts = r.timestamp.map((ts, i) => ({ ts, c: (q.close || [])[i] })).filter(x => x.c != null);
+    if (!pts.length) throw new Error('pas de cours');
+    const m = r.meta || {};
+    const last = pts[pts.length - 1];
+    s = {
+      ticker: ticker.toUpperCase(), name: m.shortName || m.longName || null, currency: m.currency || null,
+      price: typeof m.regularMarketPrice === 'number' ? m.regularMarketPrice : last.c,
+      prevClose: pts.length >= 2 ? pts[pts.length - 2].c : null,
+      day: new Date(last.ts * 1000).toISOString().slice(0, 10),
+    };
+  } catch (e) {
+    // Secours : série complète (Yahoo puis Stooq).
+    const ser = await fetchSeries(ticker);
+    const b = ser.bars;
+    s = {
+      ticker: ser.ticker, name: ser.name || null, currency: ser.currency || null,
+      price: b[b.length - 1].close, prevClose: b.length >= 2 ? b[b.length - 2].close : null, day: b[b.length - 1].day,
+    };
+  }
+  const sub = SUBUNIT[s.currency];
+  if (sub) {
+    s.currency = sub[0];
+    s.price = s.price / sub[1];
+    if (s.prevClose != null) s.prevClose = s.prevClose / sub[1];
+  }
+  return s;
+}
+
 // Actualités pour plusieurs symboles, en parallèle.
 async function fetchNewsMap(tickers) {
   const out = {};
@@ -888,6 +931,19 @@ module.exports = async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const raw = (url.searchParams.get('tickers') || 'AAPL,MSFT,NVDA').trim();
   const lang = url.searchParams.get('lang') === 'en' ? 'en' : 'fr';
+
+  // Mode « léger » (portefeuille) : uniquement les cours, en parallèle, sans analyse.
+  if (url.searchParams.get('light') === '1') {
+    const list = raw.split(',').map(t => t.trim()).filter(Boolean).slice(0, 40);
+    const results = await Promise.all(list.map(async (t) => {
+      try { return await fetchLight(t); } catch (e) { return { ticker: t.toUpperCase(), error: String(e.message || e) }; }
+    }));
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
+    res.status(200).end(JSON.stringify({ generated: new Date().toISOString(), results }));
+    return;
+  }
+
   const tickers = raw.split(',').map(t => t.trim()).filter(Boolean).slice(0, 12);
 
   // Indice de marché (S&P 500) récupéré une seule fois, pour le bêta / la corrélation.
@@ -954,4 +1010,4 @@ module.exports = async (req, res) => {
 };
 
 // Exposé pour les tests (n'affecte pas le handler par défaut utilisé par Vercel).
-module.exports._internal = { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown, obv, trendCorr, atr, adx, stochastic, rsiDivergence, toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr, mfi, psar, squeeze, relVolume, fetchFundamentals, fetchNews };
+module.exports._internal = { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown, obv, trendCorr, atr, adx, stochastic, rsiDivergence, toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr, mfi, psar, squeeze, relVolume, fetchFundamentals, fetchNews, fetchLight };

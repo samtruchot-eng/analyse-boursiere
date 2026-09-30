@@ -8,7 +8,7 @@
 const { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown,
   obv, trendCorr, atr, adx, stochastic, rsiDivergence,
   toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr,
-  mfi, psar, squeeze, relVolume, fetchFundamentals, fetchNews } =
+  mfi, psar, squeeze, relVolume, fetchFundamentals, fetchNews, fetchLight } =
   require('./analyze.js')._internal;
 
 let pass = 0, fail = 0;
@@ -325,6 +325,25 @@ function ramp(a, b, n) {
   ok('news : lien et date', news[0].link === 'https://ex.com/a' && news[0].date === '2026-08-04');
   global.fetch = async () => ({ ok: false, text: async () => '' });
   ok('news : repli [] si HTTP KO', (await fetchNews('AAPL')).length === 0);
+
+  // Cours « léger » (portefeuille) : dernier cours, clôture précédente, sous-unités.
+  const chart = (currency, closes, rmp) => async () => ({ ok: true, json: async () => ({ chart: { result: [{
+    meta: { currency, shortName: 'Test SA', regularMarketPrice: rmp },
+    timestamp: closes.map((_, i) => 1767225600 + i * 86400),
+    indicators: { quote: [{ close: closes }] },
+  }] } }) });
+  global.fetch = chart('USD', [100, 101, null, 104], 105);
+  const l1 = await fetchLight('aapl');
+  ok('light : symbole en majuscules', l1.ticker === 'AAPL');
+  ok('light : cours = regularMarketPrice', l1.price === 105);
+  ok('light : clôture précédente (trous ignorés)', l1.prevClose === 101);
+  ok('light : nom et devise', l1.name === 'Test SA' && l1.currency === 'USD');
+  global.fetch = chart('GBp', [2000, 2100], 2150);
+  const l2 = await fetchLight('AZN.L');
+  ok('light : pence → livres', l2.currency === 'GBP' && l2.price === 21.5 && l2.prevClose === 20);
+  global.fetch = async () => { throw new Error('offline'); };
+  let threw = false; try { await fetchLight('AAPL'); } catch (e) { threw = true; }
+  ok('light : erreur remontée si aucune source', threw);
 
   // Repli cookie + crumb : 1er quote refusé (401) → cookie → crumb → 2e quote OK.
   {
