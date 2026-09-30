@@ -200,6 +200,11 @@
   .cat-tab:hover { border-color: var(--accent); color: var(--text); }
   .cat-tab.on { background: linear-gradient(135deg, #c479a6, #9f8ede); color: #fff; border-color: transparent; }
   .cat-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .cat-note { font-size: 13px; line-height: 1.55; color: var(--text); background: var(--chip-bg);
+    border: 1px solid var(--card-border); border-left: 3px solid var(--accent); border-radius: 10px;
+    padding: 11px 14px; margin: 0 0 12px; }
+  .cat-note:empty { display: none; }
+  .cat-note em { color: var(--muted); font-size: 12px; }
 
   /* ── Assistant intégré ──────────────────────────────── */
   .ask-launch { position: fixed; right: 16px; bottom: 16px; z-index: 60; border: none; cursor: pointer;
@@ -609,6 +614,7 @@
 
   <div class="cats-label" data-i18n="catsLabel">Explorer par catégorie</div>
   <div id="cat-tabs" class="cat-tabs"></div>
+  <div id="cat-note" class="cat-note"></div>
   <div id="categories" class="cats"></div>
 
   <div id="favbar" class="favbar"></div>
@@ -748,7 +754,8 @@ const I18N = {
     confirmRestore: 'Restaurer cette sauvegarde ? Vos favoris, positions, alertes et historique actuels seront remplacés.', invalidBackup: 'Fichier de sauvegarde invalide.',
     backToGuide: '← Retour au guide',
     // Groupes de catégories
-    gActions: 'Actions', gRegions: 'Régions', gEtf: 'ETF', gCrypto: 'Crypto',
+    gActions: 'Actions', gRegions: 'Régions', gEtf: 'ETF', gBonds: 'Obligations', gCrypto: 'Crypto',
+    bondsIntro: "<strong>C'est quoi une obligation ?</strong> Quand tu achètes une obligation, tu <strong>prêtes de l'argent</strong> à un État ou à une entreprise. En échange, ils te versent des <strong>intérêts réguliers</strong> (le « coupon ») et te <strong>remboursent</strong> la somme prêtée à une date prévue. C'est en général <strong>moins risqué et moins rentable que les actions</strong> — on s'en sert souvent pour stabiliser un portefeuille. Ci-dessous, des paniers d'obligations (des ETF) que tu peux analyser d'un clic. <em>L'analyse reste technique : elle regarde le prix de ces paniers, pas la solidité de chaque émetteur.</em>",
     catAnalyze: syms => `Analyser : ${syms}`,
   },
   en: {
@@ -822,7 +829,8 @@ const I18N = {
     divOk: 'Well spread — no concentration warning.',
     confirmRestore: 'Restore this backup? Your current favourites, positions, alerts and history will be replaced.', invalidBackup: 'Invalid backup file.',
     backToGuide: '← Back to the guide',
-    gActions: 'Stocks', gRegions: 'Regions', gEtf: 'ETFs', gCrypto: 'Crypto',
+    gActions: 'Stocks', gRegions: 'Regions', gEtf: 'ETFs', gBonds: 'Bonds', gCrypto: 'Crypto',
+    bondsIntro: "<strong>What is a bond?</strong> When you buy a bond, you <strong>lend money</strong> to a government or a company. In return, they pay you <strong>regular interest</strong> (the “coupon”) and <strong>repay</strong> the amount lent on a set date. Bonds are usually <strong>less risky and less rewarding than stocks</strong> — often used to steady a portfolio. Below are baskets of bonds (ETFs) you can analyse in one click. <em>The analysis stays technical: it looks at the price of these baskets, not the creditworthiness of each issuer.</em>",
     catAnalyze: syms => `Analyse: ${syms}`,
   },
 };
@@ -1453,6 +1461,11 @@ const CATEGORIES = [
   { ico: '🏭', label: 'ETF sectoriels', syms: 'XLK, XLE, XLF, XLV, XLU, XLI, SMH, ITA' },
   { ico: '💡', label: 'ETF thématiques', syms: 'ARKK, BOTZ, ICLN, LIT, SOXX, CIBR, SKYY' },
   { ico: '💵', label: 'ETF obligations', syms: 'AGG, BND, TLT, IEF, LQD, HYG' },
+  { ico: '🏛️', label: "Obligations d'État", group: 'obligations', syms: 'TLT, IEF, SHY, GOVT' },
+  { ico: '🏢', label: "Obligations d'entreprise", group: 'obligations', syms: 'LQD, VCIT, VCSH' },
+  { ico: '🔥', label: 'Haut rendement', group: 'obligations', syms: 'HYG, JNK' },
+  { ico: '🛡️', label: "Protégées contre l'inflation", group: 'obligations', syms: 'TIP, VTIP' },
+  { ico: '🌍', label: 'Obligations Monde', group: 'obligations', syms: 'BND, AGG, BNDX' },
   { ico: '💰', label: 'ETF or & matières', syms: 'GLD, IAU, SLV, GDX, DBC, USO' },
   { ico: '₿', label: 'ETF crypto', syms: 'IBIT, FBTC, BITB, ETHA, ARKB' },
   { ico: '🇺🇸', label: 'États-Unis', group: 'regions', syms: 'AAPL, MSFT, AMZN, GOOGL, META, NVDA, JPM, V, UNH, XOM' },
@@ -1464,14 +1477,15 @@ const CATEGORIES = [
   { ico: '🇮🇳', label: 'Inde', group: 'regions', syms: 'INFY, WIT, HDB, IBN' },
 ];
 const CAT_EN = {
-  'Grands indices':'Major indices','Tech US':'US Tech','France':'France','Énergie':'Energy','Défense':'Defence','Or & mines':'Gold & miners','Semi-conducteurs':'Semiconductors','Défensives':'Defensives','Santé & pharma':'Health & pharma','Intelligence artificielle':'Artificial intelligence','Cloud & logiciels':'Cloud & software','Luxe':'Luxury','Automobile & VE':'Autos & EV','Banques':'Banks','Cryptos':'Cryptos','Crypto & minage':'Crypto & mining','ETF Monde':'World ETFs','ETF USA':'US ETFs','ETF régions':'Region ETFs','ETF sectoriels':'Sector ETFs','ETF thématiques':'Thematic ETFs','ETF obligations':'Bond ETFs','ETF or & matières':'Gold & commodity ETFs','ETF crypto':'Crypto ETFs','États-Unis':'United States','Allemagne':'Germany','Royaume-Uni':'United Kingdom','Suisse':'Switzerland','Japon':'Japan','Chine':'China','Inde':'India' };
+  'Grands indices':'Major indices','Tech US':'US Tech','France':'France','Énergie':'Energy','Défense':'Defence','Or & mines':'Gold & miners','Semi-conducteurs':'Semiconductors','Défensives':'Defensives','Santé & pharma':'Health & pharma','Intelligence artificielle':'Artificial intelligence','Cloud & logiciels':'Cloud & software','Luxe':'Luxury','Automobile & VE':'Autos & EV','Banques':'Banks','Cryptos':'Cryptos','Crypto & minage':'Crypto & mining','ETF Monde':'World ETFs','ETF USA':'US ETFs','ETF régions':'Region ETFs','ETF sectoriels':'Sector ETFs','ETF thématiques':'Thematic ETFs','ETF obligations':'Bond ETFs',"Obligations d'État":'Government bonds',"Obligations d'entreprise":'Corporate bonds','Haut rendement':'High yield',"Protégées contre l'inflation":'Inflation-protected','Obligations Monde':'World bonds','ETF or & matières':'Gold & commodity ETFs','ETF crypto':'Crypto ETFs','États-Unis':'United States','Allemagne':'Germany','Royaume-Uni':'United Kingdom','Suisse':'Switzerland','Japon':'Japan','Chine':'China','Inde':'India' };
 function catLabel(c) { return currentLang() === 'en' ? (CAT_EN[c.label] || c.label) : c.label; }
-const CAT_GROUPS = [{ key: 'actions', tk: 'gActions' }, { key: 'regions', tk: 'gRegions' }, { key: 'etf', tk: 'gEtf' }, { key: 'crypto', tk: 'gCrypto' }];
+const CAT_GROUPS = [{ key: 'actions', tk: 'gActions' }, { key: 'regions', tk: 'gRegions' }, { key: 'etf', tk: 'gEtf' }, { key: 'obligations', tk: 'gBonds' }, { key: 'crypto', tk: 'gCrypto' }];
 function catGroup(c) { if (c.group) return c.group; if (/^ETF/.test(c.label)) return 'etf'; if (/crypto/i.test(c.label)) return 'crypto'; return 'actions'; }
 let catActive = localStorage.getItem('catGroup') || 'actions';
 function renderCategories() {
   document.getElementById('cat-tabs').innerHTML = CAT_GROUPS.map(g =>
     `<button class="cat-tab${g.key === catActive ? ' on' : ''}" data-g="${g.key}">${t(g.tk)}</button>`).join('');
+  document.getElementById('cat-note').innerHTML = catActive === 'obligations' ? t('bondsIntro') : '';
   document.getElementById('categories').innerHTML = CATEGORIES.map((c, i) => {
     if (catGroup(c) !== catActive) return '';
     let lbl = catLabel(c);
