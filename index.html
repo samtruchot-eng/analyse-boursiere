@@ -278,6 +278,16 @@
   .alerts-box li { font-size: 12.8px; padding: 6px 0; border-top: 1px solid var(--border); color: var(--text);
     display: flex; gap: 8px; align-items: baseline; line-height: 1.4; }
   .alerts-box li:first-child { border-top: none; }
+  .al-more > summary { list-style: none; font-size: 12.5px; font-weight: 650; color: var(--accent); padding: 7px 0 2px; }
+  .al-more > summary::-webkit-details-marker { display: none; }
+  .al-more > summary:hover { color: var(--text); }
+  .al-more ul { margin-top: 4px; }
+  details[open] > summary .when-closed, details:not([open]) > summary .when-open { display: none; }
+  details.cmp-det > summary.cmp-title { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; margin: 0; }
+  details.cmp-det > summary::-webkit-details-marker { display: none; }
+  details.cmp-det > summary::after { content: '▾'; margin-left: auto; color: var(--muted); transition: transform .2s; }
+  details.cmp-det[open] > summary { margin-bottom: 10px; }
+  details.cmp-det[open] > summary::after { transform: rotate(180deg); }
   .al-t { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 700; font-size: 11.5px;
     padding: 1px 6px; border-radius: 5px; background: var(--chip-bg); flex: 0 0 auto; }
   li.al-warn { color: var(--warn); } li.al-neg { color: var(--neg); } li.al-pos { color: var(--pos); }
@@ -429,7 +439,7 @@
   .banner.warn { background: rgba(217,164,65,.12); color: #9a6b00; border: 1px solid rgba(217,164,65,.34); }
 
   /* ── Grille de cartes ───────────────────────────────── */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; align-items: start; }
   .card {
     background: var(--card); border-radius: var(--radius); padding: 18px;
     box-shadow: var(--shadow); border: 1px solid var(--card-border);
@@ -554,6 +564,16 @@
 
   details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); user-select: none; padding: 4px 0; }
   details summary:hover { color: var(--text); }
+  /* « Voir l'analyse complète » sur les cartes */
+  details.more { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 8px; }
+  details.more > summary { list-style: none; font-size: 13px; font-weight: 650; color: var(--accent); display: flex; align-items: center; gap: 6px; padding: 5px 0; }
+  details.more > summary::-webkit-details-marker { display: none; }
+  details.more > summary::after { content: '▾'; font-size: 12px; transition: transform .2s; }
+  details.more[open] > summary::after { transform: rotate(180deg); }
+  details.more > summary:hover { color: var(--text); }
+  .more-open { display: none; } details.more[open] .more-open { display: inline; } details.more[open] .more-closed { display: none; }
+  .more-body { margin-top: 10px; }
+  .more-sub { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--faint); margin: 16px 0 2px; font-weight: 650; }
   .fund { margin: 12px 0 2px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: rgba(168,106,168,.045); }
   .fund-hd { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--faint); margin-bottom: 8px; }
   .fund-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 2px 16px; }
@@ -596,6 +616,142 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* ── Recherche d'accueil (Marchés) ───────────────────── */
+  .home-search { display: flex; gap: 10px; margin: 4px 0 20px; }
+  .home-search .ac-wrap { flex: 1; min-width: 0; }
+  .home-search input { flex: 1; min-width: 0; padding: 15px 16px 15px 46px; font-size: 16px; border: 1px solid var(--card-border);
+    border-radius: 14px; background: var(--input-bg); color: var(--text); outline: none; box-shadow: var(--shadow); }
+  .home-search input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(168,106,168,.16); }
+  .home-search .hs-ico { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 19px; height: 19px; color: var(--muted); pointer-events: none; z-index: 1; }
+  .home-search button { padding: 0 24px; font-size: 15.5px; font-weight: 650; border: 0; border-radius: 14px; font-family: inherit;
+    background: linear-gradient(135deg, #c479a6, #9f8ede); color: #fff; cursor: pointer; }
+  .home-search button:hover { filter: brightness(1.05); }
+  @media (max-width: 480px) { .home-search button { padding: 0 15px; } .home-search input { font-size: 15px; } }
+
+  /* ── Volet Investir ─────────────────────────────────── */
+  .inv-head h2 { margin: 4px 0 6px; font-size: 23px; letter-spacing: -.01em; }
+  .inv-head p { margin: 0 0 18px; color: var(--muted); font-size: 14px; line-height: 1.6; max-width: 780px; }
+  .inv-profiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+  .inv-prof { text-align: left; border: 1.5px solid var(--card-border); background: var(--card); border-radius: 16px; padding: 14px 14px 12px;
+    cursor: pointer; color: var(--text); font: inherit; display: flex; flex-direction: column; gap: 3px; box-shadow: var(--shadow);
+    transition: border-color .15s, transform .1s, background .15s; }
+  .inv-prof:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .inv-prof.on { border-color: var(--accent); background: linear-gradient(135deg, rgba(196,121,166,.15), rgba(159,142,222,.17)); }
+  .inv-prof:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .inv-prof svg { width: 26px; height: 26px; color: var(--accent); margin-bottom: 4px; }
+  .inv-prof b { font-size: 15.5px; }
+  .inv-prof span { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+  .inv-prof em { font-style: normal; font-size: 11.5px; font-weight: 700; color: var(--accent); margin-top: 5px; }
+  .inv-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; margin-bottom: 18px; }
+  .inv-grid > .panel { margin: 0; }
+  .inv-alloc-body { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; padding-bottom: 14px; }
+  .inv-donut { flex: 0 0 auto; }
+  .inv-donut-t { font-size: 12px; font-weight: 750; fill: var(--text); }
+  .inv-leg { flex: 1; min-width: 190px; display: flex; flex-direction: column; gap: 11px; }
+  .inv-leg-row { display: grid; grid-template-columns: 12px 1fr auto; align-items: center; gap: 4px 9px; font-size: 13.5px; }
+  .inv-leg-row i { width: 12px; height: 12px; border-radius: 4px; }
+  .inv-leg-row b { font-variant-numeric: tabular-nums; }
+  .inv-bar { grid-column: 2 / -1; height: 6px; border-radius: 3px; background: var(--chip-bg); overflow: hidden; }
+  .inv-bar span { display: block; height: 100%; border-radius: 3px; }
+  .inv-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .inv-kpi { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .inv-kpi .k { font-size: 12px; color: var(--muted); font-weight: 650; }
+  .inv-kpi .v { font-size: 23px; font-weight: 800; margin-top: 4px; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+  .inv-kpi .h { font-size: 11.5px; color: var(--faint); margin-top: 4px; line-height: 1.4; }
+  .inv-gauge { display: flex; gap: 3px; margin-top: 8px; }
+  .inv-gauge i { flex: 1; height: 7px; border-radius: 3px; background: var(--chip-bg); }
+  .inv-crisis-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
+  .inv-crisis-row { background: var(--chip-bg); border-radius: 12px; padding: 12px 14px; }
+  .inv-crisis-row .v { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .inv-crisis-row .l { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .inv-note { font-size: 11.5px; color: var(--faint); line-height: 1.5; margin: 0 0 12px; }
+  .inv-proj-ctl { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; margin-bottom: 12px; font-size: 13px; color: var(--muted); }
+  .inv-proj-ctl label { display: inline-flex; align-items: center; gap: 8px; }
+  .inv-proj-ctl input { width: 120px; border: 1px solid var(--card-border); background: var(--input-bg); color: var(--text); border-radius: 10px;
+    padding: 8px 11px; font-size: 14px; font-weight: 650; outline: none; }
+  .inv-proj-ctl input:focus { border-color: var(--accent); }
+  .inv-pills { display: inline-flex; gap: 3px; background: var(--chip-bg); border-radius: 999px; padding: 3px; }
+  .inv-pills button { border: 0; background: none; border-radius: 999px; padding: 6px 12px; font-size: 12.5px; font-weight: 650; color: var(--muted); cursor: pointer; }
+  .inv-pills button.on { background: var(--card); color: var(--text); box-shadow: 0 1px 4px rgba(120,60,100,.15); }
+  .inv-proj-body { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 18px; align-items: center; margin-bottom: 10px; }
+  .inv-chart-fix { width: 100%; height: clamp(170px, 24vw, 250px); display: block; }
+  .inv-axis { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); margin-top: 5px; }
+  .inv-scen { display: flex; flex-direction: column; gap: 10px; }
+  .inv-scen > div { border-left: 3px solid var(--neutral); padding: 2px 0 2px 11px; }
+  .inv-scen .l { font-size: 12px; color: var(--muted); }
+  .inv-scen .v { font-size: 19px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .inv-real-top { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .inv-real-top .v { font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .inv-real-top .l { font-size: 13px; color: var(--muted); }
+  .inv-real-leg { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 8px 0 12px; font-size: 12.5px; color: var(--muted); }
+  .inv-real-leg i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+  .inv-real-leg .on { color: var(--text); font-weight: 700; }
+  .inv-bricks { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-bottom: 12px; }
+  .inv-brick { border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; background: var(--card); }
+  .inv-brick.off { opacity: .6; }
+  .inv-brick-h { display: flex; align-items: center; gap: 8px; font-weight: 750; font-size: 14.5px; }
+  .inv-brick-h i { width: 12px; height: 12px; border-radius: 4px; }
+  .inv-brick-h small { margin-left: auto; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--chip-bg); color: var(--muted); }
+  .inv-brick p { font-size: 12.8px; color: var(--muted); line-height: 1.5; margin: 8px 0 6px; }
+  .inv-brick .st { font-size: 11.5px; color: var(--faint); line-height: 1.5; }
+  .inv-brick .pct { font-size: 12.5px; font-weight: 750; color: var(--accent); margin-top: 6px; }
+  .inv-etfs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .inv-etf { border: 1px solid var(--card-border); background: var(--chip-bg); color: var(--text); border-radius: 999px; padding: 5px 10px;
+    font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .inv-etf:hover { border-color: var(--accent); color: var(--accent); }
+  .inv-etf small { color: var(--muted); font-weight: 500; margin-left: 4px; }
+  .inv-cta { border: 0; border-radius: 12px; padding: 11px 18px; font-weight: 700; font-size: 14px; color: #fff; cursor: pointer;
+    background: linear-gradient(135deg, #c479a6, #9f8ede); margin: 0 0 14px; font-family: inherit; }
+  .inv-cta:hover { filter: brightness(1.05); }
+  .inv-disc { font-size: 11.5px; color: var(--faint); line-height: 1.55; margin: 4px 0 0; }
+  @media (max-width: 860px) {
+    .inv-profiles { grid-template-columns: 1fr 1fr; }
+    .inv-grid, .inv-proj-body { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .inv-crisis-rows { grid-template-columns: 1fr; }
+    .inv-kpi { padding: 12px 13px; }
+    .inv-kpi .v { font-size: 20px; }
+    .inv-prof { padding: 12px; }
+  }
+
+  /* ── Navigation entre les espaces ───────────────────── */
+  .appnav { position: sticky; top: 0; z-index: 50; background: var(--bg);
+    background: color-mix(in srgb, var(--bg) 84%, transparent);
+    -webkit-backdrop-filter: blur(12px) saturate(1.2); backdrop-filter: blur(12px) saturate(1.2);
+    border-bottom: 1px solid var(--card-border); }
+  .appnav-inner { max-width: 1180px; margin: 0 auto; padding: 9px 14px; display: flex; gap: 6px; justify-content: center; }
+  .nav-tab { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: 999px;
+    color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 650; transition: background .15s, color .15s; }
+  .nav-tab:hover { color: var(--text); background: var(--chip-bg); }
+  .nav-tab.on { color: #fff; background: linear-gradient(135deg, #c479a6, #9f8ede); box-shadow: 0 4px 14px rgba(150,90,140,.25); }
+  .nav-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .nav-ico { width: 18px; height: 18px; flex: 0 0 auto; }
+  .nav-badge { min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: var(--accent); color: #fff;
+    font-size: 11px; font-weight: 750; display: inline-flex; align-items: center; justify-content: center; }
+  .nav-tab.on .nav-badge { background: rgba(255,255,255,.3); }
+  .nav-badge[hidden] { display: none; }
+  .view { animation: viewIn .25s ease both; }
+  @keyframes viewIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .view { animation: none; } }
+  .panel { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 18px 18px 6px; box-shadow: var(--shadow); margin: 6px 0 18px; }
+  .panel-t { font-size: 15.5px; font-weight: 750; color: var(--text); margin: 0 0 12px; }
+  .howto { margin-top: 30px; }
+  .howto > summary { font-size: 15px; font-weight: 700; color: var(--text); padding: 8px 0; }
+  .howto .glossary { margin-top: 10px; }
+
+  @media (max-width: 640px) {
+    .appnav { position: fixed; top: auto; bottom: 0; left: 0; right: 0; border-bottom: 0; border-top: 1px solid var(--card-border);
+      padding-bottom: env(safe-area-inset-bottom); background: var(--card); background: color-mix(in srgb, var(--card) 92%, transparent); }
+    .appnav-inner { padding: 6px; gap: 2px; justify-content: space-around; }
+    .nav-tab { flex: 1; flex-direction: column; gap: 3px; padding: 7px 2px; font-size: 11px; border-radius: 12px; }
+    .nav-tab.on { box-shadow: none; }
+    .nav-ico { width: 21px; height: 21px; }
+    .nav-badge { position: absolute; top: 2px; left: calc(50% + 7px); min-width: 17px; height: 17px; font-size: 10px; }
+    main { padding-bottom: 100px; }
+    .ask-launch { bottom: calc(78px + env(safe-area-inset-bottom)); }
+    .ask-panel { bottom: calc(136px + env(safe-area-inset-bottom)); }
+  }
   @media (max-width: 480px) {
     .grid { grid-template-columns: 1fr; }
     header h1 { font-size: 20px; }
@@ -622,17 +778,65 @@
     <div class="header-links">
       <button class="guide-link" id="lang-btn" type="button">English</button>
       <button class="guide-link theme-btn" id="theme-btn" type="button" aria-label="Basculer clair/sombre"></button>
-      <button class="guide-link" id="pf-open" type="button"><svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7.5" width="18" height="12.5" rx="2.2"/><path d="M8.2 7.5V6A2 2 0 0 1 10.2 4h3.6A2 2 0 0 1 15.8 6v1.5"/><path d="M3 12.6h18"/></svg><span id="pf-label">Portefeuille</span></button>
       <a class="guide-link" href="/guide"><svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.6C10.5 5.3 8.3 4.7 5.6 4.7c-.8 0-1.5.1-2 .2v12.9c.5-.1 1.2-.2 2-.2 2.7 0 4.9.6 6.4 1.9"/><path d="M12 6.6c1.5-1.3 3.7-1.9 6.4-1.9.8 0 1.5.1 2 .2v12.9c-.5-.1-1.2-.2-2-.2-2.7 0-4.9.6-6.4 1.9"/><path d="M12 6.6v12.9"/></svg><span data-i18n="guide">Guide →</span></a>
     </div>
   </div>
 </header>
+<nav class="appnav" aria-label="Navigation">
+  <div class="appnav-inner">
+    <a class="nav-tab" href="#marches" data-view="marches"><svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 17.5 9 11.5l4 4 7.5-8.5"/><path d="M15 7h5.5v5.5"/></svg><span data-i18n="navMarkets">Marchés</span></a>
+    <a class="nav-tab" href="#analyser" data-view="analyser"><svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.4 15.4 5.1 5.1"/></svg><span data-i18n="navAnalyze">Analyser</span></a>
+    <a class="nav-tab" href="#investir" data-view="investir"><svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 3.6A8.5 8.5 0 1 0 20.4 13H11Z"/><path d="M14 3.3a8.5 8.5 0 0 1 6.7 6.7H14Z"/></svg><span data-i18n="navInvest">Investir</span></a>
+    <a class="nav-tab" href="#portefeuille" data-view="portefeuille"><svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7.5" width="18" height="12.5" rx="2.2"/><path d="M8.2 7.5V6A2 2 0 0 1 10.2 4h3.6A2 2 0 0 1 15.8 6v1.5"/><path d="M3 12.6h18"/></svg><span data-i18n="navPortfolio">Portefeuille</span><span class="nav-badge" id="pf-count" hidden></span></a>
+  </div>
+</nav>
 <main>
   <div id="backbar"></div>
-  <div id="market-lbl" class="mk-lbl" hidden></div>
-  <div id="market" class="market"></div>
 
-  <section id="portfolio" hidden>
+  <section class="view" data-view="marches" id="view-marches">
+    <form class="home-search" id="home-search" autocomplete="off">
+      <span class="ac-wrap"><svg class="hs-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.4 15.4 5.1 5.1"/></svg>
+        <input id="home-q" data-i18n-ph="phHome" placeholder="Rechercher un titre…" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="home-ac">
+        <div id="home-ac" class="ac" role="listbox" hidden></div></span>
+      <button type="submit" data-i18n="analyze">Analyser</button>
+    </form>
+    <div id="market-lbl" class="mk-lbl" hidden></div>
+    <div id="market" class="market"></div>
+    <div class="panel">
+      <div class="panel-t" data-i18n="catsLabel">Explorer par catégorie</div>
+      <div id="cat-tabs" class="cat-tabs"></div>
+      <div id="cat-note" class="cat-note"></div>
+      <div id="categories" class="cats"></div>
+    </div>
+  </section>
+
+  <section class="view" data-view="analyser" id="view-analyser" hidden>
+  <div class="controls">
+    <div class="ac-wrap">
+      <input id="tickers" type="text" data-i18n-ph="phTickers" placeholder="Ex. AAPL, MSFT, NVDA" autocomplete="off"
+        autocapitalize="characters" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false">
+      <div id="ac" class="ac" role="listbox" hidden></div>
+    </div>
+    <button id="go" data-i18n="analyze">Analyser</button>
+  </div>
+  <div class="hint" data-i18n="hint">Séparez les symboles par des virgules.</div>
+    <div id="favbar" class="favbar"></div>
+    <div id="status"></div>
+    <div id="alerts"></div>
+    <div id="compare"></div>
+    <div id="results" class="grid"></div>
+    <details class="howto">
+      <summary data-i18n="howToScore">Comment lire le score</summary>
+      <div class="glossary"><dl id="glossary"></dl></div>
+    </details>
+  </section>
+
+  <section class="view" data-view="investir" id="view-investir" hidden>
+    <div id="invest"></div>
+  </section>
+
+  <section class="view" data-view="portefeuille" id="view-portefeuille" hidden>
+  <section id="portfolio">
     <div class="pf-head">
       <h2 data-i18n="pfTitle">💼 Mon portefeuille</h2>
       <div class="pf-actions">
@@ -674,31 +878,7 @@
       <span class="pf-backup-note" data-i18n="backupNote">Enregistre (ou restaure) vos favoris…</span>
     </div>
   </section>
-
-  <div class="controls">
-    <div class="ac-wrap">
-      <input id="tickers" type="text" data-i18n-ph="phTickers" placeholder="Ex. AAPL, MSFT, NVDA" autocomplete="off"
-        autocapitalize="characters" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false">
-      <div id="ac" class="ac" role="listbox" hidden></div>
-    </div>
-    <button id="go" data-i18n="analyze">Analyser</button>
-  </div>
-  <div class="hint" data-i18n="hint">Séparez les symboles par des virgules.</div>
-
-  <div class="cats-label" data-i18n="catsLabel">Explorer par catégorie</div>
-  <div id="cat-tabs" class="cat-tabs"></div>
-  <div id="cat-note" class="cat-note"></div>
-  <div id="categories" class="cats"></div>
-
-  <div id="favbar" class="favbar"></div>
-
-  <div id="status"></div>
-  <div id="alerts"></div>
-  <div id="compare"></div>
-  <div id="results" class="grid"></div>
-
-  <h2 data-i18n="howToScore">Comment lire le score</h2>
-  <div class="glossary"><dl id="glossary"></dl></div>
+  </section>
 
   <footer data-i18n="footer">
     ⚠ Analyse technique automatisée à but informatif et pédagogique.
@@ -749,6 +929,10 @@ const I18N = {
   fr: {
     sub: 'Cours réels · analyse technique expliquée simplement',
     pf: 'Portefeuille', guide: 'Guide →',
+    navMarkets: 'Marchés', navAnalyze: 'Analyser', navInvest: 'Investir', navPortfolio: 'Portefeuille',
+    fullAnalysis: "Voir l'analyse complète", hideAnalysis: "Masquer l'analyse complète",
+    phHome: 'Rechercher un titre…',
+    alMore: n => `Voir ${n > 1 ? 'les ' + n + ' autres alertes' : "l'autre alerte"}`, alLess: 'Masquer', cmpSummary: n => `📊 Comparer les ${n} titres (tableau et courbes)`,
     pfTitle: '💼 Mon portefeuille', pfAuto: 'Actualiser toutes les minutes', pfRefresh: '↻ Rafraîchir', pfAdd: 'Ajouter',
     phSym: 'Nom ou symbole — ex. Apple, AIR.PA', phQty: 'ex. 10', phBuy: 'ex. 150',
     pfNote: '⚠ Suivi indicatif : cours du dernier point de marché (pas du temps réel à la seconde), conversion au taux de change du jour. Vos positions restent uniquement dans ce navigateur.',
@@ -844,6 +1028,10 @@ const I18N = {
   en: {
     sub: 'Real prices · technical analysis explained plainly',
     pf: 'Portfolio', guide: 'Guide →',
+    navMarkets: 'Markets', navAnalyze: 'Analyse', navInvest: 'Invest', navPortfolio: 'Portfolio',
+    fullAnalysis: 'See the full analysis', hideAnalysis: 'Hide the full analysis',
+    phHome: 'Search a stock…',
+    alMore: n => `See ${n} more alert${n > 1 ? 's' : ''}`, alLess: 'Hide', cmpSummary: n => `📊 Compare the ${n} stocks (table and chart)`,
     pfTitle: '💼 My portfolio', pfAuto: 'Refresh every minute', pfRefresh: '↻ Refresh', pfAdd: 'Add',
     phSym: 'Name or symbol — e.g. Apple, AIR.PA', phQty: 'e.g. 10', phBuy: 'e.g. 150',
     pfNote: '⚠ Indicative tracking: latest market price (not real time to the second), converted at today’s exchange rate. Your positions stay in this browser only.',
@@ -1231,7 +1419,14 @@ function card(r) {
     <div class="risk-summary" style="margin-top:8px">${t('fetchFail')} ${esc(r.error)}.<br>${t('checkSym')}</div></div>`;
   const color = LABEL_COLOR[r.label] || '#666';
   const recoText = LABEL_TEXT[r.label] || esc(r.label.replace('_', ' '));
-  const points = (r.points||[]).map(p => `<li class="${p.s}"><span><strong>${esc(p.topic)}.</strong> ${esc(p.text)}</span></li>`).join('');
+  // 3 points clés visibles (signaux marqués en priorité, ordre d'origine), le reste replié.
+  const pts = r.points || [], keyIdx = [];
+  pts.forEach((p, i) => { if (keyIdx.length < 3 && p.s !== 'neutral') keyIdx.push(i); });
+  pts.forEach((p, i) => { if (keyIdx.length < 3 && !keyIdx.includes(i)) keyIdx.push(i); });
+  keyIdx.sort((a, b) => a - b);
+  const li = p => `<li class="${p.s}"><span><strong>${esc(p.topic)}.</strong> ${esc(p.text)}</span></li>`;
+  const keyPoints = keyIdx.map(i => li(pts[i])).join('');
+  const otherPoints = pts.filter((_, i) => !keyIdx.includes(i)).map(li).join('');
   const totalAbs = Object.values(r.contributions||{}).reduce((a,x)=>a+Math.abs(x),0) || 1;
   const contribs = Object.entries(r.contributions||{}).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]))
     .map(([k,v])=>`<tr><td>${esc(SIGNAL_LABEL[k]||k)}</td><td style="color:${v>=0?'var(--pos)':'var(--neg)'}">${v>=0?'+':''}${(v/totalAbs*50).toFixed(1)}</td></tr>`).join('');
@@ -1276,12 +1471,18 @@ function card(r) {
     <div class="headline">${esc(r.headline)}</div>
     ${noteHtml(r)}
     ${riskChips(r.risk)}
-    ${relPerfHtml(r)}
-    <ul class="points">${points}</ul>
-    <div class="risk-summary">${esc(r.risk_summary||'')}</div>
+    <ul class="points">${keyPoints}</ul>
     ${vigilance}
-    ${fundHtml(r)}
-    <details><summary>${t('details')}</summary><table class="metrics">${metricsRows}<tr><td colspan="2" style="padding-top:10px;color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:.03em">${t('contribToScore')}</td></tr>${contribs}</table>${scoreMini(r)}</details>
+    <details class="more"><summary><span class="more-closed">${t('fullAnalysis')}</span><span class="more-open">${t('hideAnalysis')}</span></summary>
+      <div class="more-body">
+        ${relPerfHtml(r)}
+        ${otherPoints ? `<ul class="points">${otherPoints}</ul>` : ''}
+        <div class="risk-summary">${esc(r.risk_summary||'')}</div>
+        ${fundHtml(r)}
+        <div class="more-sub">${t('details')}</div>
+        <table class="metrics">${metricsRows}<tr><td colspan="2" style="padding-top:10px;color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:.03em">${t('contribToScore')}</td></tr>${contribs}</table>${scoreMini(r)}
+      </div>
+    </details>
   </div>`;
 }
 
@@ -1344,8 +1545,13 @@ function renderAlerts(rows) {
   const order = { alert: 0, neg: 1, warn: 2, pos: 3, info: 4 };
   list.sort((a, b) => (order[a.sev] - order[b.sev]));
   const hasCustom = list.some(a => a.sev === 'alert') || Object.keys(getAlerts()).length > 0;
+  // Les 3 alertes les plus importantes d'abord, le reste replié.
+  const item = a => `<li class="al-${a.sev}"><span class="al-t">${esc(a.t)}</span><span>${esc(a.msg)}</span></li>`;
+  const rest = list.slice(3);
   el.innerHTML = `<div class="alerts-box"><div class="alerts-title">🔔 ${t('alertsTitle')} (${list.length})${hasCustom ? notifBtnHtml() : ''}</div><ul>` +
-    list.map(a => `<li class="al-${a.sev}"><span class="al-t">${esc(a.t)}</span><span>${esc(a.msg)}</span></li>`).join('') + `</ul></div>`;
+    list.slice(0, 3).map(item).join('') + `</ul>` +
+    (rest.length ? `<details class="al-more"><summary><span class="when-closed">${esc(t('alMore', rest.length))}</span><span class="when-open">${esc(t('alLess'))}</span></summary><ul>${rest.map(item).join('')}</ul></details>` : '') +
+    `</div>`;
   maybeNotify(list);
 }
 document.getElementById('alerts').addEventListener('click', e => {
@@ -1396,10 +1602,15 @@ function renderCompare(rows) {
       <td class="right">${fmt(r.risk && r.risk.sharpe, 2)}</td>
     </tr>`;
   }).join('');
-  el.innerHTML = `<div class="cmp-box"><div class="cmp-title">${t('cmpTitle', data.length)}</div>
+  // Replié par défaut (une ligne), on se souvient s'il était ouvert.
+  const open = localStorage.getItem('cmpOpen') === '1';
+  el.innerHTML = `<details class="cmp-box cmp-det"${open ? ' open' : ''}><summary class="cmp-title">${esc(t('cmpSummary', data.length))}</summary>
     <div class="cmp-scroll"><table class="cmp"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>
-    ${comparePerfChart(data)}</div>`;
+    ${comparePerfChart(data)}</details>`;
 }
+document.getElementById('compare').addEventListener('toggle', e => {
+  if (e.target.classList && e.target.classList.contains('cmp-det')) localStorage.setItem('cmpOpen', e.target.open ? '1' : '0');
+}, true);
 
 // Courbes de performance superposées, rebasées à 100 sur une fenêtre commune.
 function comparePerfChart(data) {
@@ -1465,6 +1676,8 @@ async function run() {
   const out = document.getElementById('results');
   const tickers = input.value.trim();
   if (!tickers) return;
+  // Toute analyse (catégorie, favori, tuile marché, portefeuille…) s'affiche dans « Analyser ».
+  if (currentView !== 'analyser') { analyserStarted = true; go('analyser'); }
   localStorage.setItem('tickers', tickers);
   btn.disabled = true;
   status.innerHTML = `<div class="banner info"><span class="spinner"></span> ${t('loading')}</div>`;
@@ -1779,6 +1992,7 @@ function applyLang() {
   document.documentElement.lang = currentLang();
   applyStaticI18n(); updateLangBtn(); updateThemeBtn(); updatePfBadge();
   renderGlossary(); renderCategories(); renderFavs(); renderPf(); renderMarket();
+  if (currentView === 'investir') renderInvest();
   if (lastRows.length) rerender();
 }
 function toggleLang() {
@@ -1861,6 +2075,19 @@ function attachAutocomplete(inp, box, opts = {}) {
 function initAutocomplete() {
   attachAutocomplete(document.getElementById('tickers'), document.getElementById('ac'), { multi: true, onEnter: () => run() });
   attachAutocomplete(document.getElementById('pf-sym'), document.getElementById('pf-ac'), { onChoose: () => document.getElementById('pf-qty').focus() });
+  attachAutocomplete(document.getElementById('home-q'), document.getElementById('home-ac'), { onChoose: e => homeSearch(e.sym) });
+  document.getElementById('home-search').addEventListener('submit', e => {
+    e.preventDefault();
+    const v = document.getElementById('home-q').value.trim();
+    homeSearch(v.includes(',') ? v : resolveSym(v));
+  });
+}
+// Recherche depuis l'accueil : ouvre « Analyser » sur le titre demandé.
+function homeSearch(sym) {
+  if (!sym) { document.getElementById('home-q').focus(); return; }
+  document.getElementById('tickers').value = sym;
+  document.getElementById('home-q').value = '';
+  run();
 }
 initAutocomplete();
 
@@ -2037,7 +2264,8 @@ const ASSIST_KB = [
   { k: [' dca ', 'regulier', 'chaque mois', 'programme', 'lisser', 'each month', 'recurring'], fr: "Le <b>DCA</b> = investir un montant fixe à intervalle régulier. Ça lisse le prix d'achat et évite de « timer » le marché. <a href='/guide#plan' target='_blank'>Détails</a>.", en: "<b>DCA</b> = investing a fixed amount at regular intervals. It smooths your buy price and avoids timing the market. <a href='/guide#plan' target='_blank'>Details</a>." },
   { k: [' etf ', 'indiciel', 'fonds', ' fund '], fr: "Un <b>ETF</b> est un fonds coté qui réplique un indice. En un achat, vous êtes diversifié — la brique de base d'un portefeuille. <a href='/guide#bases' target='_blank'>Détails</a>.", en: "An <b>ETF</b> is a listed fund that tracks an index. In one purchase you're diversified — the building block of a portfolio. <a href='/guide#bases' target='_blank'>Details</a>." },
   { k: [' or ', 'metal precieux', 'valeur refuge', 'mines d or', 'lingot', ' gold ', 'safe haven'], fr: "L'<b>or</b> est une valeur refuge : il tend à monter en période de stress. Souvent 5–10 % d'un portefeuille diversifié.", en: "<b>Gold</b> is a safe haven: it tends to rise in stress. Often 5–10% of a diversified portfolio." },
-  { k: [' plan', 'portefeuille', 'allocation', ' profil', 'combien investir', 'repartition', 'portfolio', ' profile '], fr: "Un <b>plan</b> repose sur : horizon, tolérance au risque, diversification, régularité (DCA) et rééquilibrage. <a href='/guide#plan' target='_blank'>Voir le plan</a>.", en: "A <b>plan</b> rests on: horizon, risk tolerance, diversification, regularity (DCA) and rebalancing. <a href='/guide#plan' target='_blank'>See the plan</a>." },
+  { k: [' profil', 'prudent', 'equilibre', 'dynamique', 'offensif', 'investir', ' profile ', 'cautious', 'balanced', 'aggressive', ' invest'], fr: "L'espace <b>Investir</b> propose 4 <b>profils types</b> (Prudent, Équilibré, Dynamique, Offensif). Pour chacun : la répartition actions / obligations / monétaire / or, le rendement espéré, le niveau de risque (1 à 7), une mauvaise année possible, l'effet d'une crise comme 2008 ou 2022, une projection de votre montant et ce que le profil a réellement fait sur 12 mois. <a href='#investir'>Ouvrir Investir</a>.", en: "The <b>Invest</b> space offers 4 <b>model profiles</b> (Cautious, Balanced, Growth, Aggressive). For each: the stocks / bonds / cash / gold split, expected return, risk level (1 to 7), a possible bad year, the effect of a crisis like 2008 or 2022, a projection of your amount and what the profile actually did over 12 months. <a href='#investir'>Open Invest</a>." },
+  { k: [' plan', 'portefeuille', 'allocation', 'combien investir', 'repartition', 'portfolio'], fr: "Un <b>plan</b> repose sur : horizon, tolérance au risque, diversification, régularité (DCA) et rééquilibrage. <a href='/guide#plan' target='_blank'>Voir le plan</a>.", en: "A <b>plan</b> rests on: horizon, risk tolerance, diversification, regularity (DCA) and rebalancing. <a href='/guide#plan' target='_blank'>See the plan</a>." },
   { k: ['donnee', ' source', ' yahoo', 'd ou vien', 'cours reel', 'fiable', 'temps reel', ' data ', 'real time', 'real price'], fr: "Les cours sont <b>réels</b>, récupérés côté serveur via Yahoo Finance (Stooq en secours), sans clé API. Pas du temps réel à la seconde : des séances quotidiennes.", en: "Prices are <b>real</b>, fetched server-side via Yahoo Finance (Stooq as backup), no API key. Not real-time to the second: daily sessions." },
   { k: ['crypto', 'bitcoin', ' btc', 'ethereum', ' eth '], fr: "Les cryptos (<code>BTC-USD</code>, <code>ETH-USD</code>…) fonctionnent aussi. Comme elles s'échangent 7j/7, le risque annualisé est un peu approximatif, mais les indicateurs restent pertinents.", en: "Cryptos (<code>BTC-USD</code>, <code>ETH-USD</code>…) work too. As they trade 7 days a week, annualised risk is a bit approximate, but the indicators still apply." },
   { k: ['perte en capital', 'risque de perdre', 'garanti', 'sur de gagner', 'capital loss', 'guaranteed'], fr: "⚠ L'appli est <b>informative</b>, pas un conseil en investissement. L'analyse technique décrit une configuration de cours, elle ne prédit pas l'avenir. Risque de perte en capital.", en: "⚠ The app is <b>informational</b>, not investment advice. Technical analysis describes a price setup, it does not predict the future. Risk of capital loss." },
@@ -2111,7 +2339,7 @@ function pfGroups() {
   });
   return [...map.values()].map(g => ({ ...g, avg: g.qtyBuy > 0 ? g.cost / g.qtyBuy : null }));
 }
-function updatePfBadge() { const n = pfGroups().length; const el = document.getElementById('pf-label'); if (el) el.textContent = n ? `${t('pf')} (${n})` : t('pf'); }
+function updatePfBadge() { const n = pfGroups().length; const el = document.getElementById('pf-count'); if (el) { el.textContent = n; el.hidden = !n; } }
 function fmtNum(v, n = 0) { return v == null ? '—' : Number(v).toLocaleString(localeOf(), { minimumFractionDigits: n, maximumFractionDigits: n }); }
 // Montant avec sa devise (« 1 234,56 € », « CHF 1’234.56 »…).
 function fmtMoney(v, cur, digits = 2) {
@@ -2419,14 +2647,9 @@ function pfSaveEdit(row) {
 }
 
 function initPortfolio() {
-  const sec = document.getElementById('portfolio');
   document.getElementById('pf-export').addEventListener('click', exportData);
   document.getElementById('pf-import').addEventListener('click', () => document.getElementById('pf-file').click());
   document.getElementById('pf-file').addEventListener('change', e => { if (e.target.files[0]) importData(e.target.files[0]); e.target.value = ''; });
-  document.getElementById('pf-open').addEventListener('click', () => {
-    sec.hidden = !sec.hidden;
-    if (!sec.hidden) { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); refreshPf(); }
-  });
   // Devise d'affichage des totaux.
   const baseSel = document.getElementById('pf-base');
   baseSel.value = pfBase();
@@ -2490,16 +2713,331 @@ function initPortfolio() {
   renderPf();
 }
 
+// ── Volet Investir : profils types ──────────────────────────────────────────
+// Hypothèses long terme indicatives par classe d'actifs : rendement annuel moyen
+// (%), volatilité annuelle (%), variation réelle en 2008 et en 2022 (%), ETF
+// représentatif (pour les 12 derniers mois réels) et exemples à analyser.
+const INV_ASSETS = {
+  actions:     { mu: 7, sigma: 15,  c08: -41, c22: -18, color: '#c479a6', proxy: 'VT',  etfs: ['VT', 'VOO', 'CW8.PA'] },
+  obligations: { mu: 3, sigma: 5,   c08: 5,   c22: -13, color: '#9f8ede', proxy: 'AGG', etfs: ['AGG', 'BND', 'IEF'] },
+  monetaire:   { mu: 2, sigma: 0.5, c08: 1.5, c22: 1.5, color: '#7cc0d6', proxy: 'BIL', etfs: ['BIL', 'SHV'] },
+  or:          { mu: 4, sigma: 15,  c08: 5,   c22: 0,   color: '#d29a45', proxy: 'GLD', etfs: ['GLD', 'IAU'] },
+};
+const INV_CORR = { 'actions|obligations': 0.2, 'actions|or': 0.1, 'obligations|or': 0.3 };
+const INV_ICO = {
+  prudent: '<path d="M12 3.2 5 6v5.3c0 4.2 3 7.8 7 9.5 4-1.7 7-5.3 7-9.5V6Z"/><path d="m9 12 2.2 2.2L15.5 10"/>',
+  equilibre: '<path d="M12 4v16M8 20h8M5 7.5h14"/><path d="M5 7.5 2.8 13a2.4 2.4 0 0 0 4.4 0Z"/><path d="M19 7.5 16.8 13a2.4 2.4 0 0 0 4.4 0Z"/>',
+  dynamique: '<path d="M3.5 17 9.5 11l4 4 7-7.5"/><path d="M15 7.5h5.5V13"/>',
+  offensif: '<path d="M12 21c-3.8 0-6.5-2.6-6.5-6.2 0-3.4 2.4-5.4 3.8-8.3.5 1.7 1.6 2.9 2.7 3.4.3-2.6 1.6-5 3.5-6.4-.2 2.8 3 5.1 3 9.3 0 4.6-2.7 8.2-6.5 8.2Z"/>',
+};
+const INV_PROFILES = [
+  { key: 'prudent',   w: { actions: 20, obligations: 60, monetaire: 15, or: 5 },  horizon: 3,  color: '#7cc0d6' },
+  { key: 'equilibre', w: { actions: 50, obligations: 35, monetaire: 5,  or: 10 }, horizon: 5,  color: '#9f8ede' },
+  { key: 'dynamique', w: { actions: 75, obligations: 15, monetaire: 5,  or: 5 },  horizon: 8,  color: '#c479a6' },
+  { key: 'offensif',  w: { actions: 90, obligations: 5,  monetaire: 0,  or: 5 },  horizon: 10, color: '#e08b8b' },
+];
+const INV_TXT = {
+  fr: {
+    title: 'Investir', intro: "Choisissez un profil : vous voyez une répartition type entre actions, obligations, monétaire et or, et ce qu'elle implique en rendement, en risque et en cas de crise.",
+    prof: { prudent: ['Prudent', 'Préserver son capital avant tout.'], equilibre: ['Équilibré', 'Un compromis entre croissance et stabilité.'], dynamique: ['Dynamique', 'Viser la croissance, en acceptant des baisses marquées.'], offensif: ['Offensif', 'Chercher la performance maximale à long terme.'] },
+    riskShort: n => `Risque ${n}/7`,
+    assets: { actions: 'Actions', obligations: 'Obligations', monetaire: 'Monétaire', or: 'Or' },
+    alloc: 'Répartition',
+    kRet: 'Rendement moyen espéré', kRetV: v => `≈ ${v} %/an`, kRetH: 'hypothèse long terme, avant frais, impôts et inflation',
+    kRisk: 'Niveau de risque', kRiskH: (l, v) => `${l} · volatilité ≈ ${v} % par an`,
+    riskLbl: ['', 'Très faible', 'Faible', 'Modéré', 'Moyen', 'Élevé', 'Très élevé', 'Extrême'],
+    kBad: 'Une mauvaise année', kBadH: 'ce qui peut arriver 1 année sur 20',
+    kHor: 'Horizon conseillé', kHorV: n => `${n} ans et +`, kHorH: "le temps de se remettre d'une baisse",
+    crisisT: 'Si une crise passée se répétait', c08: '2008 · krach financier', c22: '2022 · actions et obligations en baisse ensemble',
+    crisisNote: "Estimation à partir de la variation réelle de chaque classe d'actifs cette année-là (en dollars).",
+    projT: "Et si j'investissais…", projAmount: 'Montant', projYears: 'Durée', yrs: n => `${n} ans`, today: "Aujourd'hui", inYears: n => `dans ${n} ans`,
+    projLow: 'Scénario défavorable', projMed: 'Scénario médian', projHigh: 'Scénario favorable',
+    projNote: 'Dans 9 cas sur 10, le résultat simulé se situe entre le scénario défavorable et le favorable. Hypothèses long terme, hors frais, impôts et inflation.',
+    realT: 'Les 12 derniers mois, en vrai', realSub: "Ce qu'aurait donné chaque profil avec de vrais ETF (VT, AGG, BIL, GLD), rééquilibrés chaque jour, en dollars, hors frais.",
+    realLoading: 'Chargement des données réelles…', realErr: 'Données réelles indisponibles pour le moment.',
+    realPeriod: (a, b) => `du ${a} au ${b}`, realLast12: '12 derniers mois',
+    bricksT: 'Les briques du portefeuille', bricksSub: 'Cliquez sur un ETF pour voir son analyse.',
+    role: { actions: 'Croissance', obligations: 'Stabilité', monetaire: 'Sécurité', or: 'Protection' },
+    desc: {
+      actions: "Des parts d'entreprises du monde entier : le moteur de la croissance à long terme, mais leur valeur peut chuter fortement.",
+      obligations: 'Des prêts à des États et à des entreprises, qui versent des intérêts : plus stables, elles amortissent les chocs.',
+      monetaire: "De l'argent placé à très court terme, quasiment sans risque : une réserve et un coussin de sécurité.",
+      or: 'Une valeur refuge qui résiste souvent quand les marchés paniquent : elle diversifie le portefeuille.',
+    },
+    brickStats: (mu, s) => `Hypothèse : ≈ ${mu} %/an · volatilité ≈ ${s} %`, brickReal: v => ` · 12 derniers mois : ${v}`,
+    inProfile: p => (p ? `${p} % de ce profil` : 'absent de ce profil'),
+    etfName: { VT: 'Monde', VOO: 'S&P 500', 'CW8.PA': 'MSCI World €', AGG: 'US Aggregate', BND: 'Total Bond', IEF: 'Trésor US 7-10 ans', BIL: 'Trésor US 1-3 mois', SHV: 'Trésor US court', GLD: 'Or', IAU: 'Or' },
+    analyzeProfile: 'Analyser les ETF de ce profil',
+    disclaimer: "Profils types à but pédagogique : ce ne sont pas des conseils en investissement personnalisés. Les rendements espérés sont des hypothèses, et les performances passées ne préjugent pas des performances futures.",
+  },
+  en: {
+    title: 'Invest', intro: 'Pick a profile to see a typical split between stocks, bonds, cash and gold, and what it means for return, risk and crises.',
+    prof: { prudent: ['Cautious', 'Protect your capital first.'], equilibre: ['Balanced', 'A middle ground between growth and stability.'], dynamique: ['Growth', 'Aim for growth, accepting sharp drops.'], offensif: ['Aggressive', 'Seek maximum long-term performance.'] },
+    riskShort: n => `Risk ${n}/7`,
+    assets: { actions: 'Stocks', obligations: 'Bonds', monetaire: 'Cash', or: 'Gold' },
+    alloc: 'Allocation',
+    kRet: 'Expected average return', kRetV: v => `≈ ${v}%/yr`, kRetH: 'long-term assumption, before fees, taxes and inflation',
+    kRisk: 'Risk level', kRiskH: (l, v) => `${l} · volatility ≈ ${v}% a year`,
+    riskLbl: ['', 'Very low', 'Low', 'Moderate', 'Medium', 'High', 'Very high', 'Extreme'],
+    kBad: 'A bad year', kBadH: 'what can happen 1 year in 20',
+    kHor: 'Suggested horizon', kHorV: n => `${n}+ years`, kHorH: 'time to recover from a drop',
+    crisisT: 'If a past crisis happened again', c08: '2008 · financial crash', c22: '2022 · stocks and bonds falling together',
+    crisisNote: 'Estimate based on the actual move of each asset class that year (in dollars).',
+    projT: 'What if I invested…', projAmount: 'Amount', projYears: 'Duration', yrs: n => `${n} yrs`, today: 'Today', inYears: n => `in ${n} years`,
+    projLow: 'Unfavourable scenario', projMed: 'Median scenario', projHigh: 'Favourable scenario',
+    projNote: 'In 9 cases out of 10, the simulated result lands between the unfavourable and the favourable scenario. Long-term assumptions, excluding fees, taxes and inflation.',
+    realT: 'The last 12 months, for real', realSub: 'What each profile would have done with real ETFs (VT, AGG, BIL, GLD), rebalanced daily, in dollars, before fees.',
+    realLoading: 'Loading real data…', realErr: 'Real data unavailable for now.',
+    realPeriod: (a, b) => `from ${a} to ${b}`, realLast12: 'last 12 months',
+    bricksT: 'The building blocks', bricksSub: 'Click an ETF to see its analysis.',
+    role: { actions: 'Growth', obligations: 'Stability', monetaire: 'Safety', or: 'Protection' },
+    desc: {
+      actions: 'Shares of companies worldwide: the engine of long-term growth, but their value can fall sharply.',
+      obligations: 'Loans to governments and companies that pay interest: steadier, they cushion shocks.',
+      monetaire: 'Money placed very short term, almost risk-free: a reserve and a safety cushion.',
+      or: 'A safe haven that often holds up when markets panic: it diversifies the portfolio.',
+    },
+    brickStats: (mu, s) => `Assumption: ≈ ${mu}%/yr · volatility ≈ ${s}%`, brickReal: v => ` · last 12 months: ${v}`,
+    inProfile: p => (p ? `${p}% of this profile` : 'not in this profile'),
+    etfName: { VT: 'World', VOO: 'S&P 500', 'CW8.PA': 'MSCI World €', AGG: 'US Aggregate', BND: 'Total Bond', IEF: 'US Treasury 7-10y', BIL: 'US T-bills 1-3m', SHV: 'Short US Treasury', GLD: 'Gold', IAU: 'Gold' },
+    analyzeProfile: "Analyse this profile's ETFs",
+    disclaimer: 'Model profiles for educational purposes: not personalised investment advice. Expected returns are assumptions, and past performance does not guarantee future results.',
+  },
+};
+function invT() { return INV_TXT[currentLang()] || INV_TXT.fr; }
+function invProfile() { const k = localStorage.getItem('invProfile'); return INV_PROFILES.find(p => p.key === k) || INV_PROFILES[1]; }
+function invAmount() { const v = +localStorage.getItem('invAmount'); return v > 0 ? v : 10000; }
+function invYears() { const v = +localStorage.getItem('invYears'); return [5, 10, 20].includes(v) ? v : 10; }
+
+// Rendement, volatilité (avec corrélations), niveau de risque 1–7 (échelle
+// européenne SRRI), mauvaise année (1 sur 20) et scénarios de crise.
+function invStats(w) {
+  const keys = Object.keys(w);
+  const rho = (a, b) => (a === b ? 1 : (INV_CORR[a + '|' + b] ?? INV_CORR[b + '|' + a] ?? 0));
+  let mu = 0, v = 0, c08 = 0, c22 = 0;
+  keys.forEach(a => {
+    const wa = w[a] / 100, A = INV_ASSETS[a];
+    mu += wa * A.mu; c08 += wa * A.c08; c22 += wa * A.c22;
+    keys.forEach(b => { v += wa * (w[b] / 100) * A.sigma * INV_ASSETS[b].sigma * rho(a, b); });
+  });
+  const sigma = Math.sqrt(v);
+  const risk = 1 + [0.5, 2, 5, 10, 15, 25].filter(x => sigma >= x).length;
+  return { mu, sigma, risk, bad: mu - 1.645 * sigma, c08, c22 };
+}
+const invPct = (v, d = 1) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${fmtNum(Math.abs(v), d)} %`.replace(' %', currentLang() === 'en' ? '%' : ' %');
+
+function invDonut(w, label) {
+  const r = 46, c = 2 * Math.PI * r; let off = 0;
+  const segs = Object.keys(INV_ASSETS).filter(k => w[k] > 0).map(k => {
+    const len = w[k] / 100 * c;
+    const seg = `<circle cx="60" cy="60" r="${r}" fill="none" stroke="${INV_ASSETS[k].color}" stroke-width="18" stroke-dasharray="${len.toFixed(2)} ${(c - len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 60 60)"/>`;
+    off += len; return seg;
+  }).join('');
+  return `<svg class="inv-donut" viewBox="0 0 120 120" width="150" height="150" aria-hidden="true">${segs}<text x="60" y="64" text-anchor="middle" class="inv-donut-t">${esc(label)}</text></svg>`;
+}
+
+// Projection d'un montant : médiane et fourchette à 90 % (loi log-normale).
+function invProjection(A, st, T) {
+  const m = Math.log(1 + st.mu / 100) - (st.sigma / 100) ** 2 / 2, s = st.sigma / 100;
+  const pts = [];
+  for (let y = 0; y <= T; y++) pts.push({ y, lo: A * Math.exp(m * y - 1.645 * s * Math.sqrt(y)), md: A * Math.exp(m * y), hi: A * Math.exp(m * y + 1.645 * s * Math.sqrt(y)) });
+  return pts;
+}
+function invProjSvg(pts, A, T) {
+  const L = invT(), W = 560, H = 230, pl = 2, pr = 2, pt = 8, pb = 8;
+  const hi = Math.max(...pts.map(p => p.hi)), lo = Math.min(A, ...pts.map(p => p.lo));
+  const X = y => pl + (W - pl - pr) * y / T, Y = v => pt + (H - pt - pb) * (1 - (v - lo) / ((hi - lo) || 1));
+  const line = k => pts.map(p => `${X(p.y).toFixed(1)},${Y(p[k]).toFixed(1)}`).join(' ');
+  const band = pts.map(p => `${X(p.y).toFixed(1)},${Y(p.hi).toFixed(1)}`).join(' ') + ' ' + pts.slice().reverse().map(p => `${X(p.y).toFixed(1)},${Y(p.lo).toFixed(1)}`).join(' ');
+  const ns = 'vector-effect="non-scaling-stroke"';
+  return `<div><svg class="inv-chart-fix" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${esc(L.projT)}">
+    <polygon points="${band}" fill="var(--accent)" opacity=".12"/>
+    <line x1="${pl}" x2="${W - pr}" y1="${Y(A).toFixed(1)}" y2="${Y(A).toFixed(1)}" stroke="var(--faint)" stroke-dasharray="4 4" ${ns}/>
+    <polyline points="${line('hi')}" fill="none" stroke="var(--pos)" stroke-width="1.6" opacity=".85" ${ns}/>
+    <polyline points="${line('lo')}" fill="none" stroke="var(--neg)" stroke-width="1.6" opacity=".85" ${ns}/>
+    <polyline points="${line('md')}" fill="none" stroke="var(--accent)" stroke-width="2.8" stroke-linecap="round" ${ns}/>
+  </svg><div class="inv-axis"><span>${esc(L.today)}</span><span>${esc(L.inYears(T))}</span></div></div>`;
+}
+function renderInvProj() {
+  const el = document.getElementById('inv-proj-body'); if (!el) return;
+  const L = invT(), prof = invProfile(), st = invStats(prof.w), A = invAmount(), T = invYears(), cur = pfBase();
+  const pts = invProjection(A, st, T), end = pts[pts.length - 1];
+  const scen = (lab, v, col) => `<div style="border-color:${col}"><div class="l">${esc(lab)}</div><div class="v">${fmtMoney(v, cur, 0)}</div></div>`;
+  el.innerHTML = `${invProjSvg(pts, A, T)}<div class="inv-scen">${scen(L.projHigh, end.hi, 'var(--pos)')}${scen(L.projMed, end.md, 'var(--accent)')}${scen(L.projLow, end.lo, 'var(--neg)')}</div>`;
+  document.querySelectorAll('#invest .inv-pills button').forEach(b => b.classList.toggle('on', +b.dataset.y === T));
+}
+
+// 12 derniers mois réels : chaque profil rééquilibré chaque jour avec les ETF
+// représentatifs, sur les dates communes aux quatre ETF.
+let invPerf = null, invPerfState = 'idle';
+async function loadInvPerf() {
+  invPerfState = 'loading';
+  try {
+    const proxies = Object.values(INV_ASSETS).map(a => a.proxy);
+    const res = await fetch('/api/analyze?perf=1&tickers=' + encodeURIComponent(proxies.join(',')));
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json(), by = {};
+    (data.results || []).forEach(r => { if (!r.error && r.days && r.days.length > 20) by[String(r.ticker).toUpperCase()] = r; });
+    if (!proxies.every(p => by[p])) throw new Error('incomplet');
+    invPerf = by; invPerfState = 'ok';
+  } catch (e) { invPerfState = 'err'; }
+  renderInvReal(); renderInvBricks();
+}
+function invCurves() {
+  if (!invPerf) return null;
+  const maps = {};
+  Object.entries(invPerf).forEach(([k, r]) => { const m = new Map(); r.days.forEach((d, i) => m.set(d, r.closes[i])); maps[k] = m; });
+  const first = invPerf[INV_ASSETS.actions.proxy];
+  const dates = first.days.filter(d => Object.values(maps).every(m => m.has(d)));
+  if (dates.length < 20) return null;
+  const curves = {};
+  INV_PROFILES.forEach(p => {
+    let idx = 100; const out = [100];
+    for (let i = 1; i < dates.length; i++) {
+      let r = 0;
+      Object.entries(p.w).forEach(([a, w]) => { if (!w) return; const m = maps[INV_ASSETS[a].proxy]; r += w / 100 * (m.get(dates[i]) / m.get(dates[i - 1]) - 1); });
+      idx *= 1 + r; out.push(idx);
+    }
+    curves[p.key] = out;
+  });
+  return { dates, curves };
+}
+function renderInvReal() {
+  const el = document.getElementById('inv-real-body'); if (!el) return;
+  const L = invT();
+  if (invPerfState !== 'ok') { el.innerHTML = `<p class="inv-note">${esc(invPerfState === 'err' ? L.realErr : L.realLoading)}</p>`; return; }
+  const cv = invCurves(); if (!cv) { el.innerHTML = `<p class="inv-note">${esc(L.realErr)}</p>`; return; }
+  const sel = invProfile().key, W = 560, H = 200, pl = 6, pr = 6, pt = 10, pb = 10;
+  const all = Object.values(cv.curves).flat(), mn = Math.min(...all), mx = Math.max(...all), n = cv.dates.length;
+  const X = i => pl + (W - pl - pr) * i / (n - 1), Y = v => pt + (H - pt - pb) * (1 - (v - mn) / ((mx - mn) || 1));
+  const poly = (arr, col, w, op) => `<polyline points="${arr.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="${w}" opacity="${op}" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
+  const lines = INV_PROFILES.filter(p => p.key !== sel).map(p => poly(cv.curves[p.key], p.color, 1.5, .5)).join('')
+    + poly(cv.curves[sel], INV_PROFILES.find(p => p.key === sel).color, 3, 1);
+  const fd = d => new Date(d + 'T00:00:00').toLocaleDateString(localeOf(), { day: 'numeric', month: 'short', year: 'numeric' });
+  const ret = k => cv.curves[k][n - 1] - 100;
+  const leg = INV_PROFILES.map(p => `<span class="${p.key === sel ? 'on' : ''}"><i style="background:${p.color}"></i>${esc(L.prof[p.key][0])} ${invPct(ret(p.key))}</span>`).join('');
+  const r = ret(sel);
+  el.innerHTML = `<div class="inv-real-top"><span class="v ${r >= 0 ? 'pf-pos' : 'pf-neg'}">${invPct(r)}</span><span class="l">${esc(L.prof[sel][0])} · ${esc(L.realPeriod(fd(cv.dates[0]), fd(cv.dates[n - 1])))}</span></div>
+    <div class="inv-real-leg">${leg}</div>
+    <svg class="inv-chart-fix" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${esc(L.realT)}"><line x1="${pl}" x2="${W - pr}" y1="${Y(100).toFixed(1)}" y2="${Y(100).toFixed(1)}" stroke="var(--faint)" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>${lines}</svg>`;
+}
+function renderInvBricks() {
+  const el = document.getElementById('inv-bricks'); if (!el) return;
+  const L = invT(), prof = invProfile();
+  el.innerHTML = Object.entries(INV_ASSETS).map(([k, a]) => {
+    const w = prof.w[k] || 0;
+    const real = invPerf && invPerf[a.proxy] && invPerf[a.proxy].ret_1y_pct != null ? L.brickReal(`${a.proxy} ${invPct(invPerf[a.proxy].ret_1y_pct)}`) : '';
+    const chips = a.etfs.map(s => `<button type="button" class="inv-etf" data-sym="${esc(s)}">${esc(s)}<small>${esc(L.etfName[s] || '')}</small></button>`).join('');
+    return `<div class="inv-brick${w ? '' : ' off'}">
+      <div class="inv-brick-h"><i style="background:${a.color}"></i>${esc(L.assets[k])}<small>${esc(L.role[k])}</small></div>
+      <p>${esc(L.desc[k])}</p>
+      <div class="st">${esc(L.brickStats(fmtNum(a.mu, 0), fmtNum(a.sigma, a.sigma < 1 ? 1 : 0)) + real)}</div>
+      <div class="pct">${esc(L.inProfile(w))}</div>
+      <div class="inv-etfs">${chips}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderInvest() {
+  const el = document.getElementById('invest'); if (!el) return;
+  const L = invT(), prof = invProfile(), st = invStats(prof.w);
+  const cards = INV_PROFILES.map(p => {
+    const on = p.key === prof.key, s = invStats(p.w);
+    return `<button type="button" class="inv-prof${on ? ' on' : ''}" data-p="${p.key}" role="radio" aria-checked="${on}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${INV_ICO[p.key]}</svg>
+      <b>${esc(L.prof[p.key][0])}</b><span>${esc(L.prof[p.key][1])}</span><em>${esc(L.riskShort(s.risk))}</em></button>`;
+  }).join('');
+  const legend = Object.keys(INV_ASSETS).map(k => `<div class="inv-leg-row"><i style="background:${INV_ASSETS[k].color}"></i><span>${esc(L.assets[k])}</span><b>${prof.w[k] || 0} %</b>
+      <div class="inv-bar"><span style="width:${prof.w[k] || 0}%;background:${INV_ASSETS[k].color}"></span></div></div>`).join('');
+  const gauge = Array.from({ length: 7 }, (_, i) => `<i style="${i < st.risk ? `background:hsl(${140 - i * 22} 55% 55%)` : ''}"></i>`).join('');
+  const kpi = (k, v, h, extra = '') => `<div class="inv-kpi"><div class="k">${esc(k)}</div><div class="v">${v}</div>${extra}<div class="h">${esc(h)}</div></div>`;
+  const crisis = (v, l) => `<div class="inv-crisis-row"><div class="v ${v >= 0 ? 'pf-pos' : 'pf-neg'}">${invPct(v, 0)}</div><div class="l">${esc(l)}</div></div>`;
+  el.innerHTML = `<div class="inv-head"><h2>${esc(L.title)}</h2><p>${esc(L.intro)}</p></div>
+    <div class="inv-profiles" role="radiogroup" aria-label="${esc(L.title)}">${cards}</div>
+    <div class="inv-grid">
+      <div class="panel"><div class="panel-t">${esc(L.alloc)} · ${esc(L.prof[prof.key][0])}</div>
+        <div class="inv-alloc-body">${invDonut(prof.w, L.prof[prof.key][0])}<div class="inv-leg">${legend}</div></div></div>
+      <div class="inv-kpis">
+        ${kpi(L.kRet, esc(L.kRetV(fmtNum(st.mu, 1))), L.kRetH)}
+        ${kpi(L.kRisk, `${st.risk}<small style="font-size:14px;color:var(--muted)">/7</small>`, L.kRiskH(L.riskLbl[st.risk], fmtNum(st.sigma, 0)), `<div class="inv-gauge">${gauge}</div>`)}
+        ${kpi(L.kBad, `<span class="pf-neg">${invPct(st.bad, 0)}</span>`, L.kBadH)}
+        ${kpi(L.kHor, esc(L.kHorV(prof.horizon)), L.kHorH)}
+      </div>
+    </div>
+    <div class="panel"><div class="panel-t">${esc(L.crisisT)}</div>
+      <div class="inv-crisis-rows">${crisis(st.c08, L.c08)}${crisis(st.c22, L.c22)}</div>
+      <p class="inv-note">${esc(L.crisisNote)}</p></div>
+    <div class="panel"><div class="panel-t">${esc(L.projT)}</div>
+      <div class="inv-proj-ctl">
+        <label>${esc(L.projAmount)} <input id="inv-amount" type="number" min="0" step="500" inputmode="decimal" value="${invAmount()}"> ${esc(pfBase())}</label>
+        <span class="inv-pills" role="group" aria-label="${esc(L.projYears)}">${[5, 10, 20].map(y => `<button type="button" data-y="${y}">${esc(L.yrs(y))}</button>`).join('')}</span>
+      </div>
+      <div class="inv-proj-body" id="inv-proj-body"></div>
+      <p class="inv-note">${esc(L.projNote)}</p></div>
+    <div class="panel"><div class="panel-t">${esc(L.realT)}</div><p class="inv-note">${esc(L.realSub)}</p><div id="inv-real-body"></div></div>
+    <div class="panel"><div class="panel-t">${esc(L.bricksT)}</div><p class="inv-note">${esc(L.bricksSub)}</p>
+      <div class="inv-bricks" id="inv-bricks"></div>
+      <button type="button" class="inv-cta" id="inv-analyze">${esc(L.analyzeProfile)}</button></div>
+    <p class="inv-disc">⚠ ${esc(L.disclaimer)}</p>`;
+  renderInvProj(); renderInvReal(); renderInvBricks();
+  if (invPerfState === 'idle') loadInvPerf();
+}
+(function initInvest() {
+  const root = document.getElementById('invest'); if (!root) return;
+  root.addEventListener('click', e => {
+    const p = e.target.closest('.inv-prof');
+    if (p) { localStorage.setItem('invProfile', p.dataset.p); renderInvest(); return; }
+    const y = e.target.closest('.inv-pills button');
+    if (y) { localStorage.setItem('invYears', y.dataset.y); renderInvProj(); return; }
+    const etf = e.target.closest('.inv-etf');
+    if (etf) { document.getElementById('tickers').value = etf.dataset.sym; run(); return; }
+    if (e.target.closest('#inv-analyze')) {
+      const w = invProfile().w;
+      document.getElementById('tickers').value = Object.keys(INV_ASSETS).filter(k => w[k] > 0).map(k => INV_ASSETS[k].proxy).join(', ');
+      run();
+    }
+  });
+  root.addEventListener('input', e => {
+    if (e.target.id !== 'inv-amount') return;
+    const v = parseFloat(String(e.target.value).replace(',', '.'));
+    if (v > 0) { localStorage.setItem('invAmount', String(v)); renderInvProj(); }
+  });
+})();
+
+// ── Navigation entre les espaces (Marchés, Analyser, Investir, Portefeuille) ─
+// Chaque espace a son ancre (#analyser…) : le bouton « retour » du navigateur
+// fonctionne, et un espace n'est chargé que lorsqu'on l'ouvre.
+const VIEWS = ['marches', 'analyser', 'investir', 'portefeuille'];
+let currentView = null, analyserStarted = false;
+function go(v) { if (location.hash.slice(1) === v) showView(v); else location.hash = v; }
+function showView(v) {
+  if (!VIEWS.includes(v)) v = 'marches';
+  const changed = v !== currentView;
+  currentView = v;
+  document.querySelectorAll('section.view').forEach(sec => { sec.hidden = sec.dataset.view !== v; });
+  document.querySelectorAll('.nav-tab').forEach(a => {
+    const on = a.dataset.view === v;
+    a.classList.toggle('on', on);
+    if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+  });
+  if (!changed) return;
+  window.scrollTo(0, 0);
+  if (v === 'analyser' && !analyserStarted) { analyserStarted = true; if (document.getElementById('tickers').value.trim()) run(); }
+  if (v === 'portefeuille') refreshPf();
+  if (v === 'investir') renderInvest();
+}
+window.addEventListener('hashchange', () => showView(location.hash.slice(1)));
+
 // Symboles reçus dans l'adresse (ex. depuis le guide : /?tickers=XOM,CVX&from=guide),
-// sinon titres mémorisés, sinon valeurs par défaut. Puis analyse au chargement.
+// sinon titres mémorisés, sinon valeurs par défaut.
 const _params = new URLSearchParams(location.search);
 const fromUrl = _params.get('tickers');
 const cameFromGuide = _params.get('from') === 'guide';
 document.getElementById('tickers').value = fromUrl || localStorage.getItem('tickers') || 'AAPL, MSFT, NVDA, GOOGL, SPY';
 // Affiche un retour vers le guide si on en vient (utile sur mobile, sans bouton retour).
 if (cameFromGuide) document.getElementById('backbar').innerHTML = `<a class="backlink" href="/guide">${t('backToGuide')}</a>`;
-// Nettoie l'adresse pour qu'un rafraîchissement reparte des titres mémorisés.
-if ((fromUrl || cameFromGuide) && window.history.replaceState) window.history.replaceState(null, '', location.pathname);
+// Nettoie l'adresse (un lien du guide ouvre directement « Analyser »).
+if ((fromUrl || cameFromGuide) && window.history.replaceState) window.history.replaceState(null, '', location.pathname + (fromUrl ? '#analyser' : location.hash));
 renderCategories();
 renderFavs();
 initAssistant();
@@ -2508,7 +3046,7 @@ initButterflies();
 initPageButterflies();
 applyLang();
 initMarket();
-run();
+showView(location.hash.slice(1) || 'marches');
 // Mode hors-ligne léger : la coquille de l'app est mise en cache par le service worker.
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('/sw.js').catch(() => {});
 </script>

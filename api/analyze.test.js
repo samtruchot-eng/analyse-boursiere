@@ -8,7 +8,7 @@
 const { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown,
   obv, trendCorr, atr, adx, stochastic, rsiDivergence,
   toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr,
-  mfi, psar, squeeze, relVolume, fetchFundamentals, fetchNews, fetchLight } =
+  mfi, psar, squeeze, relVolume, fetchFundamentals, fetchNews, fetchLight, perfSummary } =
   require('./analyze.js')._internal;
 
 let pass = 0, fail = 0;
@@ -269,6 +269,17 @@ function ramp(a, b, n) {
   ok('explain chaque point a un ton valide', ex.points.every((p) => ['bull', 'bear', 'warn', 'neutral'].includes(p.s)));
   ok('explain résumé de risque présent', typeof ex.risk_summary === 'string');
   ok('explain vigilance est un tableau', Array.isArray(ex.vigilance));
+}
+
+// ── Résumé de performance (volet Investir) ───────────────────────────────────
+{
+  const n = 400, bars = [];
+  for (let i = 0; i < n; i++) bars.push({ day: `D${String(i).padStart(3, '0')}`, close: 100 * Math.pow(1.001, i) });
+  const ps = perfSummary({ ticker: 'VT', name: 'World', currency: 'USD', bars });
+  ok('perf : 253 dernières séances', ps.days.length === 253 && ps.closes.length === 253);
+  ok('perf : dates alignées sur la fin', ps.days[252] === 'D399' && ps.days[0] === 'D147');
+  approx('perf : rendement 1 an', ps.ret_1y_pct, (Math.pow(1.001, 252) - 1) * 100, 0.05);
+  ok('perf : métadonnées', ps.ticker === 'VT' && ps.currency === 'USD');
 }
 
 // ── Fondamentaux (fetch simulé) + bilan ──────────────────────────────────────

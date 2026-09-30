@@ -252,6 +252,18 @@ async function fetchLight(ticker) {
   return s;
 }
 
+// Résumé de performance sur un an (≈ 253 séances) à partir d'une série.
+function perfSummary(series) {
+  const bars = series.bars.slice(-253);
+  const closes = series.bars.map(b => b.close);
+  const rk = riskMetrics(closes);
+  return {
+    ticker: series.ticker, name: series.name || null, currency: series.currency || null,
+    days: bars.map(b => b.day), closes: bars.map(b => round(b.close, 4)),
+    ret_1y_pct: rk.ret_1y_pct, annual_vol_pct: rk.annual_vol_pct, max_drawdown_pct: rk.max_drawdown_pct,
+  };
+}
+
 // Actualités pour plusieurs symboles, en parallèle.
 async function fetchNewsMap(tickers) {
   const out = {};
@@ -944,6 +956,20 @@ module.exports = async (req, res) => {
     return;
   }
 
+  // Mode « performance » (volet Investir) : un an de clôtures datées + risque,
+  // sans l'analyse technique ni les fondamentaux.
+  if (url.searchParams.get('perf') === '1') {
+    const list = raw.split(',').map(t => t.trim()).filter(Boolean).slice(0, 12);
+    const results = await Promise.all(list.map(async (t) => {
+      try { return perfSummary(await fetchSeries(t)); }
+      catch (e) { return { ticker: t.toUpperCase(), error: String(e.message || e) }; }
+    }));
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
+    res.status(200).end(JSON.stringify({ generated: new Date().toISOString(), results }));
+    return;
+  }
+
   const tickers = raw.split(',').map(t => t.trim()).filter(Boolean).slice(0, 12);
 
   // Indice de marché (S&P 500) récupéré une seule fois, pour le bêta / la corrélation.
@@ -1010,4 +1036,4 @@ module.exports = async (req, res) => {
 };
 
 // Exposé pour les tests (n'affecte pas le handler par défaut utilisé par Vercel).
-module.exports._internal = { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown, obv, trendCorr, atr, adx, stochastic, rsiDivergence, toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr, mfi, psar, squeeze, relVolume, fetchFundamentals, fetchNews, fetchLight };
+module.exports._internal = { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown, obv, trendCorr, atr, adx, stochastic, rsiDivergence, toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr, mfi, psar, squeeze, relVolume, fetchFundamentals, fetchNews, fetchLight, perfSummary };
