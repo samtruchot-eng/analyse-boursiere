@@ -1123,6 +1123,7 @@ const I18N = {
     pfEmpty: "Votre portefeuille est vide. Ajoutez votre premier titre ci-dessous : son <b>nom ou symbole</b>, la <b>quantité</b> détenue et, pour suivre votre gain, le <b>prix payé</b>.",
     pfHistTitle: 'Valeur du portefeuille dans le temps', pfSince: d => `depuis le ${d}`, pfHistNote: n => `${n} relevés · un point par jour où vous ouvrez le portefeuille.`,
     pfByPos: 'Par titre', pfBySector: 'Par secteur', pfUpdated: h => `Cours mis à jour à ${h}`,
+    pfUpdatedClosed: (h, d) => `Vérifié à ${h} · bourses fermées : cours de clôture du ${d}. Ils bougeront à la prochaine séance.`,
     divTitle: '🧭 Diversification', divGood: 'Bonne', divMid: 'Moyenne', divLow: 'Faible',
     divSub: (n, s, pct, lab) => `${n} position${n > 1 ? 's' : ''} · ${s} secteur${s > 1 ? 's' : ''} · plus grosse ligne ${lab} (${pct} %)`,
     divWarnPos: (lab, pct) => `La position ${lab} pèse ${pct} % du portefeuille — concentration élevée.`,
@@ -1214,6 +1215,7 @@ const I18N = {
     pfEmpty: 'Your portfolio is empty. Add your first stock below: its <b>name or symbol</b>, the <b>quantity</b> you hold and, to track your gain, the <b>price paid</b>.',
     pfHistTitle: 'Portfolio value over time', pfSince: d => `since ${d}`, pfHistNote: n => `${n} readings · one point per day you open the portfolio.`,
     pfByPos: 'By holding', pfBySector: 'By sector', pfUpdated: h => `Prices updated at ${h}`,
+    pfUpdatedClosed: (h, d) => `Checked at ${h} · markets closed: closing prices of ${d}. They will move at the next session.`,
     divTitle: '🧭 Diversification', divGood: 'Good', divMid: 'Fair', divLow: 'Low',
     divSub: (n, s, pct, lab) => `${n} position${n > 1 ? 's' : ''} · ${s} sector${s > 1 ? 's' : ''} · largest holding ${lab} (${pct}%)`,
     divWarnPos: (lab, pct) => `${lab} is ${pct}% of the portfolio — high concentration.`,
@@ -2706,7 +2708,7 @@ async function refreshPf() {
   btn.disabled = true; pfLoading = true; renderPf();
   try {
     (await pfFetchLight(syms)).forEach(r => {
-      pfPrices[String(r.ticker).toUpperCase()] = r.error ? { error: true } : { price: r.price, prevClose: r.prevClose, name: r.name, currency: r.currency };
+      pfPrices[String(r.ticker).toUpperCase()] = r.error ? { error: true } : { price: r.price, prevClose: r.prevClose, name: r.name, currency: r.currency, day: r.day };
     });
     const base = pfBase();
     const curs = [...new Set(syms.map(s => (pfPrices[s] || {}).currency).filter(c => c && c !== base))];
@@ -2719,7 +2721,17 @@ async function refreshPf() {
     let tot = 0, ok = true;
     pfGroups().forEach(g => { const i = pfPrices[g.sym]; if (!i || i.price == null) return; const v = toBase(i.price * g.qty, i.currency); if (v == null) ok = false; else tot += v; });
     if (ok && tot > 0) recordPfValue(tot);
-    document.getElementById('pf-updated').textContent = t('pfUpdated', new Date().toLocaleTimeString(localeOf(), { hour: '2-digit', minute: '2-digit' }));
+    // Bourses fermées (soir, week-end) : les cours restent ceux de la dernière séance.
+    const now = new Date(), hm = now.toLocaleTimeString(localeOf(), { hour: '2-digit', minute: '2-digit' });
+    const days = syms.map(x => (pfPrices[x] || {}).day).filter(Boolean).sort();
+    const last = days[days.length - 1], today = now.toISOString().slice(0, 10);
+    // Heures (de Paris) approximatives : Europe 9 h – 17 h 35, États-Unis 15 h 30 – 22 h ; crypto 24 h/24.
+    const crypto = syms.some(x => /-(USD|EUR)$/.test(x)), eu = syms.every(x => /\.[A-Z]{1,3}$/.test(x));
+    const h = now.getHours() + now.getMinutes() / 60, [o, c] = eu ? [9, 17.6] : [9, 22.1];
+    const closed = last && !crypto && (last < today || h >= c || h < o || now.getDay() === 0 || now.getDay() === 6);
+    document.getElementById('pf-updated').textContent = closed
+      ? t('pfUpdatedClosed', hm, new Date(last + 'T12:00:00Z').toLocaleDateString(localeOf(), { weekday: 'long', day: 'numeric', month: 'long' }))
+      : t('pfUpdated', hm);
   } catch (e) { /* on garde les derniers prix connus */ }
   pfLoading = false; btn.disabled = false;
   renderPf();
