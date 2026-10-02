@@ -758,6 +758,18 @@
   .plan-broker ol { margin: 4px 0 10px; padding-left: 20px; font-size: 13px; line-height: 1.55; color: var(--text); }
   .plan-broker li { margin: 5px 0; }
   .plan-check { font-size: 12px; color: #3f9c74; margin: 10px 0 0; }
+  .plan-modes-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 2px 0 12px; }
+  .plan-modes { margin: 0; } .plan-modes button { white-space: nowrap; }
+  .plan-mode-hint { font-size: 12px; color: var(--muted); flex: 1; min-width: 200px; }
+  .plan-status { font-size: 14px; font-weight: 700; padding: 10px 14px; border-radius: 12px; margin-bottom: 10px; background: rgba(63,156,116,.1); color: #3f9c74; }
+  .plan-status.todo { background: var(--chip-bg); color: var(--accent); border: 1px solid var(--card-border); }
+  .plan-st { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: 10.5px; letter-spacing: .02em; background: var(--chip-bg); color: var(--muted); border: 1px solid var(--card-border); text-transform: none; }
+  .st-new .plan-st, .st-switch .plan-st, .st-amount .plan-st { background: var(--accent); color: #fff; border-color: transparent; }
+  .st-remove .plan-st { background: #c9606a; color: #fff; border-color: transparent; }
+  .plan-order.st-remove { opacity: .75; border-style: dashed; }
+  .plan-order.st-switch, .plan-order.st-new, .plan-order.st-amount { border-color: var(--accent); }
+  .plan-was { display: block; font-size: 11px; color: var(--faint); }
+  .plan-step2 { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
   .plan-check.warn { color: #b9822f; }
   .plan-loading { color: var(--muted); font-size: 13.5px; }
   .plan-done { background: linear-gradient(135deg, rgba(79,165,135,.12), rgba(159,142,222,.10)); border-radius: 14px; padding: 14px 16px; }
@@ -2365,7 +2377,7 @@ const ASSIST_KB = [
   { k: [' or ', 'metal precieux', 'valeur refuge', 'mines d or', 'lingot', ' gold ', 'safe haven'], fr: "L'<b>or</b> est une valeur refuge : il tend à monter en période de stress. Souvent 5–10 % d'un portefeuille diversifié.", en: "<b>Gold</b> is a safe haven: it tends to rise in stress. Often 5–10% of a diversified portfolio." },
   { k: [' profil', 'prudent', 'equilibre', 'dynamique', 'offensif', 'investir', ' profile ', 'cautious', 'balanced', 'aggressive', ' invest'], fr: "L'espace <b>Investir</b> propose 4 <b>profils types</b> (Prudent, Équilibré, Dynamique, Offensif). Pour chacun : la répartition actions / obligations / monétaire / or, le rendement espéré, le niveau de risque (1 à 7), une mauvaise année possible, l'effet d'une crise comme 2008 ou 2022, une projection de votre montant et ce que le profil a réellement fait sur 12 mois. <a href='#investir'>Ouvrir Investir</a>.", en: "The <b>Invest</b> space offers 4 <b>model profiles</b> (Cautious, Balanced, Growth, Aggressive). For each: the stocks / bonds / cash / gold split, expected return, risk level (1 to 7), a possible bad year, the effect of a crisis like 2008 or 2022, a projection of your amount and what the profile actually did over 12 months. <a href='#investir'>Open Invest</a>." },
   { k: [' isin', 'trade republic', 'courtier', 'compte titre', 'plan d epargne', 'acheter chez', ' broker', 'savings plan'], fr: "Pour acheter chez votre <b>courtier</b> (Trade Republic par exemple) : dans Investir → Mon plan mensuel, chaque achat affiche son <b>code ISIN</b> avec un bouton pour le copier. Collez-le dans la recherche du courtier, vérifiez le nom et la devise (euros), et préférez un <b>plan d'épargne programmé</b> (fractions de parts, souvent sans frais). Ensuite : « J'ai investi ce mois-ci ». <a href='#investir'>Ouvrir mon plan</a>.", en: "To buy at your <b>broker</b> (Trade Republic for instance): in Invest → My monthly plan, each buy shows its <b>ISIN code</b> with a copy button. Paste it into the broker's search, check the name and currency (euros), and prefer a <b>savings plan</b> (fractional shares, often no fee). Then: \"I invested this month\". <a href='#investir'>Open my plan</a>." },
-  { k: ['plan mensuel', 'mon plan', 'quoi acheter', 'que dois je acheter', 'j ai investi', 'verse chaque mois', 'par mois', 'monthly plan', 'my plan', 'what to buy', 'what should i buy', 'per month'], fr: "Le <b>plan mensuel</b> (Investir → « Mon plan mensuel ») : choisissez un profil et le montant versé chaque mois. butterfly vous dit <b>quoi acheter ce mois-ci</b> : quelques achats d'au moins 20 €, en commençant par ce qui est le plus en retard sur la répartition cible. Dans chaque poche, le <b>score</b> départage des ETF européens comparables ; les profils Dynamique et Offensif ajoutent une action, seulement si elle est notée « Achat » (58+). Le bouton <b>« J'ai investi ce mois-ci »</b> ajoute les achats au portefeuille et garde l'historique. <a href='#investir'>Ouvrir mon plan</a>.", en: "The <b>monthly plan</b> (Invest → \"My monthly plan\"): pick a profile and the amount you invest each month. butterfly tells you <b>what to buy this month</b>: a few buys of at least €20, starting with whatever is furthest behind the target split. Within each bucket, the <b>score</b> picks between comparable European ETFs; Growth and Aggressive profiles add one stock, only if it is rated \"Buy\" (58+). The <b>\"I invested this month\"</b> button adds the buys to your portfolio and keeps the history. <a href='#investir'>Open my plan</a>." },
+  { k: ['plan mensuel', 'mon plan', 'quoi acheter', 'que dois je acheter', 'j ai investi', 'verse chaque mois', 'par mois', 'monthly plan', 'my plan', 'what to buy', 'what should i buy', 'per month'], fr: "Le <b>plan mensuel</b> (Investir → « Mon plan mensuel ») : choisissez un profil et le montant versé chaque mois. Deux modes : <b>Plans d'épargne</b> (recommandé avec Trade Republic) — une répartition fixe chaque mois, toujours les mêmes produits, et butterfly vous signale seulement les changements à faire ; ou <b>Achats du mois</b> — quelques achats d'au moins 20 €, en commençant par ce qui est le plus en retard sur la cible. Dans chaque poche, le <b>score</b> départage des ETF européens comparables ; les profils Dynamique et Offensif ajoutent une action, seulement si elle est notée « Achat » (58+). Le bouton <b>« J'ai investi ce mois-ci »</b> ajoute les achats au portefeuille et garde l'historique. <a href='#investir'>Ouvrir mon plan</a>.", en: "The <b>monthly plan</b> (Invest → \"My monthly plan\"): pick a profile and the amount you invest each month. Two modes: <b>Savings plans</b> (recommended with Trade Republic) — a fixed split each month, always the same products, and butterfly only flags the changes to make; or <b>This month's buys</b> — a few buys of at least €20, starting with whatever is furthest behind the target. Within each bucket, the <b>score</b> picks between comparable European ETFs; Growth and Aggressive profiles add one stock, only if it is rated \"Buy\" (58+). The <b>\"I invested this month\"</b> button adds the buys to your portfolio and keeps the history. <a href='#investir'>Open my plan</a>." },
   { k: [' plan', 'portefeuille', 'allocation', 'combien investir', 'repartition', 'portfolio'], fr: "Un <b>plan</b> repose sur : horizon, tolérance au risque, diversification, régularité (DCA) et rééquilibrage. <a href='/guide#plan' target='_blank'>Voir le plan</a>.", en: "A <b>plan</b> rests on: horizon, risk tolerance, diversification, regularity (DCA) and rebalancing. <a href='/guide#plan' target='_blank'>See the plan</a>." },
   { k: ['donnee', ' source', ' yahoo', 'd ou vien', 'cours reel', 'fiable', 'temps reel', ' data ', 'real time', 'real price'], fr: "Les cours sont <b>réels</b>, récupérés côté serveur via Yahoo Finance (Stooq en secours), sans clé API. Pas du temps réel à la seconde : des séances quotidiennes.", en: "Prices are <b>real</b>, fetched server-side via Yahoo Finance (Stooq as backup), no API key. Not real-time to the second: daily sessions." },
   { k: ['crypto', 'bitcoin', ' btc', 'ethereum', ' eth '], fr: "Les cryptos (<code>BTC-USD</code>, <code>ETH-USD</code>…) fonctionnent aussi. Comme elles s'échangent 7j/7, le risque annualisé est un peu approximatif, mais les indicateurs restent pertinents.", en: "Cryptos (<code>BTC-USD</code>, <code>ETH-USD</code>…) work too. As they trade 7 days a week, annualised risk is a bit approximate, but the indicators still apply." },
@@ -2702,7 +2714,7 @@ async function refreshPf() {
 }
 
 // Sauvegarde / restauration de toutes les données locales.
-const BACKUP_KEYS = ['favorites', 'portfolio', 'alerts', 'scoreHistory', 'notes', 'pfHistory', 'pfBase', 'tickers', 'catGroup', 'planHist', 'planAmount', 'invProfile'];
+const BACKUP_KEYS = ['favorites', 'portfolio', 'alerts', 'scoreHistory', 'notes', 'pfHistory', 'pfBase', 'tickers', 'catGroup', 'planHist', 'planAmount', 'invProfile', 'planSp', 'planMode'];
 function exportData() {
   const data = {};
   BACKUP_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v != null) data[k] = v; });
@@ -2893,6 +2905,31 @@ const INV_TXT = {
       ['Une fois acheté,', "cliquez « J'ai investi ce mois-ci ». Si le prix payé diffère un peu, corrigez-le dans Portefeuille (bouton Modifier)."]],
     checkOk: n => `Données vérifiées : cours et score reçus pour les ${n} produits du plan.`,
     checkMiss: (n, tot, list) => `Données reçues pour ${n} produits sur ${tot}. Non reconnus, donc ignorés ce mois-ci : ${list}. Signalez-le si cela dure.`,
+    modeSp: "Plans d'épargne", modeMonth: 'Achats du mois',
+    modeSpHint: "Recommandé avec Trade Republic : des plans d'épargne gratuits qui tournent tout seuls, toujours les mêmes produits.",
+    modeMonthHint: "Pour les courtiers sans plan d'épargne gratuit : 2 ou 3 achats d'au moins 20 € par mois, pour limiter les frais.",
+    spFirst: "Étape 1 — une seule fois : créez ces plans d'épargne dans Trade Republic.",
+    spChanges: n => `Ce mois-ci : ${n} changement${n > 1 ? 's' : ''} à faire dans vos plans d'épargne.`,
+    spNone: "Rien à changer ce mois-ci : vos plans d'épargne continuent tout seuls.",
+    spCreated: "✓ J'ai créé ces plans d'épargne", spChanged: "✓ J'ai fait ces changements",
+    spSaveHint: "butterfly retient vos plans pour vous signaler les changements les mois suivants.",
+    st: { new: 'À créer', same: 'Inchangé', amount: 'Montant à modifier', switch: 'À remplacer', remove: 'À supprimer' },
+    perMonthS: 'par mois', was: a => `avant ${a}`,
+    spEtf: n => `Choisi parmi ${n} ETF comparables, gardé tant que son score ne se dégrade pas nettement`,
+    spStock: sc => `Action gardée tant que son score reste à 42 ou plus${sc != null ? ` (actuellement ${sc})` : ''}`,
+    spSwitch: (o, sc) => `Remplace ${o}${sc != null ? ` (score tombé à ${sc})` : ' (plus reconnu)'} : arrêtez l'ancien plan et créez celui-ci. Gardez les parts déjà achetées`,
+    spRemove: "Supprimez ou mettez en pause ce plan d'épargne. Gardez les parts déjà achetées",
+    spStep2: "Étape 2 — chaque mois : vos plans s'exécutent tout seuls en début de mois. Ensuite, enregistrez-les ici.",
+    spExecuted: '✓ Mes plans ont été exécutés ce mois-ci',
+    spExecHint: a => `Ajoute ${a} d'achats à votre portefeuille, au cours du jour (modifiable ensuite).`,
+    whySp1: "Mode plans d'épargne : chaque mois, votre versement est réparti exactement selon la cible du profil, dans des plans d'épargne qui s'exécutent tout seuls (gratuits et en fractions de parts chez Trade Republic).",
+    whySp2: "Les produits restent les mêmes d'un mois à l'autre. butterfly ne propose d'en changer que si le score d'un ETF tombe sous 42 (signal vendeur) et qu'un équivalent fait au moins 15 points de mieux, ou si un produit n'est plus reconnu. L'action individuelle est gardée tant que son score reste à 42 ou plus ; on n'en choisit une nouvelle que si elle atteint 58 (« Achat »), sinon sa part va à l'ETF actions.",
+    brokerSpT: "Comment créer ces plans d'épargne dans Trade Republic",
+    brokerSpSteps: [
+      ['Copiez le code ISIN', "d'une ligne (bouton à côté du produit) et collez-le dans la recherche (loupe) de Trade Republic."],
+      ['Vérifiez le produit :', 'le nom doit correspondre et le produit doit être en euros.'],
+      ["Créez un plan d'épargne", "(pas un achat simple) : montant indiqué par butterfly, rythme mensuel, exécution en début de mois. C'est en général gratuit et en fractions de parts."],
+      ['Revenez dans butterfly', "et cliquez « J'ai créé ces plans d'épargne ». Ensuite, chaque mois, ouvrez simplement butterfly : s'il n'y a rien à changer, cliquez « Mes plans ont été exécutés ce mois-ci »."]],
     whyT: 'Pourquoi ce plan ?', whyTarget: (p, list) => `Répartition cible du profil ${p} : ${list}.`,
     whyRebal: "Pour limiter les frais, butterfly ne passe que quelques achats d'au moins 20 € par mois, en commençant par ce qui est le plus en retard sur votre cible (d'après vos versements). Les petites poches sont donc achetées un mois sur deux ou trois.",
     whyScore: "Dans chaque poche, le score technique départage des ETF larges et comparables : on prend le mieux noté ce mois-ci. Vous investissez chaque mois quel que soit le marché ; c'est le principe de l'investissement régulier, qui lisse vos prix d'achat.",
@@ -2960,6 +2997,31 @@ const INV_TXT = {
       ['Once bought,', 'click \"I invested this month\". If the price you paid differs slightly, fix it in Portfolio (Edit button).']],
     checkOk: n => `Data checked: price and score received for all ${n} products of the plan.`,
     checkMiss: (n, tot, list) => `Data received for ${n} of ${tot} products. Not recognised, so skipped this month: ${list}. Report it if it persists.`,
+    modeSp: 'Savings plans', modeMonth: "This month's buys",
+    modeSpHint: 'Recommended with Trade Republic: free savings plans that run on their own, always the same products.',
+    modeMonthHint: 'For brokers without free savings plans: 2 or 3 buys of at least €20 a month, to limit fees.',
+    spFirst: 'Step 1 — once only: create these savings plans in Trade Republic.',
+    spChanges: n => `This month: ${n} change${n > 1 ? 's' : ''} to make to your savings plans.`,
+    spNone: 'Nothing to change this month: your savings plans keep running on their own.',
+    spCreated: '✓ I created these savings plans', spChanged: '✓ I made these changes',
+    spSaveHint: 'butterfly remembers your plans to flag changes in the coming months.',
+    st: { new: 'To create', same: 'Unchanged', amount: 'Change amount', switch: 'To replace', remove: 'To delete' },
+    perMonthS: 'per month', was: a => `was ${a}`,
+    spEtf: n => `Picked among ${n} comparable ETFs, kept as long as its score doesn't clearly deteriorate`,
+    spStock: sc => `Stock kept as long as its score stays at 42 or more${sc != null ? ` (now ${sc})` : ''}`,
+    spSwitch: (o, sc) => `Replaces ${o}${sc != null ? ` (score dropped to ${sc})` : ' (no longer recognised)'}: stop the old plan and create this one. Keep the shares already bought`,
+    spRemove: 'Delete or pause this savings plan. Keep the shares already bought',
+    spStep2: 'Step 2 — each month: your plans run on their own at the start of the month. Then record them here.',
+    spExecuted: '✓ My plans ran this month',
+    spExecHint: a => `Adds ${a} of purchases to your portfolio at today's price (editable later).`,
+    whySp1: 'Savings-plan mode: each month your contribution is split exactly along the profile target, into savings plans that run on their own (free and in fractional shares at Trade Republic).',
+    whySp2: 'Products stay the same from one month to the next. butterfly only suggests a change if an ETF\'s score falls below 42 (sell signal) and an equivalent is at least 15 points better, or if a product is no longer recognised. The single stock is kept while its score stays at 42 or more; a new one is only picked if it reaches 58 ("Buy"), otherwise its share goes to the stock ETF.',
+    brokerSpT: 'How to create these savings plans in Trade Republic',
+    brokerSpSteps: [
+      ['Copy the ISIN code', 'of a line (button next to the product) and paste it into the Trade Republic search (magnifier).'],
+      ['Check the product:', 'the name should match and the product should be in euros.'],
+      ['Create a savings plan', '(not a one-off buy): amount shown by butterfly, monthly, executed at the start of the month. It is usually free and in fractional shares.'],
+      ['Come back to butterfly', 'and click "I created these savings plans". Then each month just open butterfly: if there is nothing to change, click "My plans ran this month".']],
     whyT: 'Why this plan?', whyTarget: (p, list) => `Target split of the ${p} profile: ${list}.`,
     whyRebal: 'To keep fees low, butterfly places only a few purchases of at least €20 a month, starting with what lags furthest behind your target (based on your contributions). Small buckets are therefore bought every two or three months.',
     whyScore: 'In each bucket, the technical score picks between broad, comparable ETFs: the best-rated this month wins. You invest every month whatever the market does; that is the principle of regular investing, which smooths your purchase prices.',
@@ -3254,10 +3316,10 @@ function planOrderHtml(o) {
   </div>`;
 }
 // Guide pratique : acheter le plan sur un compte-titres en ligne.
-function planBrokerHtml(open) {
+function planBrokerHtml(open, sp) {
   const L = invT();
-  return `<details class="plan-broker"${open ? ' open' : ''}><summary>${esc(L.brokerT)}</summary>
-    <ol>${L.brokerSteps.map(x => `<li><b>${esc(x[0])}</b> ${esc(x[1])}</li>`).join('')}</ol></details>`;
+  return `<details class="plan-broker"${open ? ' open' : ''}><summary>${esc(sp ? L.brokerSpT : L.brokerT)}</summary>
+    <ol>${(sp ? L.brokerSpSteps : L.brokerSteps).map(x => `<li><b>${esc(x[0])}</b> ${esc(x[1])}</li>`).join('')}</ol></details>`;
 }
 // Vérification des données : quels produits du plan le serveur a bien reconnus.
 function planCheckHtml() {
@@ -3278,7 +3340,7 @@ function planCopy(btn) {
   };
   if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(v).then(ok, fallback); else fallback();
 }
-function planWhyHtml(plan, prof) {
+function planWhyHtml(plan, prof, paras) {
   const L = invT();
   const target = PLAN_ORDER.filter(b => plan.w[b]).map(b => `${plan.w[b]} % ${L.bucketShort[b]}`).join(', ');
   const cands = PLAN_ORDER.filter(b => plan.w[b]).map(b => {
@@ -3292,9 +3354,9 @@ function planWhyHtml(plan, prof) {
   }).join('');
   return `<details class="plan-whyd"><summary>${esc(L.whyT)}</summary>
     <p>${esc(L.whyTarget(L.prof[prof.key][0], target))}</p>
-    <p>${esc(L.whyRebal)}</p>
-    <p>${esc(L.whyScore)}</p>
-    ${plan.w.titre ? `<p>${esc(L.whyStockRule(plan.w.titre))}${plan.redirected && planScoreState === 'ok' ? ' <b>' + esc(L.redirected) + '</b>' : ''}</p>` : ''}
+    ${paras ? paras.map(x => `<p>${esc(x)}</p>`).join('') : `<p>${esc(L.whyRebal)}</p>
+    <p>${esc(L.whyScore)}</p>`}
+    ${plan.w.titre && !paras ? `<p>${esc(L.whyStockRule(plan.w.titre))}${plan.redirected && planScoreState === 'ok' ? ' <b>' + esc(L.redirected) + '</b>' : ''}</p>` : ''}
     ${planScoreState === 'ok' ? `<div class="plan-cand-t0">${esc(L.candT)}</div><div class="plan-cands">${cands}</div>` : ''}
   </details>`;
 }
@@ -3328,8 +3390,112 @@ function renderPlanProj() {
     <div class="plan-range-leg"><span><i class="pd"></i>${esc(L.dcaPaid)}</span><span><i class="md"></i>${esc(L.dcaMed)}</span><span><i class="rg"></i>${esc(L.dcaRangeLeg)}</span></div>`;
   document.querySelectorAll('#invest .plan-pills button').forEach(b => b.classList.toggle('on', +b.dataset.y === T));
 }
+// ---- Mode « plans d'épargne » : répartition fixe chaque mois, produits stables.
+const PLAN_SWITCH = { below: 42, gap: 15 };
+function planMode() { return localStorage.getItem('planMode') === 'month' ? 'month' : 'sp'; }
+function getPlanSp() { try { return JSON.parse(localStorage.getItem('planSp') || 'null'); } catch (e) { return null; } }
+function setPlanSp(v) { localStorage.setItem('planSp', JSON.stringify(v)); }
+// Montants en euros entiers dont la somme fait exactement M (moins de 1 € → poche principale).
+function planSplit(w, M) {
+  const ks = Object.keys(w), Mi = Math.floor(M), raw = ks.map(b => Mi * w[b] / 100), fl = raw.map(Math.floor), out = {};
+  let left = Mi - fl.reduce((a, x) => a + x, 0);
+  ks.map((b, i) => [i, raw[i] - fl[i]]).sort((a, b) => b[1] - a[1]).forEach(([i]) => { if (left > 0) { fl[i]++; left--; } });
+  ks.forEach((b, i) => { out[b] = fl[i]; });
+  const big = ks.reduce((a, b) => (out[b] > out[a] ? b : a), ks[0]);
+  out[big] = Math.round((out[big] + M - Mi) * 100) / 100;
+  ks.forEach(b => { if (b !== big && out[b] < 1) { out[big] += out[b]; delete out[b]; } });
+  return out;
+}
+// Plans proposés + différences avec les plans déjà en place (setup).
+function computeSp(prof, M, setup) {
+  const ok = planScoreState === 'ok', w = { ...planWeights(prof) }, cur = {};
+  (setup ? setup.items : []).forEach(it => { cur[it.b] = it; });
+  const sc = s => (ok && planScores[s]) || null;
+  let stock = null;
+  if (w.titre) {
+    const c = cur.titre && sc(cur.titre.sym);
+    if (cur.titre && (!ok || (c && c.score >= PLAN_SWITCH.below))) stock = cur.titre.sym;
+    else if (ok) { const top = planRank('titre')[0]; if (top && top.r && top.r.score >= PLAN_BUCKETS.titre.minScore) stock = top.sym; }
+    if (!stock) { w.actions = (w.actions || 0) + w.titre; delete w.titre; }
+  }
+  const amt = planSplit(w, M);
+  const items = Object.keys(amt).map(b => {
+    let sym;
+    if (b === 'titre') sym = stock;
+    else {
+      const best = planRank(b)[0], c = cur[b];
+      sym = best.sym;
+      if (c && PLAN_BUCKETS[b].cands.includes(c.sym)) {
+        sym = c.sym;
+        const r = sc(c.sym);
+        if (ok && best.r && best.sym !== c.sym && (!r || (r.score < PLAN_SWITCH.below && best.r.score >= r.score + PLAN_SWITCH.gap))) sym = best.sym;
+      }
+    }
+    const it = { b, sym, eur: amt[b], r: sc(sym), n: PLAN_BUCKETS[b].cands.filter(s => sc(s)).length };
+    const c = cur[b];
+    it.st = !c ? 'new' : c.sym !== sym ? 'switch' : Math.abs(c.eur - it.eur) > 0.005 ? 'amount' : 'same';
+    if (c) { it.old = c; it.oldR = sc(c.sym); }
+    return it;
+  }).sort((x, y) => PLAN_ORDER.indexOf(x.b) - PLAN_ORDER.indexOf(y.b));
+  const removed = setup ? setup.items.filter(c => amt[c.b] == null).map(c => ({ b: c.b, sym: c.sym, eur: c.eur, st: 'remove', r: sc(c.sym), old: c })) : [];
+  return { w, items, removed, orders: items, nChanges: items.filter(i => i.st !== 'same').length + removed.length };
+}
+function planSpRowHtml(it) {
+  const L = invT(), name = NAMES[it.sym] || '', isin = PLAN_ISIN[it.sym];
+  const scr = r => (r ? Math.round(r.score) : null);
+  const why = it.st === 'switch' ? L.spSwitch(it.old.sym, scr(it.oldR)) : it.st === 'remove' ? L.spRemove
+    : it.b === 'titre' ? L.spStock(scr(it.r)) : it.r ? L.spEtf(it.n) : L.whyRef;
+  return `<div class="plan-order st-${it.st}">
+    <i class="plan-dot" style="background:${planColor(it.b)}"></i>
+    <div class="plan-what"><div class="plan-b">${esc(L.bucket[it.b])} <span class="plan-st">${esc(L.st[it.st])}</span></div>
+      <button type="button" class="plan-sym" data-sym="${esc(it.sym)}" title="${esc(t('pfAnalyze'))}"><b>${esc(it.sym)}</b><span>${esc(name)}</span></button>
+      <div class="plan-why">${esc(why)}${it.r && it.st !== 'remove' ? ' · ' + esc(L.price(eur(it.r.price, 2))) : ''}</div>
+      ${isin && it.st !== 'remove' ? `<button type="button" class="plan-isin" data-isin="${isin}" title="${esc(L.copyIsin)}">ISIN <b>${isin}</b>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><em>${esc(L.copied)}</em></button>` : ''}</div>
+    <div class="plan-amt">${it.st === 'remove' ? `<b><s>${eur(it.eur)}</s></b>` : `<b>${eur(it.eur)}</b>`}<span>${esc(L.perMonthS)}</span>${it.st === 'amount' ? `<span class="plan-was">${esc(L.was(eur(it.old.eur)))}</span>` : ''}</div>
+    ${planScorePill(it.r)}
+  </div>`;
+}
+function renderPlanSp(el) {
+  const L = invT(), prof = invProfile(), M = planMonthly(), hist = getPlanHist(), mk = monthKey(), setup = getPlanSp();
+  const sp = computeSp(prof, M, setup);
+  const todo = !setup || sp.nChanges > 0;
+  const head = !setup ? L.spFirst : sp.nChanges ? L.spChanges(sp.nChanges) : L.spNone;
+  const done = hist.filter(h => h.m === mk);
+  let step2 = '';
+  if (setup) {
+    const tot = setup.items.reduce((a, x) => a + x.eur, 0);
+    step2 = done.length
+      ? `<div class="plan-done"><div class="plan-done-t">${esc(L.doneT(monthLabel(mk)))}</div><ul>${done.flatMap(h => h.items).map(it => `<li><b>${esc(it.sym)}</b> ${esc(NAMES[it.sym] || '')} · ${eur(it.eur)}</li>`).join('')}</ul>
+          <p>${esc(L.doneNext(monthLabel(nextMonthKey())))}</p><div class="plan-actions"><a class="plan-btn ghost" href="#portefeuille">${esc(L.seePf)}</a></div></div>`
+      : `<div class="plan-step2"><div class="plan-sub">${esc(L.spStep2)}</div>
+          <div class="plan-actions"><button type="button" class="plan-btn" id="plan-record">${esc(L.spExecuted)}</button><span class="plan-hint">${esc(L.spExecHint(eur(tot)))}</span></div></div>`;
+  }
+  el.innerHTML = `${planScoreState === 'err' ? `<div class="banner warn">${esc(L.planErr)}</div>` : ''}
+    <div class="plan-status${todo ? ' todo' : ''}">${todo ? '' : '✓ '}${esc(head)}</div>
+    <div class="plan-orders">${[...sp.items, ...sp.removed].map(planSpRowHtml).join('')}</div>
+    ${todo ? `<div class="plan-actions"><button type="button" class="plan-btn${setup ? '' : ''}" id="plan-sp-save">${esc(setup ? L.spChanged : L.spCreated)}</button><span class="plan-hint">${esc(L.spSaveHint)}</span></div>` : ''}
+    ${planBrokerHtml(!setup, true)}
+    ${step2}
+    ${planWhyHtml(sp, prof, [L.whySp1, L.whySp2])}
+    ${planCheckHtml()}`;
+}
+function planSpSave() {
+  const sp = computeSp(invProfile(), planMonthly(), getPlanSp());
+  setPlanSp({ p: invProfile().key, M: planMonthly(), d: new Date().toISOString().slice(0, 10), items: sp.items.map(({ b, sym, eur }) => ({ b, sym, eur })) });
+  renderPlan();
+}
+
 function renderPlan() {
   const el = document.getElementById('plan-body'); if (!el) return;
+  const mode = planMode();
+  document.querySelectorAll('#invest .plan-modes button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
+  const mh = document.getElementById('plan-mode-hint'); if (mh) mh.textContent = mode === 'sp' ? invT().modeSpHint : invT().modeMonthHint;
+  if (mode === 'sp' && planScoreState !== 'idle' && planScoreState !== 'loading') {
+    renderPlanSp(el);
+    const tr = document.getElementById('plan-track'); if (tr) tr.innerHTML = planTrackHtml(invProfile(), getPlanHist());
+    return;
+  }
   const L = invT(), prof = invProfile(), M = planMonthly(), hist = getPlanHist(), mk = monthKey();
   const done = hist.filter(h => h.m === mk);
   let html;
@@ -3356,8 +3522,12 @@ function renderPlan() {
 // « J'ai investi ce mois-ci » : ajoute les achats au portefeuille (lots marqués
 // pour pouvoir annuler) et garde l'historique des versements.
 function planRecord() {
-  const prof = invProfile(), M = planMonthly(), hist = getPlanHist();
-  const plan = computePlan(prof, M, hist), id = 'plan-' + Date.now();
+  const prof = invProfile(), hist = getPlanHist(), setup = planMode() === 'sp' ? getPlanSp() : null;
+  const M = setup ? setup.items.reduce((a, x) => a + x.eur, 0) : planMonthly();
+  const plan = setup
+    ? { orders: setup.items.map(it => { const r = planScores && planScores[it.sym]; return { b: it.b, sym: it.sym, eur: it.eur, price: r ? r.price : null }; }) }
+    : computePlan(prof, M, hist);
+  const id = 'plan-' + Date.now();
   const pf = getPf();
   plan.orders.forEach(o => { if (o.price) pf.push({ sym: o.sym, qty: +(o.eur / o.price).toFixed(6), buy: +o.price.toFixed(4), plan: id }); });
   setPf(pf);
@@ -3378,6 +3548,8 @@ function planTabHtml() {
   return `<div class="panel plan-main">
       <div class="plan-head"><h3>${esc(L.planTitle(monthLabel(monthKey())))}</h3>
         <label class="plan-amt-in">${esc(L.planMonthly)} <input id="plan-amount" type="number" min="10" step="10" inputmode="decimal" value="${planMonthly()}"> ${esc(L.perMonth)}</label></div>
+      <div class="plan-modes-row"><span class="inv-tabs plan-modes" role="group">${[['sp', L.modeSp], ['month', L.modeMonth]].map(([k, l]) => `<button type="button" data-mode="${k}">${esc(l)}</button>`).join('')}</span>
+        <span class="plan-mode-hint" id="plan-mode-hint"></span></div>
       <div id="plan-body"></div>
     </div>
     <div id="plan-track"></div>
@@ -3446,12 +3618,15 @@ function renderInvest() {
   root.addEventListener('click', e => {
     const p = e.target.closest('.inv-prof');
     if (p) { localStorage.setItem('invProfile', p.dataset.p); renderInvest(); return; }
-    const tb = e.target.closest('.inv-tabs button');
+    const tb = e.target.closest('.inv-tabs:not(.plan-modes) button');
     if (tb) { localStorage.setItem('invTab', tb.dataset.tab); renderInvest(); return; }
     const py = e.target.closest('.plan-pills button');
     if (py) { localStorage.setItem('invYears', py.dataset.y); renderPlanProj(); return; }
     const ps = e.target.closest('.plan-sym');
     if (ps) { document.getElementById('tickers').value = ps.dataset.sym; run(); return; }
+    const pm = e.target.closest('.plan-modes button');
+    if (pm) { localStorage.setItem('planMode', pm.dataset.mode); planExtra = false; renderPlan(); return; }
+    if (e.target.closest('#plan-sp-save')) { planSpSave(); return; }
     const ci = e.target.closest('.plan-isin');
     if (ci) { planCopy(ci); return; }
     if (e.target.closest('#plan-record')) { planRecord(); return; }
