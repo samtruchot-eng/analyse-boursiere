@@ -422,6 +422,7 @@
   .pf-div-score small { font-size: 13px; color: var(--faint); font-weight: 600; }
   .pf-div-lvl { font-weight: 750; font-size: 14px; }
   .pf-div-sub { font-size: 12.5px; color: var(--muted); }
+  .pf-div-note { font-size: 11.5px; color: var(--faint); margin: 8px 0 0; line-height: 1.5; }
   .pf-div-warn { margin: 10px 0 0; padding-left: 20px; font-size: 12.8px; color: var(--warn); line-height: 1.5; }
   .pf-div-warn li { margin-bottom: 3px; }
   .pf-div-ok { font-size: 12.8px; color: var(--pos); margin-top: 8px; font-weight: 600; }
@@ -1129,6 +1130,7 @@ const I18N = {
     divWarnFew: 'Peu de positions : diversifiez davantage (idéalement 8 à 15 lignes).',
     divWarnSec1: 'Un seul secteur représenté : pensez à en ajouter d\'autres.',
     divOk: 'Bonne répartition — aucune alerte de concentration.',
+    divEtfNote: "Les ETF comptent comme déjà diversifiés : un ETF S&P 500, ce sont 500 entreprises. Le score mesure le risque de dépendre d'une seule entreprise ou d'un seul secteur ; la part actions / obligations / or, c'est votre profil qui la fixe.",
     confirmRestore: 'Restaurer cette sauvegarde ? Vos favoris, positions, alertes et historique actuels seront remplacés.', invalidBackup: 'Fichier de sauvegarde invalide.',
     backToGuide: '← Retour au guide',
     // Groupes de catégories
@@ -1219,6 +1221,7 @@ const I18N = {
     divWarnFew: 'Few positions: diversify further (ideally 8 to 15 holdings).',
     divWarnSec1: 'Only one sector represented: consider adding others.',
     divOk: 'Well spread — no concentration warning.',
+    divEtfNote: "ETFs count as already diversified: an S&P 500 ETF is 500 companies. The score measures the risk of depending on a single company or sector; the stocks / bonds / gold split is set by your profile.",
     confirmRestore: 'Restore this backup? Your current favourites, positions, alerts and history will be replaced.', invalidBackup: 'Invalid backup file.',
     backToGuide: '← Back to the guide',
     gActions: 'Stocks', gRegions: 'Regions', gEtf: 'ETFs', gBonds: 'Bonds', gCrypto: 'Crypto',
@@ -2545,11 +2548,15 @@ const SECTOR_EN = { 'Technologie':'Technology','Santé':'Health','Énergie':'Ene
 function sectorOf(sym) { const fr = SECTORS[String(sym).toUpperCase()] || 'Autre'; return currentLang() === 'en' ? (SECTOR_EN[fr] || fr) : fr; }
 
 // Note de diversification (0–100) : nombre « effectif » de titres et de secteurs.
+// Un fonds (ETF indiciel, obligataire, monétaire) contient déjà des dizaines
+// ou centaines de titres : il compte comme plusieurs lignes et plusieurs secteurs.
+const FUND_LINES = 20, FUND_SECTORS = 4;
+function isFundSym(sym) { const s = SECTORS[String(sym).toUpperCase()]; return s === 'Indices & ETF' || s === 'Obligations' || s === 'Monétaire'; }
 function pfDiversScore(posItems, secItems) {
   const total = posItems.reduce((s, x) => s + x.value, 0);
   if (posItems.length < 1 || total <= 0) return null;
-  const hhi = a => a.reduce((s, x) => s + (x.value / total) ** 2, 0);
-  const effPos = 1 / Math.max(hhi(posItems), 1e-9), effSec = 1 / Math.max(hhi(secItems), 1e-9);
+  const hhi = (a, k) => a.reduce((s, x) => s + (x.value / total) ** 2 / (x.fund ? k : 1), 0);
+  const effPos = 1 / Math.max(hhi(posItems, FUND_LINES), 1e-9), effSec = 1 / Math.max(hhi(secItems, FUND_SECTORS), 1e-9);
   const score = Math.round(Math.max(0, Math.min(100, (Math.min(effPos, 8) / 8) * 50 + (Math.min(effSec, 5) / 5) * 50)));
   const lvl = score >= 70 ? 'good' : (score >= 45 ? 'mid' : 'low');
   return {
@@ -2566,11 +2573,11 @@ function pfDiversBlock(posItems, secItems) {
   const top = a => a.reduce((m, x) => x.value > m.value ? x : m, a[0]);
   const topP = top(posItems), topS = top(secItems);
   const topPpct = topP.value / total * 100, topSpct = topS.value / total * 100;
-  const warns = [];
-  if (topPpct > 30) warns.push(t('divWarnPos', topP.label, Math.round(topPpct)));
-  if (topSpct > 45 && secItems.length > 1) warns.push(t('divWarnSec', topS.label, Math.round(topSpct)));
-  if (posItems.length < 3) warns.push(t('divWarnFew'));
-  if (secItems.length < 2) warns.push(t('divWarnSec1'));
+  const warns = [], hasFund = posItems.some(x => x.fund);
+  if (topPpct > 30 && !topP.fund) warns.push(t('divWarnPos', topP.label, Math.round(topPpct)));
+  if (topSpct > 45 && secItems.length > 1 && !topS.fund) warns.push(t('divWarnSec', topS.label, Math.round(topSpct)));
+  if (posItems.length < 3 && !hasFund) warns.push(t('divWarnFew'));
+  if (secItems.length < 2 && !hasFund) warns.push(t('divWarnSec1'));
   const body = warns.length
     ? `<ul class="pf-div-warn">${warns.map(w => `<li>${esc(w)}</li>`).join('')}</ul>`
     : `<div class="pf-div-ok">✓ ${esc(t('divOk'))}</div>`;
@@ -2578,7 +2585,7 @@ function pfDiversBlock(posItems, secItems) {
     <div class="pf-div-head"><span class="pf-div-score" style="color:${col}">${score}<small>/100</small></span>
       <span class="pf-div-lvl" style="color:${col}">${esc(lvlTxt)}</span>
       <span class="pf-div-sub">${esc(t('divSub', posItems.length, secItems.length, Math.round(topPpct), topP.label))}</span></div>
-    ${body}</div>`;
+    ${body}${hasFund ? `<p class="pf-div-note">${esc(t('divEtfNote'))}</p>` : ''}</div>`;
 }
 
 function pfChartBlock(title, items, unit) {
@@ -2667,11 +2674,11 @@ function renderPf() {
   body.innerHTML = `<div class="pf-list">${rows.map(pfRowHtml).join('')}</div>`;
 
   // Répartition (valeur convertie si possible, sinon brute) et diversification.
-  const posItems = rows.filter(r => r.val != null).map(r => ({ label: r.g.sym, value: r.vB != null ? r.vB : r.val }))
+  const posItems = rows.filter(r => r.val != null).map(r => ({ label: r.g.sym, value: r.vB != null ? r.vB : r.val, fund: isFundSym(r.g.sym) }))
     .sort((a, b) => b.value - a.value).map((it, i) => ({ ...it, color: PF_COLORS[i % PF_COLORS.length] }));
-  const secMap = {};
-  rows.forEach(r => { if (r.val == null) return; const s = sectorOf(r.g.sym); secMap[s] = (secMap[s] || 0) + (r.vB != null ? r.vB : r.val); });
-  const secItems = Object.entries(secMap).map(([label, value]) => ({ label, value }))
+  const secMap = {}, secFund = {};
+  rows.forEach(r => { if (r.val == null) return; const s = sectorOf(r.g.sym); secMap[s] = (secMap[s] || 0) + (r.vB != null ? r.vB : r.val); secFund[s] = isFundSym(r.g.sym); });
+  const secItems = Object.entries(secMap).map(([label, value]) => ({ label, value, fund: secFund[label] }))
     .sort((a, b) => b.value - a.value).map((it, i) => ({ ...it, color: PF_COLORS[i % PF_COLORS.length] }));
   const charts = posItems.length
     ? `<div class="pf-charts">${pfChartBlock(t('pfByPos'), posItems, t('pfUnitPos'))}${pfChartBlock(t('pfBySector'), secItems, t('pfUnitSec'))}</div>`
