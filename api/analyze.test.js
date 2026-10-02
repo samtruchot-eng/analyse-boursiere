@@ -8,7 +8,7 @@
 const { analyze, riskMetrics, explain, sma, ema, rsi, macd, momentum, maxDrawdown,
   obv, trendCorr, atr, adx, stochastic, rsiDivergence,
   toWeekly, weeklyTrend, findLevels, detectEvents, signalConfidence, projRange, betaCorr,
-  mfi, psar, squeeze, relVolume, fetchFundamentals, fetchNews, fetchLight, perfSummary } =
+  mfi, psar, squeeze, relVolume, fetchFundamentals, fetchNews, fetchLight, perfSummary, scoreSummary } =
   require('./analyze.js')._internal;
 
 let pass = 0, fail = 0;
@@ -280,6 +280,19 @@ function ramp(a, b, n) {
   ok('perf : dates alignées sur la fin', ps.days[252] === 'D399' && ps.days[0] === 'D147');
   approx('perf : rendement 1 an', ps.ret_1y_pct, (Math.pow(1.001, 252) - 1) * 100, 0.05);
   ok('perf : métadonnées', ps.ticker === 'VT' && ps.currency === 'USD');
+}
+
+// ── Score seul (plan d'investissement) ───────────────────────────────────────
+{
+  const mk = (drift) => {
+    const bars = []; let p = 100;
+    for (let i = 0; i < 400; i++) { p *= 1 + drift + Math.sin(i / 7) * 0.004; bars.push({ day: `J${i}`, open: p, high: p * 1.01, low: p * 0.99, close: p, volume: 1e6 }); }
+    return { ticker: 'TEST.DE', name: 'Test', currency: 'EUR', bars };
+  };
+  const up = scoreSummary(mk(0.002)), down = scoreSummary(mk(-0.002));
+  ok('score : champs présents', up.ticker === 'TEST.DE' && up.currency === 'EUR' && typeof up.score === 'number' && up.price > 0 && up.day === 'J399');
+  ok('score : tendance haussière mieux notée que baissière', up.score > down.score);
+  ok('score : libellé cohérent', typeof up.label === 'string' && up.label.length > 0);
 }
 
 // ── Fondamentaux (fetch simulé) + bilan ──────────────────────────────────────

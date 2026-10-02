@@ -715,6 +715,85 @@
     .inv-prof { padding: 12px; }
   }
 
+  /* ── Plan d'investissement mensuel ──────────────────── */
+  .inv-tabs { display: inline-flex; gap: 4px; background: var(--chip-bg); border: 1px solid var(--card-border); border-radius: 999px; padding: 4px; margin: 0 0 16px; }
+  .inv-tabs button { border: 0; background: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; font-weight: 700; color: var(--muted); cursor: pointer; font-family: inherit; }
+  .inv-tabs button.on { background: var(--card); color: var(--text); box-shadow: 0 2px 8px rgba(120,60,100,.14); }
+  .plan-main { border-color: var(--accent); }
+  .plan-head { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; margin-bottom: 14px; }
+  .plan-head h3 { margin: 0; font-size: 18px; font-weight: 800; }
+  .plan-amt-in { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--muted); font-weight: 600; }
+  .plan-amt-in input { width: 92px; border: 1px solid var(--card-border); background: var(--input-bg); color: var(--text); border-radius: 10px;
+    padding: 8px 10px; font-size: 15px; font-weight: 750; outline: none; text-align: right; }
+  .plan-amt-in input:focus { border-color: var(--accent); }
+  .plan-sub { font-size: 12.5px; color: var(--muted); font-weight: 650; margin: 0 0 8px; }
+  .plan-orders { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+  .plan-order { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto auto; align-items: center; gap: 12px; padding: 12px 14px;
+    border: 1px solid var(--card-border); border-radius: 14px; background: var(--card); }
+  .plan-dot { width: 10px; height: 40px; border-radius: 5px; }
+  .plan-b { font-size: 11.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+  .plan-sym { border: 0; background: none; padding: 0; margin: 2px 0 0; cursor: pointer; color: var(--text); font: inherit; text-align: left; display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap; }
+  .plan-sym b { font-size: 16px; font-weight: 800; } .plan-sym span { font-size: 13px; color: var(--muted); }
+  .plan-sym:hover b { color: var(--accent); }
+  .plan-why { font-size: 12px; color: var(--faint); margin-top: 2px; }
+  .plan-amt { text-align: right; font-variant-numeric: tabular-nums; }
+  .plan-amt b { display: block; font-size: 20px; font-weight: 800; }
+  .plan-amt span { font-size: 11.5px; color: var(--muted); }
+  .plan-score { min-width: 40px; text-align: center; font-weight: 800; font-size: 14px; padding: 6px 8px; border-radius: 10px; background: var(--chip-bg); color: var(--muted); }
+  .plan-actions { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; margin-top: 14px; }
+  .plan-btn { border: 0; border-radius: 12px; padding: 12px 20px; font-weight: 750; font-size: 14.5px; color: #fff; cursor: pointer; font-family: inherit; text-decoration: none;
+    background: linear-gradient(135deg, #c479a6, #9f8ede); box-shadow: 0 4px 14px rgba(150,90,140,.25); }
+  .plan-btn:hover { filter: brightness(1.05); }
+  .plan-btn.ghost { background: var(--chip-bg); color: var(--text); border: 1px solid var(--card-border); box-shadow: none; }
+  .plan-hint { font-size: 12px; color: var(--muted); }
+  .plan-loading { color: var(--muted); font-size: 13.5px; }
+  .plan-done { background: linear-gradient(135deg, rgba(79,165,135,.12), rgba(159,142,222,.10)); border-radius: 14px; padding: 14px 16px; }
+  .plan-done-t { font-size: 16px; font-weight: 800; color: var(--pos); }
+  .plan-done ul { margin: 8px 0; padding-left: 18px; font-size: 13.5px; } .plan-done li { margin: 3px 0; }
+  .plan-done p { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+  .plan-whyd { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 8px; }
+  .plan-whyd > summary { font-size: 13px; font-weight: 700; color: var(--accent); padding: 5px 0; }
+  .plan-whyd p { font-size: 13px; color: var(--text); line-height: 1.55; margin: 8px 0; }
+  .plan-cand-t0 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--faint); font-weight: 700; margin: 14px 0 8px; }
+  .plan-cands { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+  .plan-cand { background: var(--chip-bg); border-radius: 12px; padding: 10px 12px; }
+  .plan-cand-t { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 750; margin-bottom: 6px; }
+  .plan-cand-t i { width: 10px; height: 10px; border-radius: 3px; }
+  .plan-cand-row { display: grid; grid-template-columns: 86px 1fr 28px; gap: 8px; align-items: center; font-size: 12px; padding: 3px 0; color: var(--muted); }
+  .plan-cand-row b { font-weight: 650; } .plan-cand-row.on { color: var(--text); } .plan-cand-row.on b { font-weight: 800; color: var(--accent); }
+  .plan-cand-row em { font-style: normal; text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+  .plan-cbar { height: 6px; background: var(--card); border-radius: 3px; overflow: hidden; } .plan-cbar span { display: block; height: 100%; border-radius: 3px; }
+  .plan-track-sum { font-size: 15px; font-weight: 750; margin: -4px 0 10px; }
+  .plan-tr { display: grid; grid-template-columns: 150px 1fr 92px; gap: 10px; align-items: center; font-size: 12.5px; padding: 4px 0; }
+  .plan-tbar { position: relative; height: 8px; background: var(--chip-bg); border-radius: 4px; }
+  .plan-tbar > span { display: block; height: 100%; border-radius: 4px; }
+  .plan-tbar i { position: absolute; top: -4px; width: 2px; height: 16px; background: var(--text); opacity: .55; border-radius: 1px; }
+  .plan-tr em { font-style: normal; text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; } .plan-tr em small { color: var(--faint); font-weight: 500; }
+  .plan-hist { list-style: none; padding: 0; margin: 12px 0 6px; font-size: 12.5px; color: var(--muted); }
+  .plan-hist li { padding: 5px 0; border-top: 1px solid var(--border); } .plan-hist li b { color: var(--text); text-transform: capitalize; }
+  .plan-link { border: 0; background: none; color: var(--accent); font-size: 12.5px; font-weight: 650; cursor: pointer; padding: 6px 0 12px; font-family: inherit; }
+  .plan-link:hover { text-decoration: underline; }
+  .plan-pills { margin-bottom: 12px; }
+  .plan-dca-txt { font-size: 14px; margin: 0 0 8px; }
+  .plan-dca-v { display: flex; align-items: baseline; gap: 8px 12px; flex-wrap: wrap; }
+  .plan-dca-v span { font-size: 12.5px; color: var(--muted); font-weight: 650; }
+  .plan-dca-v b { font-size: 26px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .plan-dca-v em { font-style: normal; font-size: 13px; color: var(--muted); }
+  .plan-range { position: relative; height: 10px; background: var(--chip-bg); border-radius: 5px; margin: 16px 0 8px; }
+  .plan-range .rg { position: absolute; top: 0; bottom: 0; border-radius: 5px; background: linear-gradient(90deg, var(--neg), var(--accent), var(--pos)); opacity: .45; }
+  .plan-range .md, .plan-range .pd { position: absolute; top: -5px; width: 4px; height: 20px; margin-left: -2px; border-radius: 2px; }
+  .plan-range .md { background: var(--accent); } .plan-range .pd { background: var(--text); opacity: .6; width: 3px; }
+  .plan-range-leg { display: flex; gap: 6px 16px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); margin-bottom: 10px; }
+  .plan-range-leg i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .plan-range-leg i.pd { background: var(--text); opacity: .6; } .plan-range-leg i.md { background: var(--accent); }
+  .plan-range-leg i.rg { background: linear-gradient(90deg, var(--neg), var(--accent), var(--pos)); opacity: .55; }
+  @media (max-width: 560px) {
+    .plan-order { grid-template-columns: 8px minmax(0, 1fr) auto; row-gap: 6px; }
+    .plan-order .plan-score { grid-column: 2; justify-self: start; }
+    .plan-tr { grid-template-columns: 1fr 80px; } .plan-tr .plan-tbar { grid-column: 1 / -1; grid-row: 2; }
+    .inv-tabs { display: flex; } .inv-tabs button { flex: 1; padding: 8px 10px; font-size: 12.5px; }
+  }
+
   /* ── Navigation entre les espaces ───────────────────── */
   .appnav { position: sticky; top: 0; z-index: 50; background: var(--bg);
     background: color-mix(in srgb, var(--bg) 84%, transparent);
@@ -1179,6 +1258,11 @@ const NAMES = {
   SPY:'S&P 500', QQQ:'Nasdaq 100', DIA:'Dow Jones', '^GSPC':'S&P 500', '^FCHI':'CAC 40', '^GDAXI':'DAX 40',
   AAPL:'Apple', MSFT:'Microsoft', GOOGL:'Alphabet', GOOG:'Alphabet', AMZN:'Amazon', META:'Meta', NVDA:'Nvidia', TSLA:'Tesla',
   'MC.PA':'LVMH', 'OR.PA':"L'Oréal", 'TTE.PA':'TotalEnergies', 'AIR.PA':'Airbus', 'SAN.PA':'Sanofi', 'BNP.PA':'BNP Paribas',
+  // ETF européens (UCITS, en euros) et grandes valeurs du plan d'investissement mensuel
+  'VWCE.DE':'Vanguard FTSE All-World', 'EUNL.DE':'iShares Core MSCI World', 'SXR8.DE':'iShares Core S&P 500', 'EXSA.DE':'iShares STOXX Europe 600',
+  'EUNH.DE':'iShares Core € Govt Bond', 'IEAG.AS':'iShares Core € Aggregate Bond', 'VGEA.DE':'Vanguard € Eurozone Govt Bond',
+  'XEON.DE':'Xtrackers € Overnight Rate', 'CSH2.PA':'Amundi Smart Overnight Return', '4GLD.DE':'Xetra-Gold', 'EWG2.DE':'EUWAX Gold II',
+  'ASML.AS':'ASML', 'SU.PA':'Schneider Electric', 'IBE.MC':'Iberdrola',
   XOM:'ExxonMobil', CVX:'Chevron', SHEL:'Shell',
   'RHM.DE':'Rheinmetall', 'SAF.PA':'Safran', 'HO.PA':'Thales', LMT:'Lockheed Martin', RTX:'Raytheon',
   NEM:'Newmont', GOLD:'Barrick Gold', GDX:"Mines d'or – VanEck", AEM:'Agnico Eagle',
@@ -2212,7 +2296,7 @@ const ASSIST_ADVICE = [' dois je ', ' faut il ', ' je dois ', 'acheter', 'vendre
   'should i', ' buy ', ' sell ', 'advice', 'recommend', 'will it', 'going up', 'going down', 'good time', 'worth buying'];
 const ASSIST_TXT = {
   fr: {
-    adviceAnswer: "Je ne donne pas de <b>conseil personnalisé</b> : l'appli fait de l'analyse <i>technique</i>, pas une recommandation d'achat ou de vente. Pour vous faire votre idée sur un titre, regardez son <b>score</b>, sa <b>tendance</b>, le <b>RSI</b> (&gt;70 = prudence) et son <b>risque</b> (volatilité, drawdown). La méthode complète est dans le <a href='/guide#plan' target='_blank'>guide</a>.",
+    adviceAnswer: "Je ne donne pas de <b>conseil personnalisé</b> : l'appli fait de l'analyse <i>technique</i>, pas une recommandation d'achat ou de vente. Pour vous faire votre idée sur un titre, regardez son <b>score</b>, sa <b>tendance</b>, le <b>RSI</b> (&gt;70 = prudence) et son <b>risque</b> (volatilité, drawdown). La méthode complète est dans le <a href='/guide#plan' target='_blank'>guide</a>. Pour investir chaque mois selon un profil type, voyez <a href='#investir'>Investir → Mon plan mensuel</a>.",
     fallback: "Je ne suis pas sûr d'avoir la réponse exacte. 😅 Je peux expliquer : le <b>score</b>, le <b>RSI</b>, le <b>MACD</b>, l'<b>ADX</b>, le <b>volume</b>, la <b>divergence</b>, le <b>MFI</b>, le <b>SAR</b>, la <b>confiance</b>, le <b>bêta</b>, les <b>supports/résistances</b>, la <b>volatilité</b>, le <b>Sharpe</b>, les <b>favoris</b>, les <b>alertes</b>… Le <a href='/guide' target='_blank'>guide complet</a> couvre tout.",
     hello: "Bonjour ! Posez-moi une question sur l'appli (score, RSI, favoris, alertes…) ou une notion d'investissement.",
     thanks: "Avec plaisir ! 🙂 D'autres questions ?",
@@ -2220,7 +2304,7 @@ const ASSIST_TXT = {
     sugg: ["Pourquoi ce score ?", "C'est quoi l'ADX ?", "Le volume, ça sert à quoi ?", "C'est quoi le bêta ?", "Comment créer une alerte ?"],
   },
   en: {
-    adviceAnswer: "I don't give <b>personalised advice</b>: the app does <i>technical</i> analysis, not a buy or sell recommendation. To form your own view on a stock, look at its <b>score</b>, its <b>trend</b>, the <b>RSI</b> (&gt;70 = caution) and its <b>risk</b> (volatility, drawdown). The full method is in the <a href='/guide#plan' target='_blank'>guide</a>.",
+    adviceAnswer: "I don't give <b>personalised advice</b>: the app does <i>technical</i> analysis, not a buy or sell recommendation. To form your own view on a stock, look at its <b>score</b>, its <b>trend</b>, the <b>RSI</b> (&gt;70 = caution) and its <b>risk</b> (volatility, drawdown). The full method is in the <a href='/guide#plan' target='_blank'>guide</a>. To invest each month along a model profile, see <a href='#investir'>Invest → My monthly plan</a>.",
     fallback: "I'm not sure I have the exact answer. 😅 I can explain: the <b>score</b>, <b>RSI</b>, <b>MACD</b>, <b>ADX</b>, <b>volume</b>, <b>divergence</b>, <b>MFI</b>, <b>SAR</b>, <b>confidence</b>, <b>beta</b>, <b>support/resistance</b>, <b>volatility</b>, <b>Sharpe</b>, <b>favourites</b>, <b>alerts</b>… The <a href='/guide' target='_blank'>full guide</a> covers everything.",
     hello: "Hi! Ask me about the app (score, RSI, favourites, alerts…) or an investing concept.",
     thanks: "You're welcome! 🙂 Any other questions?",
@@ -2265,6 +2349,7 @@ const ASSIST_KB = [
   { k: [' etf ', 'indiciel', 'fonds', ' fund '], fr: "Un <b>ETF</b> est un fonds coté qui réplique un indice. En un achat, vous êtes diversifié — la brique de base d'un portefeuille. <a href='/guide#bases' target='_blank'>Détails</a>.", en: "An <b>ETF</b> is a listed fund that tracks an index. In one purchase you're diversified — the building block of a portfolio. <a href='/guide#bases' target='_blank'>Details</a>." },
   { k: [' or ', 'metal precieux', 'valeur refuge', 'mines d or', 'lingot', ' gold ', 'safe haven'], fr: "L'<b>or</b> est une valeur refuge : il tend à monter en période de stress. Souvent 5–10 % d'un portefeuille diversifié.", en: "<b>Gold</b> is a safe haven: it tends to rise in stress. Often 5–10% of a diversified portfolio." },
   { k: [' profil', 'prudent', 'equilibre', 'dynamique', 'offensif', 'investir', ' profile ', 'cautious', 'balanced', 'aggressive', ' invest'], fr: "L'espace <b>Investir</b> propose 4 <b>profils types</b> (Prudent, Équilibré, Dynamique, Offensif). Pour chacun : la répartition actions / obligations / monétaire / or, le rendement espéré, le niveau de risque (1 à 7), une mauvaise année possible, l'effet d'une crise comme 2008 ou 2022, une projection de votre montant et ce que le profil a réellement fait sur 12 mois. <a href='#investir'>Ouvrir Investir</a>.", en: "The <b>Invest</b> space offers 4 <b>model profiles</b> (Cautious, Balanced, Growth, Aggressive). For each: the stocks / bonds / cash / gold split, expected return, risk level (1 to 7), a possible bad year, the effect of a crisis like 2008 or 2022, a projection of your amount and what the profile actually did over 12 months. <a href='#investir'>Open Invest</a>." },
+  { k: ['plan mensuel', 'mon plan', 'quoi acheter', 'que dois je acheter', 'j ai investi', 'verse chaque mois', 'par mois', 'monthly plan', 'my plan', 'what to buy', 'what should i buy', 'per month'], fr: "Le <b>plan mensuel</b> (Investir → « Mon plan mensuel ») : choisissez un profil et le montant versé chaque mois. butterfly vous dit <b>quoi acheter ce mois-ci</b> : quelques achats d'au moins 20 €, en commençant par ce qui est le plus en retard sur la répartition cible. Dans chaque poche, le <b>score</b> départage des ETF européens comparables ; les profils Dynamique et Offensif ajoutent une action, seulement si elle est notée « Achat » (58+). Le bouton <b>« J'ai investi ce mois-ci »</b> ajoute les achats au portefeuille et garde l'historique. <a href='#investir'>Ouvrir mon plan</a>.", en: "The <b>monthly plan</b> (Invest → \"My monthly plan\"): pick a profile and the amount you invest each month. butterfly tells you <b>what to buy this month</b>: a few buys of at least €20, starting with whatever is furthest behind the target split. Within each bucket, the <b>score</b> picks between comparable European ETFs; Growth and Aggressive profiles add one stock, only if it is rated \"Buy\" (58+). The <b>\"I invested this month\"</b> button adds the buys to your portfolio and keeps the history. <a href='#investir'>Open my plan</a>." },
   { k: [' plan', 'portefeuille', 'allocation', 'combien investir', 'repartition', 'portfolio'], fr: "Un <b>plan</b> repose sur : horizon, tolérance au risque, diversification, régularité (DCA) et rééquilibrage. <a href='/guide#plan' target='_blank'>Voir le plan</a>.", en: "A <b>plan</b> rests on: horizon, risk tolerance, diversification, regularity (DCA) and rebalancing. <a href='/guide#plan' target='_blank'>See the plan</a>." },
   { k: ['donnee', ' source', ' yahoo', 'd ou vien', 'cours reel', 'fiable', 'temps reel', ' data ', 'real time', 'real price'], fr: "Les cours sont <b>réels</b>, récupérés côté serveur via Yahoo Finance (Stooq en secours), sans clé API. Pas du temps réel à la seconde : des séances quotidiennes.", en: "Prices are <b>real</b>, fetched server-side via Yahoo Finance (Stooq as backup), no API key. Not real-time to the second: daily sessions." },
   { k: ['crypto', 'bitcoin', ' btc', 'ethereum', ' eth '], fr: "Les cryptos (<code>BTC-USD</code>, <code>ETH-USD</code>…) fonctionnent aussi. Comme elles s'échangent 7j/7, le risque annualisé est un peu approximatif, mais les indicateurs restent pertinents.", en: "Cryptos (<code>BTC-USD</code>, <code>ETH-USD</code>…) work too. As they trade 7 days a week, annualised risk is a bit approximate, but the indicators still apply." },
@@ -2276,6 +2361,7 @@ function assistAnswer(q) {
   const A = ASSIST_TXT[lang] || ASSIST_TXT.fr;
   if (/ (bonjour|salut|coucou|bonsoir|hello|hey|hi|hiya) /.test(n)) return A.hello;
   if (/ (merci|super|parfait|genial|top|nickel|thanks|thank you|great|perfect|cheers) /.test(n)) return A.thanks;
+  if (/plan mensuel|mon plan|monthly plan|my plan|j ai investi/.test(n)) { const e = ASSIST_KB.find((x) => x.k[0] === 'plan mensuel'); return e[lang] || e.fr; }
   if (ASSIST_ADVICE.some((k) => n.includes(k))) return A.adviceAnswer;
   let best = null, bestScore = 0;
   for (const e of ASSIST_KB) {
@@ -2415,9 +2501,12 @@ const SECTORS = {
   NEM:'Matériaux & or', GOLD:'Matériaux & or', AEM:'Matériaux & or', GDX:'Matériaux & or', 'RIO.L':'Matériaux & or', GLD:'Matériaux & or', IAU:'Matériaux & or', SLV:'Matériaux & or', DBC:'Matières premières',
   'BTC-USD':'Crypto', 'ETH-USD':'Crypto', 'SOL-USD':'Crypto', 'XRP-USD':'Crypto', 'ADA-USD':'Crypto', 'DOGE-USD':'Crypto', 'BNB-USD':'Crypto', 'AVAX-USD':'Crypto', 'LINK-USD':'Crypto', 'LTC-USD':'Crypto', MARA:'Crypto', RIOT:'Crypto', CLSK:'Crypto', HUT:'Crypto', IBIT:'Crypto', FBTC:'Crypto', BITB:'Crypto', ETHA:'Crypto', ARKB:'Crypto',
   AGG:'Obligations', BND:'Obligations', TLT:'Obligations', IEF:'Obligations', LQD:'Obligations', HYG:'Obligations',
+  'EUNH.DE':'Obligations', 'IEAG.AS':'Obligations', 'VGEA.DE':'Obligations', 'XEON.DE':'Monétaire', 'CSH2.PA':'Monétaire',
+  '4GLD.DE':'Matériaux & or', 'EWG2.DE':'Matériaux & or', 'EUNL.DE':'Indices & ETF', 'SXR8.DE':'Indices & ETF', 'EXSA.DE':'Indices & ETF',
+  'ASML.AS':'Technologie', 'SU.PA':'Industrie & défense', 'IBE.MC':'Énergie',
   SPY:'Indices & ETF', QQQ:'Indices & ETF', DIA:'Indices & ETF', '^GSPC':'Indices & ETF', '^FCHI':'Indices & ETF', '^GDAXI':'Indices & ETF', VT:'Indices & ETF', 'VWCE.DE':'Indices & ETF', 'CW8.PA':'Indices & ETF', 'IWDA.AS':'Indices & ETF', URTH:'Indices & ETF', VOO:'Indices & ETF', VTI:'Indices & ETF', IVV:'Indices & ETF', VGK:'Indices & ETF', EZU:'Indices & ETF', EWJ:'Indices & ETF', VWO:'Indices & ETF', MCHI:'Indices & ETF', INDA:'Indices & ETF', EWU:'Indices & ETF', XLK:'Indices & ETF', XLE:'Indices & ETF', XLF:'Indices & ETF', XLV:'Indices & ETF', XLU:'Indices & ETF', XLI:'Indices & ETF', SMH:'Indices & ETF', ITA:'Indices & ETF', ARKK:'Indices & ETF', BOTZ:'Indices & ETF', ICLN:'Indices & ETF', LIT:'Indices & ETF', SOXX:'Indices & ETF', CIBR:'Indices & ETF', SKYY:'Indices & ETF',
 };
-const SECTOR_EN = { 'Technologie':'Technology','Santé':'Health','Énergie':'Energy','Finance':'Finance','Consommation':'Consumer','Télécoms':'Telecom','Industrie & défense':'Industry & defence','Automobile':'Autos','Matériaux & or':'Materials & gold','Matières premières':'Commodities','Crypto':'Crypto','Obligations':'Bonds','Indices & ETF':'Indices & ETFs','Autre':'Other' };
+const SECTOR_EN = { 'Technologie':'Technology','Santé':'Health','Énergie':'Energy','Finance':'Finance','Consommation':'Consumer','Télécoms':'Telecom','Industrie & défense':'Industry & defence','Automobile':'Autos','Matériaux & or':'Materials & gold','Matières premières':'Commodities','Crypto':'Crypto','Obligations':'Bonds','Monétaire':'Cash','Indices & ETF':'Indices & ETFs','Autre':'Other' };
 function sectorOf(sym) { const fr = SECTORS[String(sym).toUpperCase()] || 'Autre'; return currentLang() === 'en' ? (SECTOR_EN[fr] || fr) : fr; }
 
 // Note de diversification (0–100) : nombre « effectif » de titres et de secteurs.
@@ -2595,7 +2684,7 @@ async function refreshPf() {
 }
 
 // Sauvegarde / restauration de toutes les données locales.
-const BACKUP_KEYS = ['favorites', 'portfolio', 'alerts', 'scoreHistory', 'notes', 'pfHistory', 'pfBase', 'tickers', 'catGroup'];
+const BACKUP_KEYS = ['favorites', 'portfolio', 'alerts', 'scoreHistory', 'notes', 'pfHistory', 'pfBase', 'tickers', 'catGroup', 'planHist', 'planAmount', 'invProfile'];
 function exportData() {
   const data = {};
   BACKUP_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v != null) data[k] = v; });
@@ -2718,10 +2807,10 @@ function initPortfolio() {
 // (%), volatilité annuelle (%), variation réelle en 2008 et en 2022 (%), ETF
 // représentatif (pour les 12 derniers mois réels) et exemples à analyser.
 const INV_ASSETS = {
-  actions:     { mu: 7, sigma: 15,  c08: -41, c22: -18, color: '#c479a6', proxy: 'VT',  etfs: ['VT', 'VOO', 'CW8.PA'] },
-  obligations: { mu: 3, sigma: 5,   c08: 5,   c22: -13, color: '#9f8ede', proxy: 'AGG', etfs: ['AGG', 'BND', 'IEF'] },
-  monetaire:   { mu: 2, sigma: 0.5, c08: 1.5, c22: 1.5, color: '#7cc0d6', proxy: 'BIL', etfs: ['BIL', 'SHV'] },
-  or:          { mu: 4, sigma: 15,  c08: 5,   c22: 0,   color: '#d29a45', proxy: 'GLD', etfs: ['GLD', 'IAU'] },
+  actions:     { mu: 7, sigma: 15,  c08: -41, c22: -18, color: '#c479a6', proxy: 'VT',  etfs: ['VWCE.DE', 'EUNL.DE', 'SXR8.DE', 'EXSA.DE'] },
+  obligations: { mu: 3, sigma: 5,   c08: 5,   c22: -13, color: '#9f8ede', proxy: 'AGG', etfs: ['EUNH.DE', 'IEAG.AS', 'VGEA.DE'] },
+  monetaire:   { mu: 2, sigma: 0.5, c08: 1.5, c22: 1.5, color: '#7cc0d6', proxy: 'BIL', etfs: ['XEON.DE', 'CSH2.PA'] },
+  or:          { mu: 4, sigma: 15,  c08: 5,   c22: 0,   color: '#d29a45', proxy: 'GLD', etfs: ['4GLD.DE', 'EWG2.DE'] },
 };
 const INV_CORR = { 'actions|obligations': 0.2, 'actions|or': 0.1, 'obligations|or': 0.3 };
 const INV_ICO = {
@@ -2767,6 +2856,32 @@ const INV_TXT = {
     brickStats: (mu, s) => `Hypothèse : ≈ ${mu} %/an · volatilité ≈ ${s} %`, brickReal: v => ` · 12 derniers mois : ${v}`,
     inProfile: p => (p ? `${p} % de ce profil` : 'absent de ce profil'),
     etfName: { VT: 'Monde', VOO: 'S&P 500', 'CW8.PA': 'MSCI World €', AGG: 'US Aggregate', BND: 'Total Bond', IEF: 'Trésor US 7-10 ans', BIL: 'Trésor US 1-3 mois', SHV: 'Trésor US court', GLD: 'Or', IAU: 'Or' },
+    tabPlan: 'Mon plan mensuel', tabDetail: 'Comprendre ce profil',
+    introPlan: "Choisissez votre profil et le montant que vous versez chaque mois : butterfly vous dit quoi acheter ce mois-ci, d'après votre répartition cible et son score.",
+    planTitle: m => `Mon plan · ${m}`, planMonthly: 'Je verse', perMonth: '€ par mois',
+    planLoading: 'Notation des ETF et des actions du plan…',
+    planErr: "Scores indisponibles pour le moment : butterfly propose l'ETF de référence de chaque poche.",
+    buyThisMonth: 'Ce mois-ci, achetez :',
+    bucket: { actions: 'Actions · ETF', titre: 'Action individuelle', obligations: 'Obligations · ETF', monetaire: 'Monétaire · ETF', or: 'Or · ETC' },
+    bucketShort: { actions: 'ETF actions', titre: 'action individuelle', obligations: 'obligations', monetaire: 'monétaire', or: 'or' },
+    whyEtf: n => `Meilleur score parmi ${n} ETF comparables`, whyStock: sc => `La mieux notée de 12 grandes valeurs européennes (score ${sc})`,
+    whyRef: 'ETF de référence de la poche', price: p => `cours ${p}`, parts: (q, raw) => `≈ ${q} part${raw >= 2 ? 's' : ''}`,
+    fracNote: "Fractions de parts : possibles avec un plan d'investissement programmé chez la plupart des courtiers en ligne. Sinon, regroupez ces achats sur plusieurs mois.",
+    whyT: 'Pourquoi ce plan ?', whyTarget: (p, list) => `Répartition cible du profil ${p} : ${list}.`,
+    whyRebal: "Pour limiter les frais, butterfly ne passe que quelques achats d'au moins 20 € par mois, en commençant par ce qui est le plus en retard sur votre cible (d'après vos versements). Les petites poches sont donc achetées un mois sur deux ou trois.",
+    whyScore: "Dans chaque poche, le score technique départage des ETF larges et comparables : on prend le mieux noté ce mois-ci. Vous investissez chaque mois quel que soit le marché ; c'est le principe de l'investissement régulier, qui lisse vos prix d'achat.",
+    whyStockRule: pc => `Action individuelle (${pc} % du plan) : la mieux notée parmi 12 grandes valeurs européennes, seulement si son score atteint 58 (« Achat »). Sinon, cette part va à l'ETF actions.`,
+    redirected: "Ce mois-ci, aucune n'atteint 58 : la part va à l'ETF actions.",
+    candT: 'Les candidats et leur score ce mois-ci',
+    recordBtn: "✓ J'ai investi ce mois-ci", recordHint: 'Ajoute ces achats à votre portefeuille, au cours du jour (modifiable ensuite).',
+    doneT: m => `Versement de ${m} enregistré ✓`, doneNext: m => `Prochain plan en ${m}. Les achats ont été ajoutés à votre portefeuille.`,
+    extraBtn: 'Faire un versement supplémentaire', seePf: 'Voir mon portefeuille',
+    trackT: 'Mon suivi', trackSum: (n, tot) => `${n} versement${n > 1 ? 's' : ''} · ${tot} investis`, trackVs: 'Vos versements par poche (le trait marque la cible)', target: 'cible',
+    undo: 'Annuler le dernier versement', undoConfirm: m => `Annuler le versement de ${m} et retirer ses achats du portefeuille ?`,
+    dcaT: 'Et si je continue…', dcaTxt: (M, T, paid) => `En versant ${M} par mois pendant ${T} ans, vous aurez versé ${paid}.`,
+    dcaMed: 'Valeur estimée (médiane)', dcaRange: (lo, hi) => `entre ${lo} et ${hi} dans 9 cas sur 10`, dcaPaid: 'Total versé', dcaRangeLeg: 'Fourchette 9 cas sur 10',
+    dcaNote: 'Simulation de 1 500 trajectoires de marché avec les hypothèses du profil, hors frais, impôts et inflation.',
+    planDisc: "Le score est technique : il départage des titres selon leur tendance récente, il ne prédit pas l'avenir. Ce plan est un outil d'aide à la décision, pas un conseil en investissement personnalisé. Vérifiez les frais de votre courtier et la disponibilité des titres.",
     analyzeProfile: 'Analyser les ETF de ce profil',
     disclaimer: "Profils types à but pédagogique : ce ne sont pas des conseils en investissement personnalisés. Les rendements espérés sont des hypothèses, et les performances passées ne préjugent pas des performances futures.",
   },
@@ -2800,6 +2915,32 @@ const INV_TXT = {
     brickStats: (mu, s) => `Assumption: ≈ ${mu}%/yr · volatility ≈ ${s}%`, brickReal: v => ` · last 12 months: ${v}`,
     inProfile: p => (p ? `${p}% of this profile` : 'not in this profile'),
     etfName: { VT: 'World', VOO: 'S&P 500', 'CW8.PA': 'MSCI World €', AGG: 'US Aggregate', BND: 'Total Bond', IEF: 'US Treasury 7-10y', BIL: 'US T-bills 1-3m', SHV: 'Short US Treasury', GLD: 'Gold', IAU: 'Gold' },
+    tabPlan: 'My monthly plan', tabDetail: 'Understand this profile',
+    introPlan: 'Pick your profile and the amount you invest each month: butterfly tells you what to buy this month, based on your target split and its score.',
+    planTitle: m => `My plan · ${m}`, planMonthly: 'I invest', perMonth: '€ a month',
+    planLoading: "Scoring the plan's ETFs and stocks…",
+    planErr: 'Scores unavailable for now: butterfly suggests the reference ETF of each bucket.',
+    buyThisMonth: 'This month, buy:',
+    bucket: { actions: 'Stocks · ETF', titre: 'Single stock', obligations: 'Bonds · ETF', monetaire: 'Cash · ETF', or: 'Gold · ETC' },
+    bucketShort: { actions: 'stock ETFs', titre: 'single stock', obligations: 'bonds', monetaire: 'cash', or: 'gold' },
+    whyEtf: n => `Best score among ${n} comparable ETFs`, whyStock: sc => `Best-rated of 12 large European companies (score ${sc})`,
+    whyRef: 'Reference ETF of the bucket', price: p => `price ${p}`, parts: (q, raw) => `≈ ${q} share${raw === 1 ? '' : 's'}`,
+    fracNote: 'Fractional shares: available with a scheduled savings plan at most online brokers. Otherwise, group these purchases over several months.',
+    whyT: 'Why this plan?', whyTarget: (p, list) => `Target split of the ${p} profile: ${list}.`,
+    whyRebal: 'To keep fees low, butterfly places only a few purchases of at least €20 a month, starting with what lags furthest behind your target (based on your contributions). Small buckets are therefore bought every two or three months.',
+    whyScore: 'In each bucket, the technical score picks between broad, comparable ETFs: the best-rated this month wins. You invest every month whatever the market does; that is the principle of regular investing, which smooths your purchase prices.',
+    whyStockRule: pc => `Single stock (${pc}% of the plan): the best-rated of 12 large European companies, only if its score reaches 58 ("Buy"). Otherwise this share goes to the stock ETF.`,
+    redirected: 'This month none reaches 58: the share goes to the stock ETF.',
+    candT: 'The candidates and their score this month',
+    recordBtn: '✓ I invested this month', recordHint: "Adds these purchases to your portfolio at today's price (editable later).",
+    doneT: m => `${m} contribution recorded ✓`, doneNext: m => `Next plan in ${m}. The purchases were added to your portfolio.`,
+    extraBtn: 'Make an extra contribution', seePf: 'See my portfolio',
+    trackT: 'My tracking', trackSum: (n, tot) => `${n} contribution${n > 1 ? 's' : ''} · ${tot} invested`, trackVs: 'Your contributions per bucket (the line marks the target)', target: 'target',
+    undo: 'Undo the last contribution', undoConfirm: m => `Undo the ${m} contribution and remove its purchases from the portfolio?`,
+    dcaT: 'What if I keep going…', dcaTxt: (M, T, paid) => `Investing ${M} a month for ${T} years, you will have put in ${paid}.`,
+    dcaMed: 'Estimated value (median)', dcaRange: (lo, hi) => `between ${lo} and ${hi} in 9 cases out of 10`, dcaPaid: 'Total invested', dcaRangeLeg: '9-in-10 range',
+    dcaNote: "Simulation of 1,500 market paths using the profile's assumptions, excluding fees, taxes and inflation.",
+    planDisc: 'The score is technical: it ranks securities by their recent trend, it does not predict the future. This plan is a decision aid, not personalised investment advice. Check your broker’s fees and the availability of the securities.',
     analyzeProfile: "Analyse this profile's ETFs",
     disclaimer: 'Model profiles for educational purposes: not personalised investment advice. Expected returns are assumptions, and past performance does not guarantee future results.',
   },
@@ -2927,7 +3068,7 @@ function renderInvBricks() {
   el.innerHTML = Object.entries(INV_ASSETS).map(([k, a]) => {
     const w = prof.w[k] || 0;
     const real = invPerf && invPerf[a.proxy] && invPerf[a.proxy].ret_1y_pct != null ? L.brickReal(`${a.proxy} ${invPct(invPerf[a.proxy].ret_1y_pct)}`) : '';
-    const chips = a.etfs.map(s => `<button type="button" class="inv-etf" data-sym="${esc(s)}">${esc(s)}<small>${esc(L.etfName[s] || '')}</small></button>`).join('');
+    const chips = a.etfs.map(s => `<button type="button" class="inv-etf" data-sym="${esc(s)}">${esc(s)}<small>${esc(NAMES[s] || '')}</small></button>`).join('');
     return `<div class="inv-brick${w ? '' : ' off'}">
       <div class="inv-brick-h"><i style="background:${a.color}"></i>${esc(L.assets[k])}<small>${esc(L.role[k])}</small></div>
       <p>${esc(L.desc[k])}</p>
@@ -2936,6 +3077,242 @@ function renderInvBricks() {
       <div class="inv-etfs">${chips}</div>
     </div>`;
   }).join('');
+}
+
+// ── Plan d'investissement mensuel (zone euro) ───────────────────────────────
+// Chaque poche a plusieurs candidats comparables (ETF européens UCITS cotés en
+// euros) : le score technique choisit le mieux noté du mois. Selon le profil, une
+// petite part va à une grande valeur européenne, seulement si elle est notée
+// « Achat » (score ≥ 58) ; sinon cette part va à l'ETF actions.
+const PLAN_BUCKETS = {
+  actions:     { asset: 'actions',     cands: ['VWCE.DE', 'EUNL.DE', 'SXR8.DE', 'EXSA.DE'] },
+  titre:       { asset: 'actions',     cands: ['ASML.AS', 'SAP.DE', 'MC.PA', 'SIE.DE', 'TTE.PA', 'ALV.DE', 'AIR.PA', 'OR.PA', 'SU.PA', 'SAN.PA', 'IBE.MC', 'DTE.DE'], minScore: 58 },
+  obligations: { asset: 'obligations', cands: ['EUNH.DE', 'IEAG.AS', 'VGEA.DE'] },
+  monetaire:   { asset: 'monetaire',   cands: ['XEON.DE', 'CSH2.PA'] },
+  or:          { asset: 'or',          cands: ['4GLD.DE', 'EWG2.DE'] },
+};
+const PLAN_ORDER = ['actions', 'titre', 'obligations', 'or', 'monetaire'];
+const PLAN_STOCK_SHARE = { prudent: 0, equilibre: 0, dynamique: 15, offensif: 25 };
+const PLAN_MIN_ORDER = 20;
+let planScores = null, planScoreState = 'idle', planExtra = false;
+
+function planColor(b) { return b === 'titre' ? '#e08bb0' : INV_ASSETS[PLAN_BUCKETS[b].asset].color; }
+function planWeights(prof) {
+  const s = PLAN_STOCK_SHARE[prof.key] || 0;
+  const w = { actions: prof.w.actions - s, titre: s, obligations: prof.w.obligations, monetaire: prof.w.monetaire, or: prof.w.or };
+  Object.keys(w).forEach(k => { if (!w[k]) delete w[k]; });
+  return w;
+}
+function planMonthly() { const v = +localStorage.getItem('planAmount'); return v > 0 ? v : 100; }
+function getPlanHist() { try { return JSON.parse(localStorage.getItem('planHist') || '[]'); } catch (e) { return []; } }
+function setPlanHist(h) { localStorage.setItem('planHist', JSON.stringify(h)); }
+function monthKey(d = new Date()) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; }
+function monthLabel(key) { const [y, m] = key.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString(localeOf(), { month: 'long', year: 'numeric' }); }
+function nextMonthKey() { const d = new Date(); return monthKey(new Date(d.getFullYear(), d.getMonth() + 1, 1)); }
+const eur = (v, d = 0) => fmtMoney(v, 'EUR', d);
+
+// Scores des candidats : un seul appel (mode « score » du serveur), gardé en mémoire.
+async function loadPlanScores() {
+  planScoreState = 'loading'; renderPlan();
+  try {
+    const syms = [...new Set(Object.values(PLAN_BUCKETS).flatMap(b => b.cands))];
+    const res = await fetch('/api/analyze?score=1&lang=' + currentLang() + '&tickers=' + encodeURIComponent(syms.join(',')));
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json(), by = {};
+    (data.results || []).forEach(r => { if (!r.error && r.price > 0 && r.score != null) by[String(r.ticker).toUpperCase()] = r; });
+    if (!Object.keys(by).length) throw new Error('vide');
+    planScores = by; planScoreState = 'ok';
+  } catch (e) { planScoreState = 'err'; }
+  renderPlan();
+}
+// Candidats d'une poche, du mieux noté au moins bien noté (sans score en dernier).
+function planRank(b) {
+  return PLAN_BUCKETS[b].cands.map(sym => ({ sym, r: planScores ? planScores[sym] : null }))
+    .sort((x, y) => (y.r ? y.r.score : -1) - (x.r ? x.r.score : -1));
+}
+
+// Plan du mois : les poches les plus en retard sur la cible (d'après les
+// versements passés) d'abord, en achats d'au moins 20 €, puis le mieux noté.
+function computePlan(prof, M, hist) {
+  const w = planWeights(prof), paid = {};
+  let total = M;
+  hist.forEach(h => h.items.forEach(it => { paid[it.b] = (paid[it.b] || 0) + it.eur; total += it.eur; }));
+  let stock = null;
+  if (w.titre && planScoreState === 'ok') {
+    const top = planRank('titre')[0];
+    if (top && top.r && top.r.score >= PLAN_BUCKETS.titre.minScore) stock = top;
+  }
+  const redirected = !!(w.titre && !stock);
+  const tw = { ...w }, tp = { ...paid };
+  if (redirected) { tw.actions = (tw.actions || 0) + tw.titre; delete tw.titre; tp.actions = (tp.actions || 0) + (tp.titre || 0); }
+  const min = M < 2 * PLAN_MIN_ORDER ? M : PLAN_MIN_ORDER;
+  let def = Object.keys(tw).map(b => ({ b, d: total * tw[b] / 100 - (tp[b] || 0) }));
+  if (!def.some(x => x.d > 0)) def = Object.keys(tw).map(b => ({ b, d: tw[b] }));
+  def = def.filter(x => x.d > 0).sort((x, y) => y.d - x.d);
+  const cap = b => (b === 'titre' ? Math.max(min, Math.round(M * tw.titre / 100 * 2)) : Infinity);
+  let rem = M; const orders = [];
+  for (const x of def) {
+    if (rem < min) break;
+    let a = Math.min(rem, cap(x.b), Math.max(min, Math.round(x.d)));
+    if (rem - a > 0 && rem - a < min) a = rem;   // pas de reliquat trop petit
+    orders.push({ b: x.b, eur: a }); rem -= a;
+  }
+  if (rem > 0) { if (orders.length) orders[0].eur += rem; else orders.push({ b: def.length ? def[0].b : 'actions', eur: rem }); }
+  orders.forEach(o => {
+    const pick = o.b === 'titre' ? stock : planRank(o.b)[0];
+    o.sym = pick.sym; o.r = pick.r || null;
+    o.n = PLAN_BUCKETS[o.b].cands.filter(s => planScores && planScores[s]).length;
+    o.price = o.r ? o.r.price : null;
+    o.qty = o.price ? o.eur / o.price : null;
+  });
+  orders.sort((x, y) => PLAN_ORDER.indexOf(x.b) - PLAN_ORDER.indexOf(y.b));
+  return { w, paid, total, orders, stock, redirected };
+}
+
+// Projection de versements mensuels : 1 500 trajectoires simulées (graine fixe
+// pour des résultats stables), rendements mensuels log-normaux du profil.
+const _dcaCache = {};
+function invDca(M, st, T) {
+  const key = [M, st.mu, st.sigma, T].join('|');
+  if (_dcaCache[key]) return _dcaCache[key];
+  let seed = 20261001;
+  const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) + 0.5) / 4294967297;
+  const m = Math.log(1 + st.mu / 100) - (st.sigma / 100) ** 2 / 2, s = st.sigma / 100;
+  const mm = m / 12, ss = s / Math.sqrt(12), months = T * 12, n = 1500, finals = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    let v = 0;
+    for (let k = 0; k < months; k++) { v += M; v *= Math.exp(mm + ss * Math.sqrt(-2 * Math.log(rnd())) * Math.cos(2 * Math.PI * rnd())); }
+    finals[i] = v;
+  }
+  finals.sort();
+  const q = p => finals[Math.floor(p * (n - 1))];
+  return (_dcaCache[key] = { paid: M * months, lo: q(0.05), md: q(0.5), hi: q(0.95) });
+}
+
+function planScorePill(r) {
+  if (!r) return '<span class="plan-score">—</span>';
+  const c = LABEL_COLOR[r.label] || 'var(--muted)';
+  return `<span class="plan-score" style="color:${c};background:${c}1f" title="score ${Math.round(r.score)}/100">${Math.round(r.score)}</span>`;
+}
+function planOrderHtml(o) {
+  const L = invT(), name = NAMES[o.sym] || '';
+  const why = !o.r ? L.whyRef : (o.b === 'titre' ? L.whyStock(Math.round(o.r.score)) : L.whyEtf(o.n));
+  const qty = o.qty != null ? L.parts(fmtNum(o.qty, o.qty < 10 ? 2 : 1), o.qty) : '';
+  return `<div class="plan-order">
+    <i class="plan-dot" style="background:${planColor(o.b)}"></i>
+    <div class="plan-what"><div class="plan-b">${esc(L.bucket[o.b])}</div>
+      <button type="button" class="plan-sym" data-sym="${esc(o.sym)}" title="${esc(t('pfAnalyze'))}"><b>${esc(o.sym)}</b><span>${esc(name)}</span></button>
+      <div class="plan-why">${esc(why)}${o.price ? ' · ' + esc(L.price(eur(o.price, 2))) : ''}</div></div>
+    <div class="plan-amt"><b>${eur(o.eur)}</b><span>${esc(qty)}</span></div>
+    ${planScorePill(o.r)}
+  </div>`;
+}
+function planWhyHtml(plan, prof) {
+  const L = invT();
+  const target = PLAN_ORDER.filter(b => plan.w[b]).map(b => `${plan.w[b]} % ${L.bucketShort[b]}`).join(', ');
+  const cands = PLAN_ORDER.filter(b => plan.w[b]).map(b => {
+    const chosen = plan.orders.filter(o => o.b === b).map(o => o.sym);
+    const rows = planRank(b).slice(0, b === 'titre' ? 6 : 4).map(c => {
+      const sc = c.r ? Math.round(c.r.score) : null, col = c.r ? (LABEL_COLOR[c.r.label] || 'var(--muted)') : 'var(--faint)';
+      return `<div class="plan-cand-row${chosen.includes(c.sym) ? ' on' : ''}"><b>${chosen.includes(c.sym) ? '✓ ' : ''}${esc(c.sym)}</b>
+        <span class="plan-cbar"><span style="width:${sc || 0}%;background:${col}"></span></span><em>${sc == null ? '—' : sc}</em></div>`;
+    }).join('');
+    return `<div class="plan-cand"><div class="plan-cand-t"><i style="background:${planColor(b)}"></i>${esc(L.bucket[b])}</div>${rows}</div>`;
+  }).join('');
+  return `<details class="plan-whyd"><summary>${esc(L.whyT)}</summary>
+    <p>${esc(L.whyTarget(L.prof[prof.key][0], target))}</p>
+    <p>${esc(L.whyRebal)}</p>
+    <p>${esc(L.whyScore)}</p>
+    ${plan.w.titre ? `<p>${esc(L.whyStockRule(plan.w.titre))}${plan.redirected && planScoreState === 'ok' ? ' <b>' + esc(L.redirected) + '</b>' : ''}</p>` : ''}
+    ${planScoreState === 'ok' ? `<div class="plan-cand-t0">${esc(L.candT)}</div><div class="plan-cands">${cands}</div>` : ''}
+  </details>`;
+}
+function planTrackHtml(prof, hist) {
+  const L = invT();
+  if (!hist.length) return '';
+  const w = planWeights(prof), paid = {}; let tot = 0;
+  hist.forEach(h => h.items.forEach(it => { paid[it.b] = (paid[it.b] || 0) + it.eur; tot += it.eur; }));
+  const buckets = PLAN_ORDER.filter(b => w[b] || paid[b]);
+  const rows = buckets.map(b => {
+    const pct = tot ? (paid[b] || 0) / tot * 100 : 0;
+    return `<div class="plan-tr"><span>${esc(L.bucket[b])}</span>
+      <span class="plan-tbar"><span style="width:${Math.min(100, pct).toFixed(1)}%;background:${planColor(b)}"></span><i style="left:${w[b] || 0}%" title="${esc(L.target)}"></i></span>
+      <em>${fmtNum(pct, 0)} % <small>/ ${w[b] || 0} %</small></em></div>`;
+  }).join('');
+  const last = hist.slice(-6).reverse().map(h => `<li><b>${esc(monthLabel(h.m))}</b> · ${eur(h.amount)} — ${h.items.map(it => `${esc(it.sym)} ${eur(it.eur)}`).join(', ')}</li>`).join('');
+  return `<div class="panel"><div class="panel-t">${esc(L.trackT)}</div>
+    <div class="plan-track-sum">${esc(L.trackSum(hist.length, eur(tot)))}</div>
+    <div class="plan-sub">${esc(L.trackVs)}</div>${rows}
+    <ul class="plan-hist">${last}</ul>
+    <button type="button" class="plan-link" id="plan-undo">${esc(L.undo)}</button></div>`;
+}
+function renderPlanProj() {
+  const el = document.getElementById('plan-proj'); if (!el) return;
+  const L = invT(), prof = invProfile(), M = planMonthly(), T = invYears(), st = invStats(prof.w), r = invDca(M, st, T);
+  const hi = r.hi * 1.04, pos = v => Math.max(0, Math.min(100, v / hi * 100)).toFixed(1);
+  el.innerHTML = `<p class="plan-dca-txt">${esc(L.dcaTxt(eur(M), T, eur(r.paid)))}</p>
+    <div class="plan-dca-v"><span>${esc(L.dcaMed)}</span><b>${eur(r.md)}</b><em>${esc(L.dcaRange(eur(r.lo), eur(r.hi)))}</em></div>
+    <div class="plan-range" aria-hidden="true"><span class="rg" style="left:${pos(r.lo)}%;right:${(100 - pos(r.hi)).toFixed(1)}%"></span>
+      <span class="pd" style="left:${pos(r.paid)}%"></span><span class="md" style="left:${pos(r.md)}%"></span></div>
+    <div class="plan-range-leg"><span><i class="pd"></i>${esc(L.dcaPaid)}</span><span><i class="md"></i>${esc(L.dcaMed)}</span><span><i class="rg"></i>${esc(L.dcaRangeLeg)}</span></div>`;
+  document.querySelectorAll('#invest .plan-pills button').forEach(b => b.classList.toggle('on', +b.dataset.y === T));
+}
+function renderPlan() {
+  const el = document.getElementById('plan-body'); if (!el) return;
+  const L = invT(), prof = invProfile(), M = planMonthly(), hist = getPlanHist(), mk = monthKey();
+  const done = hist.filter(h => h.m === mk);
+  let html;
+  if (done.length && !planExtra) {
+    const items = done.flatMap(h => h.items).map(it => `<li><b>${esc(it.sym)}</b> ${esc(NAMES[it.sym] || '')} · ${eur(it.eur)}</li>`).join('');
+    html = `<div class="plan-done"><div class="plan-done-t">${esc(L.doneT(monthLabel(mk)))}</div><ul>${items}</ul>
+      <p>${esc(L.doneNext(monthLabel(nextMonthKey())))}</p>
+      <div class="plan-actions"><a class="plan-btn ghost" href="#portefeuille">${esc(L.seePf)}</a><button type="button" class="plan-btn ghost" id="plan-extra">${esc(L.extraBtn)}</button></div></div>`;
+  } else if (planScoreState === 'idle' || planScoreState === 'loading') {
+    html = `<p class="plan-loading"><span class="spinner"></span> ${esc(L.planLoading)}</p>`;
+  } else {
+    const plan = computePlan(prof, M, hist);
+    html = `${planScoreState === 'err' ? `<div class="banner warn">${esc(L.planErr)}</div>` : ''}
+      <div class="plan-sub">${esc(L.buyThisMonth)}</div>
+      <div class="plan-orders">${plan.orders.map(planOrderHtml).join('')}</div>
+      ${plan.orders.some(o => o.qty != null && o.qty < 1) ? `<p class="inv-note">${esc(L.fracNote)}</p>` : ''}
+      ${planWhyHtml(plan, prof)}
+      <div class="plan-actions"><button type="button" class="plan-btn" id="plan-record">${esc(L.recordBtn)}</button><span class="plan-hint">${esc(L.recordHint)}</span></div>`;
+  }
+  el.innerHTML = html;
+  const tr = document.getElementById('plan-track'); if (tr) tr.innerHTML = planTrackHtml(prof, hist);
+}
+// « J'ai investi ce mois-ci » : ajoute les achats au portefeuille (lots marqués
+// pour pouvoir annuler) et garde l'historique des versements.
+function planRecord() {
+  const prof = invProfile(), M = planMonthly(), hist = getPlanHist();
+  const plan = computePlan(prof, M, hist), id = 'plan-' + Date.now();
+  const pf = getPf();
+  plan.orders.forEach(o => { if (o.price) pf.push({ sym: o.sym, qty: +(o.eur / o.price).toFixed(6), buy: +o.price.toFixed(4), plan: id }); });
+  setPf(pf);
+  hist.push({ id, m: monthKey(), d: new Date().toISOString().slice(0, 10), p: prof.key, amount: M,
+    items: plan.orders.map(o => ({ b: o.b, sym: o.sym, eur: o.eur, price: o.price, qty: o.price ? +(o.eur / o.price).toFixed(6) : null })) });
+  setPlanHist(hist);
+  planExtra = false; renderPlan();
+}
+function planUndo() {
+  const L = invT(), hist = getPlanHist(), last = hist[hist.length - 1];
+  if (!last || !window.confirm(L.undoConfirm(monthLabel(last.m)))) return;
+  hist.pop(); setPlanHist(hist);
+  setPf(getPf().filter(p => p.plan !== last.id));
+  renderPlan();
+}
+function planTabHtml() {
+  const L = invT();
+  return `<div class="panel plan-main">
+      <div class="plan-head"><h3>${esc(L.planTitle(monthLabel(monthKey())))}</h3>
+        <label class="plan-amt-in">${esc(L.planMonthly)} <input id="plan-amount" type="number" min="10" step="10" inputmode="decimal" value="${planMonthly()}"> ${esc(L.perMonth)}</label></div>
+      <div id="plan-body"></div>
+    </div>
+    <div id="plan-track"></div>
+    <div class="panel"><div class="panel-t">${esc(L.dcaT)}</div>
+      <span class="inv-pills plan-pills" role="group" aria-label="${esc(L.projYears)}">${[5, 10, 20].map(y => `<button type="button" data-y="${y}">${esc(L.yrs(y))}</button>`).join('')}</span>
+      <div id="plan-proj"></div><p class="inv-note">${esc(L.dcaNote)}</p></div>
+    <p class="inv-disc">⚠ ${esc(L.planDisc)}</p>`;
 }
 
 function renderInvest() {
@@ -2952,8 +3329,18 @@ function renderInvest() {
   const gauge = Array.from({ length: 7 }, (_, i) => `<i style="${i < st.risk ? `background:hsl(${140 - i * 22} 55% 55%)` : ''}"></i>`).join('');
   const kpi = (k, v, h, extra = '') => `<div class="inv-kpi"><div class="k">${esc(k)}</div><div class="v">${v}</div>${extra}<div class="h">${esc(h)}</div></div>`;
   const crisis = (v, l) => `<div class="inv-crisis-row"><div class="v ${v >= 0 ? 'pf-pos' : 'pf-neg'}">${invPct(v, 0)}</div><div class="l">${esc(l)}</div></div>`;
-  el.innerHTML = `<div class="inv-head"><h2>${esc(L.title)}</h2><p>${esc(L.intro)}</p></div>
+  const tab = localStorage.getItem('invTab') === 'detail' ? 'detail' : 'plan';
+  const head = `<div class="inv-head"><h2>${esc(L.title)}</h2><p>${esc(L.introPlan)}</p></div>
     <div class="inv-profiles" role="radiogroup" aria-label="${esc(L.title)}">${cards}</div>
+    <div class="inv-tabs" role="tablist">${[['plan', L.tabPlan], ['detail', L.tabDetail]].map(([k, l]) =>
+      `<button type="button" role="tab" data-tab="${k}" class="${k === tab ? 'on' : ''}" aria-selected="${k === tab}">${esc(l)}</button>`).join('')}</div>`;
+  if (tab === 'plan') {
+    el.innerHTML = head + planTabHtml();
+    renderPlan(); renderPlanProj();
+    if (planScoreState === 'idle') loadPlanScores();
+    return;
+  }
+  el.innerHTML = head + `
     <div class="inv-grid">
       <div class="panel"><div class="panel-t">${esc(L.alloc)} · ${esc(L.prof[prof.key][0])}</div>
         <div class="inv-alloc-body">${invDonut(prof.w, L.prof[prof.key][0])}<div class="inv-leg">${legend}</div></div></div>
@@ -2987,17 +3374,31 @@ function renderInvest() {
   root.addEventListener('click', e => {
     const p = e.target.closest('.inv-prof');
     if (p) { localStorage.setItem('invProfile', p.dataset.p); renderInvest(); return; }
+    const tb = e.target.closest('.inv-tabs button');
+    if (tb) { localStorage.setItem('invTab', tb.dataset.tab); renderInvest(); return; }
+    const py = e.target.closest('.plan-pills button');
+    if (py) { localStorage.setItem('invYears', py.dataset.y); renderPlanProj(); return; }
+    const ps = e.target.closest('.plan-sym');
+    if (ps) { document.getElementById('tickers').value = ps.dataset.sym; run(); return; }
+    if (e.target.closest('#plan-record')) { planRecord(); return; }
+    if (e.target.closest('#plan-extra')) { planExtra = true; renderPlan(); return; }
+    if (e.target.closest('#plan-undo')) { planUndo(); return; }
     const y = e.target.closest('.inv-pills button');
     if (y) { localStorage.setItem('invYears', y.dataset.y); renderInvProj(); return; }
     const etf = e.target.closest('.inv-etf');
     if (etf) { document.getElementById('tickers').value = etf.dataset.sym; run(); return; }
     if (e.target.closest('#inv-analyze')) {
       const w = invProfile().w;
-      document.getElementById('tickers').value = Object.keys(INV_ASSETS).filter(k => w[k] > 0).map(k => INV_ASSETS[k].proxy).join(', ');
+      document.getElementById('tickers').value = Object.keys(INV_ASSETS).filter(k => w[k] > 0).map(k => INV_ASSETS[k].etfs[0]).join(', ');
       run();
     }
   });
   root.addEventListener('input', e => {
+    if (e.target.id === 'plan-amount') {
+      const v = parseFloat(String(e.target.value).replace(',', '.'));
+      if (v >= 10) { localStorage.setItem('planAmount', String(v)); renderPlan(); renderPlanProj(); }
+      return;
+    }
     if (e.target.id !== 'inv-amount') return;
     const v = parseFloat(String(e.target.value).replace(',', '.'));
     if (v > 0) { localStorage.setItem('invAmount', String(v)); renderInvProj(); }
