@@ -1288,7 +1288,7 @@ const NAMES = {
   // ETF européens (UCITS, en euros) et grandes valeurs du plan d'investissement mensuel
   'VWCE.DE':'Vanguard FTSE All-World', 'EUNL.DE':'iShares Core MSCI World', 'SXR8.DE':'iShares Core S&P 500', 'EXSA.DE':'iShares STOXX Europe 600',
   'EUNH.DE':'iShares Core € Govt Bond', 'IEAG.AS':'iShares Core € Aggregate Bond', 'VGEA.DE':'Vanguard € Eurozone Govt Bond',
-  'XEON.DE':'Xtrackers € Overnight Rate', 'CSH2.PA':'Amundi Smart Overnight Return', '4GLD.DE':'Xetra-Gold', 'EWG2.DE':'EUWAX Gold II',
+  'XEON.DE':'Xtrackers € Overnight Rate', 'CSH2.PA':'Amundi Smart Overnight Return', '4GLD.DE':'Xetra-Gold', 'GOLD.PA':'Amundi Physical Gold', '8PSG.DE':'Invesco Physical Gold',
   'ASML.AS':'ASML', 'SU.PA':'Schneider Electric', 'IBE.MC':'Iberdrola',
   XOM:'ExxonMobil', CVX:'Chevron', SHEL:'Shell',
   'RHM.DE':'Rheinmetall', 'SAF.PA':'Safran', 'HO.PA':'Thales', LMT:'Lockheed Martin', RTX:'Raytheon',
@@ -2532,7 +2532,7 @@ const SECTORS = {
   'BTC-USD':'Crypto', 'ETH-USD':'Crypto', 'SOL-USD':'Crypto', 'XRP-USD':'Crypto', 'ADA-USD':'Crypto', 'DOGE-USD':'Crypto', 'BNB-USD':'Crypto', 'AVAX-USD':'Crypto', 'LINK-USD':'Crypto', 'LTC-USD':'Crypto', MARA:'Crypto', RIOT:'Crypto', CLSK:'Crypto', HUT:'Crypto', IBIT:'Crypto', FBTC:'Crypto', BITB:'Crypto', ETHA:'Crypto', ARKB:'Crypto',
   AGG:'Obligations', BND:'Obligations', TLT:'Obligations', IEF:'Obligations', LQD:'Obligations', HYG:'Obligations',
   'EUNH.DE':'Obligations', 'IEAG.AS':'Obligations', 'VGEA.DE':'Obligations', 'XEON.DE':'Monétaire', 'CSH2.PA':'Monétaire',
-  '4GLD.DE':'Matériaux & or', 'EWG2.DE':'Matériaux & or', 'EUNL.DE':'Indices & ETF', 'SXR8.DE':'Indices & ETF', 'EXSA.DE':'Indices & ETF',
+  '4GLD.DE':'Matériaux & or', 'GOLD.PA':'Matériaux & or', '8PSG.DE':'Matériaux & or', 'EUNL.DE':'Indices & ETF', 'SXR8.DE':'Indices & ETF', 'EXSA.DE':'Indices & ETF',
   'ASML.AS':'Technologie', 'SU.PA':'Industrie & défense', 'IBE.MC':'Énergie',
   SPY:'Indices & ETF', QQQ:'Indices & ETF', DIA:'Indices & ETF', '^GSPC':'Indices & ETF', '^FCHI':'Indices & ETF', '^GDAXI':'Indices & ETF', VT:'Indices & ETF', 'VWCE.DE':'Indices & ETF', 'CW8.PA':'Indices & ETF', 'IWDA.AS':'Indices & ETF', URTH:'Indices & ETF', VOO:'Indices & ETF', VTI:'Indices & ETF', IVV:'Indices & ETF', VGK:'Indices & ETF', EZU:'Indices & ETF', EWJ:'Indices & ETF', VWO:'Indices & ETF', MCHI:'Indices & ETF', INDA:'Indices & ETF', EWU:'Indices & ETF', XLK:'Indices & ETF', XLE:'Indices & ETF', XLF:'Indices & ETF', XLV:'Indices & ETF', XLU:'Indices & ETF', XLI:'Indices & ETF', SMH:'Indices & ETF', ITA:'Indices & ETF', ARKK:'Indices & ETF', BOTZ:'Indices & ETF', ICLN:'Indices & ETF', LIT:'Indices & ETF', SOXX:'Indices & ETF', CIBR:'Indices & ETF', SKYY:'Indices & ETF',
 };
@@ -2840,7 +2840,7 @@ const INV_ASSETS = {
   actions:     { mu: 7, sigma: 15,  c08: -41, c22: -18, color: '#c479a6', proxy: 'VT',  etfs: ['VWCE.DE', 'EUNL.DE', 'SXR8.DE', 'EXSA.DE'] },
   obligations: { mu: 3, sigma: 5,   c08: 5,   c22: -13, color: '#9f8ede', proxy: 'AGG', etfs: ['EUNH.DE', 'IEAG.AS', 'VGEA.DE'] },
   monetaire:   { mu: 2, sigma: 0.5, c08: 1.5, c22: 1.5, color: '#7cc0d6', proxy: 'BIL', etfs: ['XEON.DE', 'CSH2.PA'] },
-  or:          { mu: 4, sigma: 15,  c08: 5,   c22: 0,   color: '#d29a45', proxy: 'GLD', etfs: ['4GLD.DE', 'EWG2.DE'] },
+  or:          { mu: 4, sigma: 15,  c08: 5,   c22: 0,   color: '#d29a45', proxy: 'GLD', etfs: ['4GLD.DE', 'GOLD.PA', '8PSG.DE'] },
 };
 const INV_CORR = { 'actions|obligations': 0.2, 'actions|or': 0.1, 'obligations|or': 0.3 };
 const INV_ICO = {
@@ -3185,7 +3185,7 @@ const PLAN_BUCKETS = {
   titre:       { asset: 'actions',     cands: ['ASML.AS', 'SAP.DE', 'MC.PA', 'SIE.DE', 'TTE.PA', 'ALV.DE', 'AIR.PA', 'OR.PA', 'SU.PA', 'SAN.PA', 'IBE.MC', 'DTE.DE'], minScore: 58 },
   obligations: { asset: 'obligations', cands: ['EUNH.DE', 'IEAG.AS', 'VGEA.DE'] },
   monetaire:   { asset: 'monetaire',   cands: ['XEON.DE', 'CSH2.PA'] },
-  or:          { asset: 'or',          cands: ['4GLD.DE', 'EWG2.DE'] },
+  or:          { asset: 'or',          cands: ['4GLD.DE', 'GOLD.PA', '8PSG.DE'] },
 };
 // Codes ISIN : c'est ainsi qu'on retrouve un produit chez un courtier
 // (les symboles Yahoo comme SXR8.DE n'y sont pas toujours reconnus).
@@ -3195,7 +3195,7 @@ const PLAN_ISIN = {
   'TTE.PA': 'FR0000120271', 'ALV.DE': 'DE0008404005', 'AIR.PA': 'NL0000235190', 'OR.PA': 'FR0000120321',
   'SU.PA': 'FR0000121972', 'SAN.PA': 'FR0000120578', 'IBE.MC': 'ES0144580Y14', 'DTE.DE': 'DE0005557508',
   'EUNH.DE': 'IE00B4WXJJ64', 'IEAG.AS': 'IE00B3DKXQ41', 'VGEA.DE': 'IE00BH04GL39',
-  'XEON.DE': 'LU0290358497', 'CSH2.PA': 'LU1190417599', '4GLD.DE': 'DE000A0S9GB0', 'EWG2.DE': 'DE000EWG2LD7',
+  'XEON.DE': 'LU0290358497', 'CSH2.PA': 'LU1190417599', '4GLD.DE': 'DE000A0S9GB0', 'GOLD.PA': 'FR0013416716', '8PSG.DE': 'IE00B579F325',
 };
 const PLAN_ORDER = ['actions', 'titre', 'obligations', 'or', 'monetaire'];
 const PLAN_STOCK_SHARE = { prudent: 0, equilibre: 0, dynamique: 15, offensif: 25 };
