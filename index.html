@@ -771,6 +771,11 @@
   .plan-was { display: block; font-size: 11px; color: var(--faint); }
   .plan-step2 { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
   .plan-check.warn { color: #b9822f; }
+  .plan-na { display: inline-block; margin: 6px 0 0 8px; border: 0; background: none; padding: 0; font: inherit; font-size: 11.5px; color: var(--faint); text-decoration: underline; cursor: pointer; }
+  .plan-na:hover { color: var(--accent); }
+  .plan-excl { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
+  .plan-excl span { white-space: nowrap; margin-right: 6px; }
+  .plan-restore { border: 0; background: none; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; cursor: pointer; }
   .plan-loading { color: var(--muted); font-size: 13.5px; }
   .plan-done { background: linear-gradient(135deg, rgba(79,165,135,.12), rgba(159,142,222,.10)); border-radius: 14px; padding: 14px 16px; }
   .plan-done-t { font-size: 16px; font-weight: 800; color: var(--pos); }
@@ -2714,7 +2719,7 @@ async function refreshPf() {
 }
 
 // Sauvegarde / restauration de toutes les données locales.
-const BACKUP_KEYS = ['favorites', 'portfolio', 'alerts', 'scoreHistory', 'notes', 'pfHistory', 'pfBase', 'tickers', 'catGroup', 'planHist', 'planAmount', 'invProfile', 'planSp', 'planMode'];
+const BACKUP_KEYS = ['favorites', 'portfolio', 'alerts', 'scoreHistory', 'notes', 'pfHistory', 'pfBase', 'tickers', 'catGroup', 'planHist', 'planAmount', 'invProfile', 'planSp', 'planMode', 'planExcl'];
 function exportData() {
   const data = {};
   BACKUP_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v != null) data[k] = v; });
@@ -2906,6 +2911,8 @@ const INV_TXT = {
     checkOk: n => `Données vérifiées : cours et score reçus pour les ${n} produits du plan.`,
     checkMiss: (n, tot, list) => `Données reçues pour ${n} produits sur ${tot}. Non reconnus, donc ignorés ce mois-ci : ${list}. Signalez-le si cela dure.`,
     modeSp: "Plans d'épargne", modeMonth: 'Achats du mois',
+    naBtn: 'Introuvable chez mon courtier ?', exclT: 'Écartés (introuvables chez votre courtier) :', restore: 'Rétablir',
+    spSwitchNa: o => `Remplace ${o} (introuvable chez votre courtier) : créez ce plan à la place`,
     modeSpHint: "Recommandé avec Trade Republic : des plans d'épargne gratuits qui tournent tout seuls, toujours les mêmes produits.",
     modeMonthHint: "Pour les courtiers sans plan d'épargne gratuit : 2 ou 3 achats d'au moins 20 € par mois, pour limiter les frais.",
     spFirst: "Étape 1 — une seule fois : créez ces plans d'épargne dans Trade Republic.",
@@ -2998,6 +3005,8 @@ const INV_TXT = {
     checkOk: n => `Data checked: price and score received for all ${n} products of the plan.`,
     checkMiss: (n, tot, list) => `Data received for ${n} of ${tot} products. Not recognised, so skipped this month: ${list}. Report it if it persists.`,
     modeSp: 'Savings plans', modeMonth: "This month's buys",
+    naBtn: "Can't find it at my broker?", exclT: "Set aside (not available at your broker):", restore: 'Restore',
+    spSwitchNa: o => `Replaces ${o} (not available at your broker): create this plan instead`,
     modeSpHint: 'Recommended with Trade Republic: free savings plans that run on their own, always the same products.',
     modeMonthHint: 'For brokers without free savings plans: 2 or 3 buys of at least €20 a month, to limit fees.',
     spFirst: 'Step 1 — once only: create these savings plans in Trade Republic.',
@@ -3232,8 +3241,15 @@ async function loadPlanScores() {
   renderPlan();
 }
 // Candidats d'une poche, du mieux noté au moins bien noté (sans score en dernier).
+// Produits introuvables chez le courtier de l'utilisateur : écartés du plan.
+function getPlanExcl() { try { return JSON.parse(localStorage.getItem('planExcl') || '[]'); } catch (e) { return []; } }
+function setPlanExcl(v) { localStorage.setItem('planExcl', JSON.stringify(v)); }
+function planCands(b) {
+  const ex = getPlanExcl(), c = PLAN_BUCKETS[b].cands.filter(s => !ex.includes(s));
+  return c.length ? c : PLAN_BUCKETS[b].cands;
+}
 function planRank(b) {
-  return PLAN_BUCKETS[b].cands.map(sym => ({ sym, r: planScores ? planScores[sym] : null }))
+  return planCands(b).map(sym => ({ sym, r: planScores ? planScores[sym] : null }))
     .sort((x, y) => (y.r ? y.r.score : -1) - (x.r ? x.r.score : -1));
 }
 
@@ -3267,7 +3283,7 @@ function computePlan(prof, M, hist) {
   orders.forEach(o => {
     const pick = o.b === 'titre' ? stock : planRank(o.b)[0];
     o.sym = pick.sym; o.r = pick.r || null;
-    o.n = PLAN_BUCKETS[o.b].cands.filter(s => planScores && planScores[s]).length;
+    o.n = planCands(o.b).filter(s => planScores && planScores[s]).length;
     o.price = o.r ? o.r.price : null;
     o.qty = o.price ? o.eur / o.price : null;
   });
@@ -3310,7 +3326,7 @@ function planOrderHtml(o) {
       <button type="button" class="plan-sym" data-sym="${esc(o.sym)}" title="${esc(t('pfAnalyze'))}"><b>${esc(o.sym)}</b><span>${esc(name)}</span></button>
       <div class="plan-why">${esc(why)}${o.price ? ' · ' + esc(L.price(eur(o.price, 2))) : ''}</div>
       ${PLAN_ISIN[o.sym] ? `<button type="button" class="plan-isin" data-isin="${PLAN_ISIN[o.sym]}" title="${esc(L.copyIsin)}">ISIN <b>${PLAN_ISIN[o.sym]}</b>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><em>${esc(L.copied)}</em></button>` : ''}</div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><em>${esc(L.copied)}</em></button>` : ''}${PLAN_BUCKETS[o.b].cands.length > 1 ? `<button type="button" class="plan-na" data-sym="${esc(o.sym)}">${esc(L.naBtn)}</button>` : ''}</div>
     <div class="plan-amt"><b>${eur(o.eur)}</b><span>${esc(qty)}</span></div>
     ${planScorePill(o.r)}
   </div>`;
@@ -3322,13 +3338,18 @@ function planBrokerHtml(open, sp) {
     <ol>${(sp ? L.brokerSpSteps : L.brokerSteps).map(x => `<li><b>${esc(x[0])}</b> ${esc(x[1])}</li>`).join('')}</ol></details>`;
 }
 // Vérification des données : quels produits du plan le serveur a bien reconnus.
+function planExclHtml() {
+  const ex = getPlanExcl(), L = invT();
+  if (!ex.length) return '';
+  return `<p class="plan-excl">${esc(L.exclT)} ${ex.map(s => `<span><b>${esc(s)}</b> <button type="button" class="plan-restore" data-sym="${esc(s)}">${esc(L.restore)}</button></span>`).join(' ')}</p>`;
+}
 function planCheckHtml() {
-  if (planScoreState !== 'ok') return '';
+  if (planScoreState !== 'ok') return planExclHtml();
   const L = invT(), syms = [...new Set(Object.values(PLAN_BUCKETS).flatMap(b => b.cands))];
   const miss = syms.filter(s => !planScores[s]);
-  return miss.length
+  return (miss.length
     ? `<p class="plan-check warn">${esc(L.checkMiss(syms.length - miss.length, syms.length, miss.join(', ')))}</p>`
-    : `<p class="plan-check">✓ ${esc(L.checkOk(syms.length))}</p>`;
+    : `<p class="plan-check">✓ ${esc(L.checkOk(syms.length))}</p>`) + planExclHtml();
 }
 function planCopy(btn) {
   const v = btn.dataset.isin, ok = () => { btn.classList.add('ok'); setTimeout(() => btn.classList.remove('ok'), 1600); };
@@ -3414,7 +3435,7 @@ function computeSp(prof, M, setup) {
   let stock = null;
   if (w.titre) {
     const c = cur.titre && sc(cur.titre.sym);
-    if (cur.titre && (!ok || (c && c.score >= PLAN_SWITCH.below))) stock = cur.titre.sym;
+    if (cur.titre && planCands('titre').includes(cur.titre.sym) && (!ok || (c && c.score >= PLAN_SWITCH.below))) stock = cur.titre.sym;
     else if (ok) { const top = planRank('titre')[0]; if (top && top.r && top.r.score >= PLAN_BUCKETS.titre.minScore) stock = top.sym; }
     if (!stock) { w.actions = (w.actions || 0) + w.titre; delete w.titre; }
   }
@@ -3425,13 +3446,13 @@ function computeSp(prof, M, setup) {
     else {
       const best = planRank(b)[0], c = cur[b];
       sym = best.sym;
-      if (c && PLAN_BUCKETS[b].cands.includes(c.sym)) {
+      if (c && planCands(b).includes(c.sym)) {
         sym = c.sym;
         const r = sc(c.sym);
         if (ok && best.r && best.sym !== c.sym && (!r || (r.score < PLAN_SWITCH.below && best.r.score >= r.score + PLAN_SWITCH.gap))) sym = best.sym;
       }
     }
-    const it = { b, sym, eur: amt[b], r: sc(sym), n: PLAN_BUCKETS[b].cands.filter(s => sc(s)).length };
+    const it = { b, sym, eur: amt[b], r: sc(sym), n: planCands(b).filter(s => sc(s)).length };
     const c = cur[b];
     it.st = !c ? 'new' : c.sym !== sym ? 'switch' : Math.abs(c.eur - it.eur) > 0.005 ? 'amount' : 'same';
     if (c) { it.old = c; it.oldR = sc(c.sym); }
@@ -3443,7 +3464,7 @@ function computeSp(prof, M, setup) {
 function planSpRowHtml(it) {
   const L = invT(), name = NAMES[it.sym] || '', isin = PLAN_ISIN[it.sym];
   const scr = r => (r ? Math.round(r.score) : null);
-  const why = it.st === 'switch' ? L.spSwitch(it.old.sym, scr(it.oldR)) : it.st === 'remove' ? L.spRemove
+  const why = it.st === 'switch' ? (getPlanExcl().includes(it.old.sym) ? L.spSwitchNa(it.old.sym) : L.spSwitch(it.old.sym, scr(it.oldR))) : it.st === 'remove' ? L.spRemove
     : it.b === 'titre' ? L.spStock(scr(it.r)) : it.r ? L.spEtf(it.n) : L.whyRef;
   return `<div class="plan-order st-${it.st}">
     <i class="plan-dot" style="background:${planColor(it.b)}"></i>
@@ -3451,7 +3472,7 @@ function planSpRowHtml(it) {
       <button type="button" class="plan-sym" data-sym="${esc(it.sym)}" title="${esc(t('pfAnalyze'))}"><b>${esc(it.sym)}</b><span>${esc(name)}</span></button>
       <div class="plan-why">${esc(why)}${it.r && it.st !== 'remove' ? ' · ' + esc(L.price(eur(it.r.price, 2))) : ''}</div>
       ${isin && it.st !== 'remove' ? `<button type="button" class="plan-isin" data-isin="${isin}" title="${esc(L.copyIsin)}">ISIN <b>${isin}</b>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><em>${esc(L.copied)}</em></button>` : ''}</div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><em>${esc(L.copied)}</em></button>` : ''}${it.st !== 'remove' && PLAN_BUCKETS[it.b].cands.length > 1 ? `<button type="button" class="plan-na" data-sym="${esc(it.sym)}">${esc(L.naBtn)}</button>` : ''}</div>
     <div class="plan-amt">${it.st === 'remove' ? `<b><s>${eur(it.eur)}</s></b>` : `<b>${eur(it.eur)}</b>`}<span>${esc(L.perMonthS)}</span>${it.st === 'amount' ? `<span class="plan-was">${esc(L.was(eur(it.old.eur)))}</span>` : ''}</div>
     ${planScorePill(it.r)}
   </div>`;
@@ -3627,6 +3648,10 @@ function renderInvest() {
     const pm = e.target.closest('.plan-modes button');
     if (pm) { localStorage.setItem('planMode', pm.dataset.mode); planExtra = false; renderPlan(); return; }
     if (e.target.closest('#plan-sp-save')) { planSpSave(); return; }
+    const na = e.target.closest('.plan-na');
+    if (na) { const ex = getPlanExcl(); if (!ex.includes(na.dataset.sym)) ex.push(na.dataset.sym); setPlanExcl(ex); renderPlan(); return; }
+    const rs = e.target.closest('.plan-restore');
+    if (rs) { setPlanExcl(getPlanExcl().filter(x => x !== rs.dataset.sym)); renderPlan(); return; }
     const ci = e.target.closest('.plan-isin');
     if (ci) { planCopy(ci); return; }
     if (e.target.closest('#plan-record')) { planRecord(); return; }
